@@ -1,5 +1,15 @@
 {
+  "github": {
+    "silent": true
+  },
   "rewrites": [
-    { "source": "/prompt/:slug", "destination": "/prompt.html" }
+    { 
+      "source": "/prompt/(.*)", 
+      "destination": "/prompt.html" 
+    },
+    { 
+      "source": "/admin", 
+      "destination": "/admin.html" 
+    }
   ]
 }
