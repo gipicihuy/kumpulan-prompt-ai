@@ -103,9 +103,12 @@
                     document.getElementById('detLoading').classList.add('hidden');
                     document.getElementById('detailContent').classList.remove('hidden');
                 } else {
-                    document.getElementById('detLoading').innerHTML = '<p class="text-xs font-bold uppercase">Prompt tidak ditemukan.</p>';
+                    document.getElementById('detLoading').innerHTML = '<p class="text-xs font-bold uppercase text-red-500">Prompt tidak ditemukan di database.</p>';
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById('detLoading').innerHTML = '<p class="text-xs font-bold uppercase">Gagal memuat data.</p>';
+            }
         }
         loadDetail();
     </script>
