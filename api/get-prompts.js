@@ -9,18 +9,20 @@ export default async function handler(req, res) {
   try {
     const keys = await redis.keys('prompt:*')
     
-    if (keys.length === 0) {
+    if (!keys || keys.length === 0) {
       return res.status(200).json({ success: true, data: [] })
     }
 
     const data = await Promise.all(
       keys.map(async (key) => {
         const item = await redis.hgetall(key)
+        const cleanId = key.replace(/^prompt:/, '')
+        
         return { 
-          id: key.split(':')[1], 
-          kategori: item.kategori,
-          judul: item.judul,
-          isi: item.isi 
+          id: cleanId, 
+          kategori: item.kategori || 'Lainnya',
+          judul: item.judul || 'Tanpa Judul',
+          isi: item.isi || ''
         }
       })
     )
