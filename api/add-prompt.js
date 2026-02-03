@@ -6,25 +6,15 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' })
+  if (req.method !== 'POST') return res.status(405).end()
+
+  const authHeader = req.headers.authorization
+  if (authHeader !== 'admin-secret-key') {
+    return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  try {
-    const { id, kategori, judul, isi } = req.body
+  const { slug, kategori, judul, isi } = req.body
+  await redis.hset(`prompt:${slug}`, { kategori, judul, isi })
 
-    if (!id || !kategori || !judul || !isi) {
-      return res.status(400).json({ message: 'Missing fields' })
-    }
-
-    await redis.hset(`prompt:${id}`, {
-      kategori,
-      judul,
-      isi
-    })
-
-    res.status(200).json({ success: true, message: 'Data berhasil disimpan' })
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message })
-  }
+  res.status(200).json({ success: true })
 }
