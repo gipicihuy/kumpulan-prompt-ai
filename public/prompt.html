@@ -63,77 +63,83 @@
 
     <script>
     async function loadDetail() {
-        // 1. Ambil slug dari URL Path (/prompt/slug)
-        const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
-        let slug = pathSegments[pathSegments.length - 1];
-
-        // 2. Fallback: Ambil dari Query Parameter (?slug=xxx)
-        const urlParams = new URLSearchParams(window.location.search);
-        const querySlug = urlParams.get('slug') || urlParams.get('id');
-        
-        // Pilih yang beneran isi (bukan kata 'prompt')
-        if (!slug || slug === 'prompt' || slug === 'prompt.html') {
-            slug = querySlug;
-        }
-
-        // Decode dan bersihkan slug
-        if (slug) slug = decodeURIComponent(slug).split('?')[0];
-
-        try {
-            const res = await fetch('/api/get-prompts');
-            const json = await res.json();
-            
-            // Cari item yang ID-nya pas
-            const item = json.data.find(p => p.id === slug);
-            
-            if (item) {
-                document.title = `${item.judul} - AI Library`;
-                document.getElementById('detJudul').innerText = item.judul;
-                document.getElementById('detKategori').innerText = item.kategori;
-                const promptText = item.isi;
-                document.getElementById('detIsi').innerText = promptText;
-
-                // Copy Event
-                document.getElementById('copyCodeBtn').onclick = () => {
-                    navigator.clipboard.writeText(promptText);
-                    const iconBtn = document.getElementById('copyCodeBtn');
-                    const statusLabel = document.getElementById('copyStatus');
-                    iconBtn.classList.replace('text-gray-400', 'text-emerald-400');
-                    statusLabel.classList.remove('hidden');
-                    setTimeout(() => { 
-                        iconBtn.classList.replace('text-emerald-400', 'text-gray-400');
-                        statusLabel.classList.add('hidden');
-                    }, 2000);
-                };
-
-                // Download Event
-                document.getElementById('downloadBtn').onclick = () => {
-                    const blob = new Blob([promptText], { type: 'text/plain' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${item.judul.replace(/\s+/g, '_')}_prompt.txt`;
-                    a.click();
-                };
-
-                document.getElementById('detLoading').classList.add('hidden');
-                document.getElementById('detailContent').classList.remove('hidden');
-            } else {
-                document.getElementById('detLoading').innerHTML = `
-                    <div class="text-center bg-[#0a0a0a] border border-red-900/50 p-10 rounded-2xl max-w-sm mx-auto">
-                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mb-4"></i>
-                        <p class="text-white font-bold uppercase mb-2">Prompt Gak Ketemu</p>
-                        <p class="text-[10px] text-gray-500 mb-6">SLUG: ${slug || 'KOSONG'}</p>
-                        <a href="/" class="inline-block bg-white text-black text-[10px] font-bold px-6 py-3 rounded-lg uppercase tracking-widest hover:bg-gray-200 transition">Ke Beranda</a>
-                    </div>
-                `;
-            }
-        } catch (e) { 
-            console.error(e);
-            document.getElementById('detLoading').innerHTML = `<p class="text-red-500 uppercase font-bold text-xs">System Error: Gagal Fetch API</p>`;
+    // 1. Ambil slug dari URL Path (/prompt/slug)
+    const path = window.location.pathname;
+    const segments = path.split('/').filter(s => s.length > 0);
+    
+    // Cari segment setelah kata 'prompt'
+    let slug = "";
+    const promptIndex = segments.indexOf('prompt');
+    if (promptIndex !== -1 && segments[promptIndex + 1]) {
+        slug = segments[promptIndex + 1];
+    } else {
+        // Kalau gak nemu di path, coba ambil kata terakhir yang bukan 'prompt.html'
+        const lastSegment = segments[segments.length - 1];
+        if (lastSegment && lastSegment !== 'prompt.html' && lastSegment !== 'prompt') {
+            slug = lastSegment;
         }
     }
-    loadDetail();
+
+    // 2. Fallback: Ambil dari Query Parameter (?slug=xxx atau ?id=xxx)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!slug) {
+        slug = urlParams.get('slug') || urlParams.get('id');
+    }
+
+    // Decode slug (jika ada spasi atau karakter aneh)
+    if (slug) slug = decodeURIComponent(slug).split('?')[0].replace(/\/$/, "");
+
+    console.log("DEBUG - Slug ditangkap:", slug);
+
+    try {
+        const res = await fetch('/api/get-prompts');
+        const json = await res.json();
+        
+        // Cari data yang ID-nya cocok
+        const item = json.data.find(p => p.id === slug);
+        
+        if (item) {
+            document.title = item.judul;
+            document.getElementById('detJudul').innerText = item.judul;
+            document.getElementById('detKategori').innerText = item.kategori;
+            document.getElementById('detIsi').innerText = item.isi;
+            
+            // Handler tombol Copy & Download (tetap sama seperti sebelumnya)
+            setupButtons(item);
+
+            document.getElementById('detLoading').classList.add('hidden');
+            document.getElementById('detailContent').classList.remove('hidden');
+        } else {
+            document.getElementById('detLoading').innerHTML = `
+                <div class="text-center bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl">
+                    <p class="text-red-500 font-bold uppercase mb-2">Prompt Gak Ketemu</p>
+                    <p class="text-[10px] text-gray-500 mb-6">SLUG: ${slug || 'KOSONG'}</p>
+                    <a href="/" class="text-xs bg-white text-black px-4 py-2 rounded font-bold uppercase">Balik ke Home</a>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error(e);
+        document.getElementById('detLoading').innerText = "Gagal memuat API.";
+    }
+}
+
+function setupButtons(item) {
+    document.getElementById('copyCodeBtn').onclick = () => {
+        navigator.clipboard.writeText(item.isi);
+        document.getElementById('copyStatus').classList.remove('hidden');
+        setTimeout(() => document.getElementById('copyStatus').classList.add('hidden'), 2000);
+    };
+    document.getElementById('downloadBtn').onclick = () => {
+        const blob = new Blob([item.isi], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${item.judul.replace(/\s+/g, '_')}.txt`;
+        a.click();
+    };
+}
+loadDetail();
     </script>
 </body>
 </html>
