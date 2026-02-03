@@ -1,12 +1,5 @@
 {
-  "routes": [
-    {
-      "src": "/prompt/([^/]+)",
-      "dest": "/prompt.html"
-    },
-    {
-      "src": "/admin",
-      "dest": "/admin.html"
-    }
+  "rewrites": [
+    { "source": "/prompt/:slug", "destination": "/prompt.html" }
   ]
 }
