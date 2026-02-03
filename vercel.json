@@ -3,6 +3,6 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/prompt/:slug", "destination": "/public/prompt.html" }
+    { "source": "/prompt/:slug", "destination": "/prompt.html" }
   ]
 }
