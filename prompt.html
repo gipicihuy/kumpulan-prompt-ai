@@ -62,41 +62,49 @@
     </main>
 
     <script>
-    async function loadDetail() {
-    // 1. Ambil slug dari URL Path (/prompt/slug)
+async function loadDetail() {
+    // AMBIL SLUG DARI PATH: /prompt/kaisar-hirohito-prompt
     const path = window.location.pathname;
     const segments = path.split('/').filter(s => s.length > 0);
     
-    // Cari segment setelah kata 'prompt'
-    let slug = "";
+    // Cari slug setelah 'prompt'
+    let slug = '';
     const promptIndex = segments.indexOf('prompt');
     if (promptIndex !== -1 && segments[promptIndex + 1]) {
         slug = segments[promptIndex + 1];
-    } else {
-        // Kalau gak nemu di path, coba ambil kata terakhir yang bukan 'prompt.html'
-        const lastSegment = segments[segments.length - 1];
-        if (lastSegment && lastSegment !== 'prompt.html' && lastSegment !== 'prompt') {
-            slug = lastSegment;
-        }
     }
 
-    // 2. Fallback: Ambil dari Query Parameter (?slug=xxx atau ?id=xxx)
-    const urlParams = new URLSearchParams(window.location.search);
+    // Clean slug (decode URL encoding)
+    if (slug) {
+        slug = decodeURIComponent(slug).trim();
+    }
+
+    console.log("🔍 SLUG DETECTED:", slug);
+    console.log("📍 FULL PATH:", path);
+    console.log("📦 SEGMENTS:", segments);
+
     if (!slug) {
-        slug = urlParams.get('slug') || urlParams.get('id');
+        showError('Slug tidak ditemukan di URL', path);
+        return;
     }
-
-    // Decode slug (jika ada spasi atau karakter aneh)
-    if (slug) slug = decodeURIComponent(slug).split('?')[0].replace(/\/$/, "");
-
-    console.log("DEBUG - Slug ditangkap:", slug);
 
     try {
         const res = await fetch('/api/get-prompts');
         const json = await res.json();
         
+        console.log("✅ API Response success:", json.success);
+        console.log("📊 Total data:", json.data?.length || 0);
+        
+        if (!json.success || !json.data) {
+            showError('API Error', json.error || 'Unknown error');
+            return;
+        }
+
         // Cari data yang ID-nya cocok
         const item = json.data.find(p => p.id === slug);
+        
+        console.log("🎯 Looking for ID:", slug);
+        console.log("🎯 Found Item:", item ? item.judul : 'NOT FOUND');
         
         if (item) {
             document.title = item.judul;
@@ -104,24 +112,36 @@
             document.getElementById('detKategori').innerText = item.kategori;
             document.getElementById('detIsi').innerText = item.isi;
             
-            // Handler tombol Copy & Download (tetap sama seperti sebelumnya)
             setupButtons(item);
 
             document.getElementById('detLoading').classList.add('hidden');
             document.getElementById('detailContent').classList.remove('hidden');
         } else {
-            document.getElementById('detLoading').innerHTML = `
-                <div class="text-center bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl">
-                    <p class="text-red-500 font-bold uppercase mb-2">Prompt Gak Ketemu</p>
-                    <p class="text-[10px] text-gray-500 mb-6">SLUG: ${slug || 'KOSONG'}</p>
-                    <a href="/" class="text-xs bg-white text-black px-4 py-2 rounded font-bold uppercase">Balik ke Home</a>
-                </div>
-            `;
+            // List semua available IDs untuk debugging
+            const allIds = json.data.map(p => p.id).join(', ');
+            console.log("❌ Available IDs:", allIds);
+            showError(`Prompt "${slug}" tidak ditemukan`, `IDs tersedia: ${allIds}`);
         }
     } catch (e) {
-        console.error(e);
-        document.getElementById('detLoading').innerText = "Gagal memuat API.";
+        console.error('❌ Fetch Error:', e);
+        showError('Gagal memuat API', e.message);
     }
+}
+
+function showError(message, detail) {
+    document.getElementById('detLoading').innerHTML = `
+        <div class="text-center bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl max-w-lg mx-auto">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl mb-4"></i>
+            <p class="text-red-500 font-bold uppercase mb-2">${message}</p>
+            <p class="text-[10px] text-gray-500 mb-4 break-all">${detail}</p>
+            <div class="mt-4 p-3 bg-black rounded-lg border border-[#333]">
+                <p class="text-[9px] text-gray-600 font-mono mb-1">DEBUG INFO:</p>
+                <p class="text-[9px] text-gray-400 font-mono">Path: ${window.location.pathname}</p>
+                <p class="text-[9px] text-gray-400 font-mono">Host: ${window.location.host}</p>
+            </div>
+            <a href="/" class="inline-block text-xs bg-white text-black px-4 py-2 rounded font-bold uppercase hover:bg-gray-200 mt-4">Balik ke Home</a>
+        </div>
+    `;
 }
 
 function setupButtons(item) {
@@ -139,6 +159,7 @@ function setupButtons(item) {
         a.click();
     };
 }
+
 loadDetail();
     </script>
 </body>
