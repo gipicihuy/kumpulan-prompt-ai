@@ -7,15 +7,11 @@
     },
     {
       "source": "/prompt/:slug",
-      "destination": "/public/prompt.html"
+      "destination": "/prompt.html"
     },
     {
       "source": "/admin",
-      "destination": "/public/admin.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/public/$1"
+      "destination": "/admin.html"
     }
   ]
 }
