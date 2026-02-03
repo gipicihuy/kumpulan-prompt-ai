@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/prompt/:slug", "destination": "/prompt.html" }
+    { "source": "/prompt/:slug", "destination": "/prompt.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ]
 }
