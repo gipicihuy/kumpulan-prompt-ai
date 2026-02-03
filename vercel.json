@@ -1,6 +1,6 @@
 {
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/prompt/:slug", "destination": "/prompt.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/prompt/:slug", "destination": "/prompt.html" }
   ]
 }
