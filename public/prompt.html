@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Prompt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
+        body { font-family: 'Ubuntu Mono', monospace; background-color: #000000; color: #ffffff; }
+        
+        /* Gaya Khusus Carbon Dots */
+        .carbon-dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+    </style>
+</head>
+<body>
+    <header class="bg-black border-b border-[#222] sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between">
+            <a href="index.html" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition">
+                <i class="fa-solid fa-arrow-left"></i> KEMBALI
+            </a>
+            <h1 class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Detail View</h1>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div id="detailContent" class="hidden">
+            <div class="mb-8 border-l-2 border-white pl-4">
+                <span id="detKategori" class="text-[10px] font-bold px-2 py-0.5 bg-white text-black rounded uppercase"></span>
+                <h2 id="detJudul" class="text-3xl font-bold text-white mt-3 uppercase tracking-tighter"></h2>
+            </div>
+            
+            <div class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl mb-10">
+                <div class="bg-[#1a1a1a] px-4 py-3 border-b border-[#222] flex justify-between items-center">
+                    <div class="carbon-dots flex gap-2">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                    </div>
+                    <div class="flex gap-4 items-center">
+                        <span id="copyStatus" class="text-[10px] font-bold text-emerald-500 hidden uppercase tracking-widest">Berhasil Disalin</span>
+                        
+                        <button id="copyCodeBtn" title="Copy Prompt" class="text-gray-400 hover:text-white transition text-sm">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                        <button id="downloadBtn" title="Download as .txt" class="text-gray-400 hover:text-white transition text-sm">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <pre><code id="detIsi" class="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm block"></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div id="detLoading" class="flex flex-col items-center py-20 text-gray-600">
+             <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
+             <p class="text-xs font-bold uppercase tracking-widest">Loading Database...</p>
+        </div>
+    </main>
+
+    <script>
+        async function loadDetail() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            try {
+                const res = await fetch('./data.json');
+                const json = await res.json();
+                const item = json.data.find(p => p.id == id);
+                
+                if (item) {
+                    document.title = item.judul;
+                    document.getElementById('detJudul').innerText = item.judul;
+                    document.getElementById('detKategori').innerText = item.kategori;
+                    const promptText = item.isi;
+                    document.getElementById('detIsi').innerText = promptText;
+
+                    // Fungsi Salin (Copy) via Icon Header
+                    document.getElementById('copyCodeBtn').onclick = () => {
+                        navigator.clipboard.writeText(promptText);
+                        
+                        const iconBtn = document.getElementById('copyCodeBtn');
+                        const statusLabel = document.getElementById('copyStatus');
+                        
+                        // Feedback visual
+                        iconBtn.classList.replace('text-gray-400', 'text-emerald-400');
+                        statusLabel.classList.remove('hidden');
+
+                        setTimeout(() => { 
+                            iconBtn.classList.replace('text-emerald-400', 'text-gray-400');
+                            statusLabel.classList.add('hidden');
+                        }, 2000);
+                    };
+
+                    // Fungsi Download .txt
+                    document.getElementById('downloadBtn').onclick = () => {
+                        const blob = new Blob([promptText], { type: 'text/plain' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${item.judul.replace(/\s+/g, '_')}_prompt.txt`;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    };
+
+                    document.getElementById('detLoading').classList.add('hidden');
+                    document.getElementById('detailContent').classList.remove('hidden');
+                }
+            } catch (e) { console.error(e); }
+        }
+        loadDetail();
+    </script>
+</body>
+</html>
