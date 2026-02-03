@@ -49,7 +49,7 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => `
-        <a href="prompt.html?id=${item.id}" class="block card rounded-xl p-4 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
+        <a href="/prompt/${item.id}" class="block card rounded-xl p-4 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
             <div class="mb-2">
                 <span class="text-[12px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
             </div>
