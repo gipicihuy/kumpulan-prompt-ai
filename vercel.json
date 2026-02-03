@@ -1,15 +1,7 @@
 {
-  "github": {
-    "silent": true
-  },
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
-    { 
-      "source": "/prompt/(.*)", 
-      "destination": "/prompt.html" 
-    },
-    { 
-      "source": "/admin", 
-      "destination": "/admin.html" 
-    }
+    { "source": "/prompt/:slug", "destination": "/prompt" }
   ]
 }
