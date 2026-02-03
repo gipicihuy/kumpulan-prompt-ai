@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background: #000; color: #fff; font-family: monospace; }</style>
+</head>
+<body class="p-8">
+    <div id="loginSection" class="max-w-md mx-auto mt-20">
+        <h2 class="text-xl font-bold mb-4 uppercase">Admin Login</h2>
+        <input type="text" id="user" placeholder="Username" class="w-full p-2 bg-black border border-[#222] mb-2 text-white outline-none">
+        <input type="password" id="pass" placeholder="Password" class="w-full p-2 bg-black border border-[#222] mb-4 text-white outline-none">
+        <button onclick="login()" class="w-full bg-white text-black font-bold p-2 uppercase">Login</button>
+    </div>
+
+    <div id="adminSection" class="max-w-2xl mx-auto hidden">
+        <h2 class="text-xl font-bold mb-6 uppercase">Tambah Prompt Baru</h2>
+        <div class="space-y-4">
+            <input type="text" id="slug" placeholder="Slug (contoh: react-expert)" class="w-full p-2 bg-black border border-[#222] text-white">
+            <input type="text" id="judul" placeholder="Judul" class="w-full p-2 bg-black border border-[#222] text-white">
+            <input type="text" id="kategori" placeholder="Kategori" class="w-full p-2 bg-black border border-[#222] text-white">
+            <textarea id="isi" rows="6" placeholder="Isi Prompt" class="w-full p-2 bg-black border border-[#222] text-white"></textarea>
+            <button onclick="save()" class="w-full bg-white text-black font-bold p-3 uppercase">Simpan ke Redis</button>
+            <button onclick="logout()" class="w-full text-red-500 text-xs mt-4">LOGOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('adminToken');
+        if (token) showAdmin();
+
+        async function login() {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: document.getElementById('user').value, password: document.getElementById('pass').value })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('adminToken', data.token);
+                showAdmin();
+            } else { alert('Salah luh!'); }
+        }
+
+        function showAdmin() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.remove('hidden');
+        }
+
+        async function save() {
+            const body = {
+                slug: document.getElementById('slug').value,
+                judul: document.getElementById('judul').value,
+                kategori: document.getElementById('kategori').value,
+                isi: document.getElementById('isi').value
+            };
+            const res = await fetch('/api/add-prompt', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('adminToken')
+                },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) { alert('Berhasil!'); location.reload(); }
+        }
+
+        function logout() { localStorage.removeItem('adminToken'); location.reload(); }
+    </script>
+</body>
+</html>
