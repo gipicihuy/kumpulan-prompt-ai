@@ -1,17 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/prompt/:slug",
-      "destination": "/public/prompt.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/public/admin.html"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/prompt/:slug", "destination": "/prompt.html" }
   ]
 }
