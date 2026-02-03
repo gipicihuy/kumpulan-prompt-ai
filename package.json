@@ -1,0 +1,8 @@
+{
+  "name": "ai-prompt-library",
+  "version": "1.0.0",
+  "main": "api/get-prompts.js",
+  "dependencies": {
+    "@upstash/redis": "^1.34.3"
+  }
+}
