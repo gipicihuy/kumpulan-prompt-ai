@@ -3,7 +3,7 @@ let selectedCategory = 'all';
 
 async function fetchPrompts() {
     try {
-        const response = await fetch('./data.json');
+        const response = await fetch('/api/get-prompts');
         const json = await response.json();
         allPrompts = json.data;
         document.getElementById('loading').classList.add('hidden');
