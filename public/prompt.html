@@ -18,7 +18,7 @@
 <body>
     <header class="bg-black border-b border-[#222] sticky top-0 z-10">
         <div class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between">
-            <a href="index.html" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition">
+            <a href="/" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition">
                 <i class="fa-solid fa-arrow-left"></i> KEMBALI
             </a>
             <h1 class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Detail View</h1>
@@ -63,11 +63,13 @@
 
     <script>
         async function loadDetail() {
-            const id = new URLSearchParams(window.location.search).get('id');
+            const pathParts = window.location.pathname.split('/');
+            const slug = pathParts[pathParts.length - 1];
+
             try {
                 const res = await fetch('/api/get-prompts');
                 const json = await res.json();
-                const item = json.data.find(p => p.id == id);
+                const item = json.data.find(p => p.id === slug);
                 
                 if (item) {
                     document.title = item.judul;
@@ -100,6 +102,8 @@
 
                     document.getElementById('detLoading').classList.add('hidden');
                     document.getElementById('detailContent').classList.remove('hidden');
+                } else {
+                    document.getElementById('detLoading').innerHTML = '<p class="text-xs font-bold uppercase">Prompt tidak ditemukan.</p>';
                 }
             } catch (e) { console.error(e); }
         }
