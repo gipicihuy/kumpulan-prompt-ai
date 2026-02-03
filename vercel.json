@@ -1,6 +1,12 @@
 {
-  "rewrites": [
-    { "source": "/prompt/:slug", "destination": "/prompt.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+  "routes": [
+    {
+      "src": "/prompt/([^/]+)",
+      "dest": "/prompt.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/admin.html"
+    }
   ]
 }
