@@ -2,45 +2,107 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AI Library</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #000; color: #fff; font-family: monospace; }</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
+        body { font-family: 'Ubuntu Mono', monospace; background-color: #000; color: #fff; }
+        input, textarea { background-color: #0a0a0a !important; border-color: #222 !important; }
+        input:focus, textarea:focus { border-color: #fff !important; }
+    </style>
 </head>
-<body class="p-8">
-    <div id="loginSection" class="max-w-md mx-auto mt-20">
-        <h2 class="text-xl font-bold mb-4 uppercase">Admin Login</h2>
-        <input type="text" id="user" placeholder="Username" class="w-full p-2 bg-black border border-[#222] mb-2 text-white outline-none">
-        <input type="password" id="pass" placeholder="Password" class="w-full p-2 bg-black border border-[#222] mb-4 text-white outline-none">
-        <button onclick="login()" class="w-full bg-white text-black font-bold p-2 uppercase">Login</button>
-    </div>
-
-    <div id="adminSection" class="max-w-2xl mx-auto hidden">
-        <h2 class="text-xl font-bold mb-6 uppercase">Tambah Prompt Baru</h2>
-        <div class="space-y-4">
-            <input type="text" id="slug" placeholder="Slug (contoh: react-expert)" class="w-full p-2 bg-black border border-[#222] text-white">
-            <input type="text" id="judul" placeholder="Judul" class="w-full p-2 bg-black border border-[#222] text-white">
-            <input type="text" id="kategori" placeholder="Kategori" class="w-full p-2 bg-black border border-[#222] text-white">
-            <textarea id="isi" rows="6" placeholder="Isi Prompt" class="w-full p-2 bg-black border border-[#222] text-white"></textarea>
-            <button onclick="save()" class="w-full bg-white text-black font-bold p-3 uppercase">Simpan ke Redis</button>
-            <button onclick="logout()" class="w-full text-red-500 text-xs mt-4">LOGOUT</button>
+<body class="min-h-screen flex flex-col">
+    
+    <header class="border-b border-[#222] p-5">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
+            <h1 class="font-bold tracking-tighter uppercase">Admin_Terminal</h1>
+            <a href="/" class="text-xs text-gray-500 hover:text-white uppercase font-bold">Lihat Web</a>
         </div>
-    </div>
+    </header>
+
+    <main class="flex-grow p-6">
+        <div id="loginSection" class="max-w-md mx-auto mt-10">
+            <div class="border border-[#222] rounded-2xl p-6 bg-[#0a0a0a] shadow-2xl">
+                <i class="fa-solid fa-lock text-3xl mb-4 block text-center"></i>
+                <h2 class="text-center font-bold mb-6 uppercase tracking-widest">Restricted Access</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Username</label>
+                        <input type="text" id="user" class="w-full mt-1 p-3 rounded-xl border outline-none text-white transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Password</label>
+                        <input type="password" id="pass" class="w-full mt-1 p-3 rounded-xl border outline-none text-white transition">
+                    </div>
+                    <button onclick="login()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-sm mt-4">Initialize Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminSection" class="max-w-2xl mx-auto hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xl font-bold uppercase tracking-tighter border-l-4 border-white pl-3">Post New Prompt</h2>
+                <button onclick="logout()" class="text-[10px] font-bold text-red-500 hover:underline">LOGOUT_SESSION</button>
+            </div>
+
+            <div class="space-y-5 bg-[#0a0a0a] border border-[#222] p-6 rounded-2xl shadow-xl">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">URL Slug (No Spaces)</label>
+                    <input type="text" id="slug" placeholder="contoh: expert-react-js" class="w-full mt-1 p-3 rounded-xl border outline-none text-white">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Judul</label>
+                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full mt-1 p-3 rounded-xl border outline-none text-white">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Kategori</label>
+                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-1 p-3 rounded-xl border outline-none text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase">Isi Prompt</label>
+                    <textarea id="isi" rows="8" placeholder="Paste prompt lengkap di sini..." class="w-full mt-1 p-3 rounded-xl border outline-none text-white resize-none"></textarea>
+                </div>
+                <button onclick="save()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-sm">Upload to Redis</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="p-8 text-center text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">
+        System Version 2.0.4 - Security Active
+    </footer>
 
     <script>
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
 
         async function login() {
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: document.getElementById('user').value, password: document.getElementById('pass').value })
-            });
-            const data = await res.json();
-            if (data.success) {
-                localStorage.setItem('adminToken', data.token);
-                showAdmin();
-            } else { alert('Salah luh!'); }
+            const btn = event.target;
+            btn.innerText = 'Verifying...';
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        username: document.getElementById('user').value, 
+                        password: document.getElementById('pass').value 
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('adminToken', data.token);
+                    showAdmin();
+                } else { 
+                    alert('Akses Ditolak: Kredensial Salah'); 
+                    btn.innerText = 'Initialize Login';
+                }
+            } catch (e) {
+                alert('Server Error');
+                btn.innerText = 'Initialize Login';
+            }
         }
 
         function showAdmin() {
@@ -49,24 +111,50 @@
         }
 
         async function save() {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Uploading...';
+
             const body = {
                 slug: document.getElementById('slug').value,
                 judul: document.getElementById('judul').value,
                 kategori: document.getElementById('kategori').value,
                 isi: document.getElementById('isi').value
             };
-            const res = await fetch('/api/add-prompt', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('adminToken')
-                },
-                body: JSON.stringify(body)
-            });
-            if (res.ok) { alert('Berhasil!'); location.reload(); }
+
+            if(!body.slug || !body.judul || !body.isi) {
+                alert('Isi semua field!');
+                btn.innerText = originalText;
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/add-prompt', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('adminToken')
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (res.ok) { 
+                    alert('Data Berhasil Disimpan!'); 
+                    location.reload(); 
+                } else {
+                    alert('Gagal menyimpan data.');
+                }
+            } catch (e) {
+                alert('Koneksi Error');
+            } finally {
+                btn.innerText = originalText;
+            }
         }
 
-        function logout() { localStorage.removeItem('adminToken'); location.reload(); }
+        function logout() { 
+            localStorage.removeItem('adminToken'); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
