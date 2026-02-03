@@ -5,6 +5,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/prompt/:slug",
+      "destination": "/public/prompt.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/public/$1"
     }
