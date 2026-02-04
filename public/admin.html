@@ -49,18 +49,19 @@
 
             <div class="space-y-6 bg-[#0a0a0a] border border-[#222] p-8 rounded-2xl shadow-xl">
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase">URL Slug (No Spaces)</label>
-                    <input type="text" id="slug" placeholder="contoh: expert-react-js" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
+                    <label class="text-sm font-bold text-gray-500 uppercase">Judul Prompt</label>
+                    <input type="text" id="judul" placeholder="Nama Prompt (Huruf & Angka)" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
+                    <p class="text-xs text-gray-600 mt-2">💡 URL Slug akan otomatis generate dari judul ini</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="text-sm font-bold text-gray-500 uppercase">Judul</label>
-                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
-                    </div>
-                    <div>
-                        <label class="text-sm font-bold text-gray-500 uppercase">Kategori</label>
-                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
-                    </div>
+
+                <div>
+                    <label class="text-sm font-bold text-gray-500 uppercase">Preview URL Slug</label>
+                    <div id="slugPreview" class="w-full mt-2 p-4 rounded-xl border border-[#333] bg-black text-gray-400 text-sm font-mono">/prompt/...</div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold text-gray-500 uppercase">Kategori</label>
+                    <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                 </div>
                 
                 <!-- Upload Image Section -->
@@ -99,6 +100,30 @@
     <script>
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
+
+        // Function untuk generate slug dari judul
+        function generateSlug(text) {
+            return text
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, '-')  // Ganti non-alphanumeric dengan dash
+                .replace(/^-+|-+$/g, '');      // Hapus dash di awal & akhir
+        }
+
+        // Update preview slug real-time saat judul diketik
+        document.getElementById('judul').addEventListener('input', function(e) {
+            const slug = generateSlug(e.target.value);
+            const preview = document.getElementById('slugPreview');
+            if (slug) {
+                preview.innerText = `/prompt/${slug}`;
+                preview.classList.remove('text-gray-400');
+                preview.classList.add('text-green-400');
+            } else {
+                preview.innerText = '/prompt/...';
+                preview.classList.remove('text-green-400');
+                preview.classList.add('text-gray-400');
+            }
+        });
 
         // Preview gambar saat dipilih
         document.getElementById('imageFile').addEventListener('change', function(e) {
@@ -188,10 +213,14 @@
 
                 btn.innerText = 'Saving Prompt...';
 
+                // Generate slug dari judul
+                const judul = document.getElementById('judul').value;
+                const slug = generateSlug(judul);
+
                 // Simpan prompt dengan imageUrl
                 const body = {
-                    slug: document.getElementById('slug').value,
-                    judul: document.getElementById('judul').value,
+                    slug: slug,
+                    judul: judul,
                     kategori: document.getElementById('kategori').value,
                     isi: document.getElementById('isi').value,
                     adminName: localStorage.getItem('adminName'),
@@ -199,7 +228,7 @@
                 };
 
                 if(!body.slug || !body.judul || !body.isi) {
-                    alert('Isi semua field wajib (slug, judul, isi)!');
+                    alert('Isi semua field wajib (judul, kategori, isi)!');
                     btn.innerText = originalText;
                     btn.disabled = false;
                     return;
