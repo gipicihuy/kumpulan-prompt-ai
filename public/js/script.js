@@ -61,10 +61,12 @@ function renderCategories() {
     
     filterContainer.innerHTML = categories.map(cat => {
         const displayText = cat === 'all' ? 'all' : categoriesMap[cat];
+        const isActive = selectedCategory === cat;
         return `
         <button onclick="setCategory('${cat}')" 
-            class="category-btn ${selectedCategory === cat ? 'active' : ''} whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold uppercase">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]"></i> ${displayText}
+            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold uppercase"
+            style="${isActive ? 'color: #000 !important;' : ''}">
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i> ${displayText}
         </button>
     `}).join('');
 }
