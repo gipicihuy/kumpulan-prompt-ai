@@ -1,124 +1,6 @@
 let allPrompts = [];
 let selectedCategory = 'all';
 
-// Bottom Sheet Drag Variables
-let isDragging = false;
-let startY = 0;
-let startTranslateY = 0;
-let sheetHidden = false;
-
-// Initialize drag handlers
-document.addEventListener('DOMContentLoaded', function() {
-    const dragHandle = document.getElementById('dragHandle');
-    const categorySheet = document.getElementById('categorySheet');
-    
-    // Mouse events
-    dragHandle.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', endDrag);
-    
-    // Touch events
-    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
-    document.addEventListener('touchmove', drag, { passive: false });
-    document.addEventListener('touchend', endDrag);
-    
-    function startDrag(e) {
-        isDragging = true;
-        startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
-        
-        const handleHeight = 24;
-        
-        // Get current transform value
-        const transform = window.getComputedStyle(categorySheet).transform;
-        if (transform !== 'none') {
-            const matrix = new DOMMatrix(transform);
-            startTranslateY = matrix.m42;
-        } else {
-            startTranslateY = sheetHidden ? (categorySheet.offsetHeight - handleHeight) : 0;
-        }
-        
-        categorySheet.style.transition = 'none';
-        e.preventDefault();
-    }
-    
-    function drag(e) {
-        if (!isDragging) return;
-        
-        const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-        const deltaY = currentY - startY;
-        
-        // Calculate new position
-        let newTranslateY = startTranslateY + deltaY;
-        
-        // Handle height yang tetap visible
-        const handleHeight = 24;
-        
-        // Limit movement - tidak bisa lebih dari 0 (fully shown) 
-        // dan tidak lebih dari (height - handleHeight) saat hidden
-        newTranslateY = Math.max(0, Math.min(newTranslateY, categorySheet.offsetHeight - handleHeight));
-        
-        categorySheet.style.transform = `translateY(${newTranslateY}px)`;
-        e.preventDefault();
-    }
-    
-    function endDrag(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        const currentY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
-        const deltaY = currentY - startY;
-        
-        categorySheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        // Threshold 100px untuk toggle
-        if (Math.abs(deltaY) > 100) {
-            if (deltaY > 0) {
-                // Drag down - hide sheet
-                hideSheet();
-            } else {
-                // Drag up - show sheet
-                showSheet();
-            }
-        } else {
-            // Kembali ke posisi sebelumnya
-            if (sheetHidden) {
-                hideSheet();
-            } else {
-                showSheet();
-            }
-        }
-    }
-    
-    // Click pada drag handle untuk toggle
-    dragHandle.addEventListener('click', function(e) {
-        if (e.target === dragHandle || e.target.closest('.drag-handle')) {
-            toggleSheet();
-        }
-    });
-    
-    function showSheet() {
-        categorySheet.classList.remove('hidden-sheet');
-        categorySheet.style.transform = 'translateY(0)';
-        sheetHidden = false;
-    }
-    
-    function hideSheet() {
-        categorySheet.classList.add('hidden-sheet');
-        // Tetap nongolin handle 24px
-        const handleHeight = 24;
-        categorySheet.style.transform = `translateY(calc(100% - ${handleHeight}px))`;
-        sheetHidden = true;
-    }
-    
-    function toggleSheet() {
-        if (sheetHidden) {
-            showSheet();
-        } else {
-            hideSheet();
-        }
-    }
-});
-
 async function fetchPrompts() {
     try {
         const response = await fetch('/api/get-prompts');
@@ -169,9 +51,9 @@ function renderCategories() {
     // Ambil unique kategori dengan case-insensitive
     const categoriesMap = {};
     allPrompts.forEach(item => {
-        const key = item.kategori.toLowerCase(); // Use lowercase as key
+        const key = item.kategori.toLowerCase();
         if (!categoriesMap[key]) {
-            categoriesMap[key] = item.kategori; // Store original display text
+            categoriesMap[key] = item.kategori;
         }
     });
     
@@ -182,11 +64,19 @@ function renderCategories() {
         const isActive = selectedCategory === cat;
         return `
         <button onclick="setCategory('${cat}')" 
-            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold uppercase"
+            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start"
             style="${isActive ? 'color: #000 !important;' : ''}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i> ${displayText}
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText}
         </button>
     `}).join('');
+    
+    // Auto scroll ke active category
+    setTimeout(() => {
+        const activeBtn = filterContainer.querySelector('.category-btn.active');
+        if (activeBtn) {
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }, 100);
 }
 
 function setCategory(cat) {
