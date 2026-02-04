@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { fileTypeFromBuffer } from 'file-type';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
+import crypto from 'crypto';
 
 // Disable bodyParser untuk formidable
 export const config = {
@@ -12,39 +13,41 @@ export const config = {
 };
 
 /**
- * Upload to tmpfiles.org
+ * Upload to catbox.moe (permanent storage)
  * @param {Buffer} content File Buffer
  * @return {Promise<string>}
  */
-const uploadPomf = async (content) => {
+const uploadCatbox = async (content) => {
   try {
     const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
-    const timestamp = Date.now();
+    const randomBytes = crypto.randomBytes(5).toString('hex');
     const formData = new FormData();
-    formData.append("file", content, `nao_tomori-${timestamp}-upload.${ext || "bin"}`);
+    
+    formData.append('fileToUpload', content, `${randomBytes}.${ext || 'bin'}`);
+    formData.append('reqtype', 'fileupload');
     
     const response = await fetch(
-      "https://tmpfiles.org/api/v1/upload",
+      "https://catbox.moe/user/api.php",
       {
         method: "POST",
         body: formData,
         headers: {
           ...formData.getHeaders(),
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
       }
     );
     
-    const result = await response.json();
-    const match = /https?:\/\/tmpfiles\.org\/(.*)/.exec(result.data.url);
+    const result = await response.text();
     
-    if (!match) {
-      throw new Error("Invalid URL format in response");
+    if (!result || !result.startsWith('http')) {
+      throw new Error("Invalid response from catbox.moe");
     }
     
-    return `https://tmpfiles.org/dl/${match[1]}`;
+    console.log("Uploaded to catbox.moe successfully:", result);
+    return result;
   } catch (error) {
-    console.error("Upload to tmpfiles.org failed:", error.message || error);
+    console.error("Upload to catbox.moe failed:", error.message || error);
     throw error;
   }
 };
@@ -123,13 +126,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // Upload ke tmpfiles.org
+    // Upload ke catbox.moe (permanent storage)
     let imageUrl;
     try {
-      imageUrl = await uploadPomf(fileBuffer);
+      imageUrl = await uploadCatbox(fileBuffer);
     } catch (uploadError) {
-      // Fallback ke telegra.ph jika tmpfiles gagal
-      console.log('Tmpfiles failed, trying telegra.ph...');
+      // Fallback ke telegra.ph jika catbox gagal
+      console.log('Catbox failed, trying telegra.ph...');
       imageUrl = await uploadToTelegraph(fileBuffer);
     }
 
