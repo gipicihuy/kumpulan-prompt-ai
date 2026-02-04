@@ -7,93 +7,155 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #000; color: #fff; }
-        input, textarea { background-color: #0a0a0a !important; border-color: #222 !important; }
-        input:focus, textarea:focus { border-color: #fff !important; }
-        .image-preview { max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+            color: #e5e5e5; 
+            min-height: 100vh;
+        }
+        input, textarea { 
+            background-color: #1a1a1a !important; 
+            border-color: #2a2a2a !important;
+            transition: all 0.3s ease;
+        }
+        input:focus, textarea:focus { 
+            border-color: #444 !important; 
+            background-color: #1f1f1f !important;
+            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+        }
+        .image-preview { 
+            max-width: 100%; 
+            max-height: 200px; 
+            object-fit: cover; 
+            border-radius: 12px; 
+        }
+        
+        header {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .login-card {
+            border: 1px solid #2a2a2a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        .admin-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slug-preview {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+        }
+        
+        .slug-preview.active {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     
-    <header class="border-b border-[#222] p-6">
+    <header class="p-6 shadow-lg">
         <div class="max-w-2xl mx-auto flex justify-between items-center">
-            <h1 class="font-bold tracking-tighter uppercase text-xl">Admin_Terminal</h1>
-            <a href="/" class="text-sm text-gray-500 hover:text-white uppercase font-bold">Lihat Web</a>
+            <h1 class="font-bold tracking-tighter uppercase text-xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Admin_Terminal</h1>
+            <a href="/" class="text-sm text-gray-400 hover:text-white uppercase font-bold transition-colors">Lihat Web</a>
         </div>
     </header>
 
     <main class="flex-grow p-6">
         <div id="loginSection" class="max-w-md mx-auto mt-10">
-            <div class="border border-[#222] rounded-2xl p-8 bg-[#0a0a0a] shadow-2xl">
-                <i class="fa-solid fa-lock text-4xl mb-5 block text-center"></i>
-                <h2 class="text-center font-bold mb-8 uppercase tracking-widest text-xl">Restricted Access</h2>
+            <div class="login-card rounded-2xl p-8">
+                <i class="fa-solid fa-lock text-4xl mb-5 block text-center text-gray-400"></i>
+                <h2 class="text-center font-bold mb-8 uppercase tracking-widest text-xl text-gray-300">Restricted Access</h2>
                 <div class="space-y-5">
                     <div>
-                        <label class="text-sm font-bold text-gray-500 uppercase">Username</label>
-                        <input type="text" id="user" class="w-full mt-2 p-4 rounded-xl border outline-none text-white transition text-base">
+                        <label class="text-sm font-bold text-gray-400 uppercase">Username</label>
+                        <input type="text" id="user" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                     </div>
                     <div>
-                        <label class="text-sm font-bold text-gray-500 uppercase">Password</label>
-                        <input type="password" id="pass" class="w-full mt-2 p-4 rounded-xl border outline-none text-white transition text-base">
+                        <label class="text-sm font-bold text-gray-400 uppercase">Password</label>
+                        <input type="password" id="pass" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                     </div>
-                    <button onclick="login()" class="w-full bg-white text-black font-bold py-5 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-base mt-5">Initialize Login</button>
+                    <button onclick="login()" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base mt-5">Initialize Login</button>
                 </div>
             </div>
         </div>
 
         <div id="adminSection" class="max-w-2xl mx-auto hidden">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold uppercase tracking-tighter border-l-4 border-white pl-4">Post New Prompt</h2>
-                <button onclick="logout()" class="text-sm font-bold text-red-500 hover:underline">LOGOUT_SESSION</button>
+                <h2 class="text-2xl font-bold uppercase tracking-tighter border-l-4 border-gray-400 pl-4 text-gray-200">Post New Prompt</h2>
+                <button onclick="logout()" class="text-sm font-bold text-red-400 hover:text-red-300 hover:underline transition-colors">LOGOUT_SESSION</button>
             </div>
 
-            <div class="space-y-6 bg-[#0a0a0a] border border-[#222] p-8 rounded-2xl shadow-xl">
+            <div class="space-y-6 admin-card p-8 rounded-2xl">
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase">Judul Prompt</label>
+                    <label class="text-sm font-bold text-gray-400 uppercase">Judul Prompt</label>
                     <input type="text" id="judul" placeholder="Nama Prompt (Huruf & Angka)" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
-                    <p class="text-xs text-gray-600 mt-2">💡 URL Slug akan otomatis generate dari judul ini</p>
+                    <p class="text-xs text-gray-500 mt-2">💡 URL Slug akan otomatis generate dari judul ini</p>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase">Preview URL Slug</label>
-                    <div id="slugPreview" class="w-full mt-2 p-4 rounded-xl border border-[#333] bg-black text-gray-400 text-sm font-mono">/prompt/...</div>
+                    <label class="text-sm font-bold text-gray-400 uppercase">Preview URL Slug</label>
+                    <div id="slugPreview" class="slug-preview w-full mt-2 p-4 rounded-xl text-gray-500 text-sm font-mono">/prompt/...</div>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase">Kategori</label>
+                    <label class="text-sm font-bold text-gray-400 uppercase">Kategori</label>
                     <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                 </div>
                 
                 <!-- Upload Image Section -->
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
                         <i class="fa-solid fa-image"></i> Upload Gambar Preview (Opsional)
                     </label>
                     <div class="mt-2">
-                        <input type="file" id="imageFile" accept="image/*" class="w-full p-4 rounded-xl border outline-none text-white text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200">
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-4 rounded-xl border outline-none text-white text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-gray-200 file:to-white file:text-black hover:file:from-gray-300 hover:file:to-gray-100">
                     </div>
                     <!-- Image Preview -->
                     <div id="imagePreviewContainer" class="mt-4 hidden">
-                        <p class="text-xs text-gray-500 uppercase font-bold mb-2">Preview:</p>
-                        <div class="border border-[#222] rounded-xl p-3 bg-black">
+                        <p class="text-xs text-gray-400 uppercase font-bold mb-2">Preview:</p>
+                        <div class="border border-[#2a2a2a] rounded-xl p-3 bg-[#0f0f0f]">
                             <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
                         </div>
-                        <button onclick="removeImage()" class="mt-2 text-xs text-red-500 hover:underline font-bold">
+                        <button onclick="removeImage()" class="mt-2 text-xs text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
                             <i class="fa-solid fa-trash"></i> Hapus Gambar
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-500 uppercase">Isi Prompt</label>
+                    <label class="text-sm font-bold text-gray-400 uppercase">Isi Prompt</label>
                     <textarea id="isi" rows="8" placeholder="Paste prompt lengkap di sini..." class="w-full mt-2 p-4 rounded-xl border outline-none text-white resize-none text-base"></textarea>
                 </div>
-                <button onclick="save()" class="w-full bg-white text-black font-bold py-5 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-base">Upload to Redis</button>
+                <button onclick="save()" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base">Upload to Redis</button>
             </div>
         </div>
     </main>
 
-    <footer class="p-8 text-center text-sm text-gray-600 font-bold uppercase tracking-[0.2em]">
+    <footer class="p-8 text-center text-sm text-gray-500 font-bold uppercase tracking-[0.2em]">
         System Version 2.0.4 - Security Active
     </footer>
 
@@ -116,12 +178,12 @@
             const preview = document.getElementById('slugPreview');
             if (slug) {
                 preview.innerText = `/prompt/${slug}`;
-                preview.classList.remove('text-gray-400');
-                preview.classList.add('text-green-400');
+                preview.classList.remove('text-gray-500');
+                preview.classList.add('text-green-400', 'active');
             } else {
                 preview.innerText = '/prompt/...';
-                preview.classList.remove('text-green-400');
-                preview.classList.add('text-gray-400');
+                preview.classList.remove('text-green-400', 'active');
+                preview.classList.add('text-gray-500');
             }
         });
 
