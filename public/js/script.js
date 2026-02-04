@@ -86,26 +86,42 @@ function setupScrollIndicators() {
     const filterContainer = document.getElementById('categoryFilter');
     const leftIndicator = document.getElementById('scrollLeftIndicator');
     const rightIndicator = document.getElementById('scrollRightIndicator');
+    const leftBtn = document.getElementById('scrollLeftBtn');
+    const rightBtn = document.getElementById('scrollRightBtn');
     
     function updateIndicators() {
         const scrollLeft = filterContainer.scrollLeft;
         const scrollWidth = filterContainer.scrollWidth;
         const clientWidth = filterContainer.clientWidth;
         
-        // Show left indicator if scrolled from start
+        // Show/hide left indicator & button
         if (scrollLeft > 10) {
             leftIndicator.classList.remove('hidden');
+            leftBtn.classList.remove('hidden');
         } else {
             leftIndicator.classList.add('hidden');
+            leftBtn.classList.add('hidden');
         }
         
-        // Show right indicator if not at end
+        // Show/hide right indicator & button
         if (scrollLeft + clientWidth < scrollWidth - 10) {
             rightIndicator.classList.remove('hidden');
+            rightBtn.classList.remove('hidden');
         } else {
             rightIndicator.classList.add('hidden');
+            rightBtn.classList.add('hidden');
         }
     }
+    
+    // Scroll left button click
+    leftBtn.addEventListener('click', () => {
+        filterContainer.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+    
+    // Scroll right button click
+    rightBtn.addEventListener('click', () => {
+        filterContainer.scrollBy({ left: 200, behavior: 'smooth' });
+    });
     
     // Initial check
     setTimeout(updateIndicators, 200);
