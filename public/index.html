@@ -110,10 +110,11 @@
             transform: translateY(0);
             max-height: 40vh;
             overflow-y: auto;
+            padding-bottom: 80px; /* Extra space biar ga ketutup navbar HP */
         }
         
         .category-sheet.hidden-sheet {
-            transform: translateY(100%);
+            transform: translateY(calc(100% - 24px)); /* Tetap nongolin handle 24px */
         }
         
         .drag-handle-container {
