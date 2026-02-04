@@ -22,12 +22,14 @@ export default async function handler(req, res) {
           id: cleanId, 
           kategori: item.kategori || 'Lainnya',
           judul: item.judul || 'Tanpa Judul',
-          isi: item.isi || ''
+          isi: item.isi || '',
+          uploadedBy: item.uploadedBy || 'Admin',
+          createdAt: item.createdAt || '-'
         }
       })
     )
 
-    res.status(200).json({ success: true, data })
+    res.status(200).json({ success: true, data } )
   } catch (error) {
     res.status(500).json({ success: false, error: error.message })
   }
