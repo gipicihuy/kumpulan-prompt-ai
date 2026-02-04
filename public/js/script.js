@@ -6,12 +6,43 @@ async function fetchPrompts() {
         const response = await fetch('/api/get-prompts');
         const json = await response.json();
         allPrompts = json.data;
+        
+        // Tunggu semua gambar selesai dimuat
+        await waitForImagesToLoad(allPrompts);
+        
         document.getElementById('loading').classList.add('hidden');
         renderCategories();
         applyFilters(); 
     } catch (err) {
         console.error(err);
+        // Tetap tampilkan data meskipun ada error
+        document.getElementById('loading').classList.add('hidden');
+        renderCategories();
+        applyFilters();
     }
+}
+
+// Fungsi untuk menunggu semua gambar selesai dimuat
+async function waitForImagesToLoad(prompts) {
+    const imagePromises = prompts
+        .filter(item => item.imageUrl && item.imageUrl.trim() !== '')
+        .map(item => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Tetap resolve meskipun error
+                img.src = item.imageUrl;
+                
+                // Timeout 5 detik untuk setiap gambar
+                setTimeout(() => resolve(), 5000);
+            });
+        });
+    
+    // Tunggu semua gambar atau maksimal 10 detik
+    await Promise.race([
+        Promise.all(imagePromises),
+        new Promise(resolve => setTimeout(resolve, 10000))
+    ]);
 }
 
 function renderCategories() {
@@ -19,8 +50,8 @@ function renderCategories() {
     const categories = ['all', ...new Set(allPrompts.map(item => item.kategori))];
     filterContainer.innerHTML = categories.map(cat => `
         <button onclick="setCategory('${cat}')" 
-            class="whitespace-nowrap px-4 py-2 rounded-lg border text-sm font-bold transition uppercase ${selectedCategory === cat ? 'bg-white text-black border-white shadow-md' : 'bg-black text-gray-500 border-[#222] hover:border-white'}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1"></i> ${cat}
+            class="whitespace-nowrap px-3 py-1.5 rounded-lg border text-xs font-bold transition uppercase ${selectedCategory === cat ? 'bg-white text-black border-white shadow-md' : 'bg-black text-gray-500 border-[#222] hover:border-white'}">
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]"></i> ${cat}
         </button>
     `).join('');
 }
@@ -55,24 +86,24 @@ function renderPrompts(data) {
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
             ${hasImage ? `
-            <div class="mb-2 overflow-hidden rounded-lg border border-[#222]">
-                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
+            <div class="mb-2.5 overflow-hidden rounded-lg border border-[#222]">
+                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
             </div>
             ` : ''}
             <div class="flex justify-between items-start mb-1.5">
-                <span class="text-[9px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
                 <span class="text-[9px] text-gray-600 font-mono uppercase">${item.createdAt}</span>
             </div>
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-white text-xs uppercase group-hover:underline underline-offset-4">${item.judul}</h3>
-                <i class="fa-solid fa-chevron-right text-gray-600 text-[10px] group-hover:text-white transition-colors"></i>
+                <h3 class="font-bold text-white text-sm uppercase group-hover:underline underline-offset-4">${item.judul}</h3>
+                <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-white transition-colors"></i>
             </div>
-            <p class="text-[11px] text-gray-500 line-clamp-2 leading-relaxed mb-2">${item.isi}</p>
+            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-2.5">${item.isi}</p>
             <div class="pt-1.5 border-t border-[#111] flex items-center gap-1.5">
-                <div class="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-[7px] text-gray-400"></i>
+                <div class="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="fa-solid fa-user text-[8px] text-gray-400"></i>
                 </div>
-                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
             </div>
         </a>
     `}).join('');
