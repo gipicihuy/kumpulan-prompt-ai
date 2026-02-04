@@ -47,13 +47,26 @@ async function waitForImagesToLoad(prompts) {
 
 function renderCategories() {
     const filterContainer = document.getElementById('categoryFilter');
-    const categories = ['all', ...new Set(allPrompts.map(item => item.kategori))];
-    filterContainer.innerHTML = categories.map(cat => `
+    
+    // Ambil unique kategori dengan case-insensitive
+    const categoriesMap = {};
+    allPrompts.forEach(item => {
+        const key = item.kategori.toLowerCase(); // Use lowercase as key
+        if (!categoriesMap[key]) {
+            categoriesMap[key] = item.kategori; // Store original display text
+        }
+    });
+    
+    const categories = ['all', ...Object.keys(categoriesMap)];
+    
+    filterContainer.innerHTML = categories.map(cat => {
+        const displayText = cat === 'all' ? 'all' : categoriesMap[cat];
+        return `
         <button onclick="setCategory('${cat}')" 
             class="whitespace-nowrap px-3 py-1.5 rounded-lg border text-xs font-bold transition uppercase ${selectedCategory === cat ? 'bg-white text-black border-white shadow-md' : 'bg-black text-gray-500 border-[#222] hover:border-white'}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]"></i> ${cat}
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[10px]"></i> ${displayText}
         </button>
-    `).join('');
+    `}).join('');
 }
 
 function setCategory(cat) {
@@ -65,8 +78,11 @@ function setCategory(cat) {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allPrompts.filter(item => {
-        const matchesCat = selectedCategory === 'all' || item.kategori === selectedCategory;
-        const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || item.isi.toLowerCase().includes(searchTerm);
+        // Case-insensitive kategori comparison
+        const matchesCat = selectedCategory === 'all' || 
+                          item.kategori.toLowerCase() === selectedCategory.toLowerCase();
+        const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || 
+                            item.isi.toLowerCase().includes(searchTerm);
         return matchesCat && matchesSearch;
     });
     renderPrompts(filtered);
