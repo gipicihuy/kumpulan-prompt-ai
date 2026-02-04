@@ -102,8 +102,8 @@ function renderPrompts(data) {
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
             ${hasImage ? `
-            <div class="mb-2.5 overflow-hidden rounded-lg border border-[#222]">
-                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
+            <div class="mb-2.5 overflow-hidden rounded-lg border border-[#222] aspect-video">
+                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
             </div>
             ` : ''}
             <div class="flex justify-between items-start mb-1.5">
