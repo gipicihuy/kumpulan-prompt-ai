@@ -7,35 +7,79 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #000000; color: #ffffff; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+            color: #e5e5e5;
+            min-height: 100vh;
+        }
         .carbon-dots span { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
-        .dot-red { background: #ff5f56; }
-        .dot-yellow { background: #ffbd2e; }
-        .dot-green { background: #27c93f; }
+        .dot-red { background: #ff5f56; box-shadow: 0 0 10px rgba(255, 95, 86, 0.3); }
+        .dot-yellow { background: #ffbd2e; box-shadow: 0 0 10px rgba(255, 189, 46, 0.3); }
+        .dot-green { background: #27c93f; box-shadow: 0 0 10px rgba(39, 201, 63, 0.3); }
+        
+        header {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .code-container {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .code-header {
+            background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .btn-icon {
+            transition: all 0.3s ease;
+        }
+        .btn-icon:hover {
+            color: #e5e5e5;
+            transform: scale(1.1);
+        }
+        
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: #e5e5e5;
+            transform: translateX(-2px);
+        }
+        
+        .image-container {
+            border: 1px solid #2a2a2a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
     </style>
 </head>
 <body>
-    <header class="bg-black border-b border-[#222] sticky top-0 z-10">
+    <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
-            <a href="/" class="text-gray-400 font-bold text-sm flex items-center gap-2 hover:text-white transition">
+            <a href="/" class="back-btn text-gray-400 font-bold text-sm flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left"></i> KEMBALI
             </a>
-            <h1 class="text-sm font-bold text-gray-600 uppercase tracking-widest">Detail View</h1>
+            <h1 class="text-sm font-bold text-gray-500 uppercase tracking-widest">Detail View</h1>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-8">
         <div id="detailContent" class="hidden">
-            <div class="mb-8 border-l-2 border-white pl-5">
-                <span id="detKategori" class="text-sm font-bold px-3 py-1 bg-white text-black rounded uppercase border border-white"></span>
+            <div class="mb-8 border-l-2 border-gray-400 pl-5">
+                <span id="detKategori" class="text-sm font-bold px-3 py-1 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300"></span>
                 <h2 id="detJudul" class="text-4xl font-bold text-white mt-4 uppercase tracking-tighter leading-tight"></h2>
-                <div class="mt-4 flex flex-wrap items-center gap-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <div class="mt-4 flex flex-wrap items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
                     <div class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-check text-white"></i>
+                        <i class="fa-solid fa-user-check text-gray-300"></i>
                         Uploaded by <span id="detAuthor" class="text-white"></span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-clock text-white"></i>
+                        <i class="fa-solid fa-clock text-gray-300"></i>
                         <span id="detTime" class="text-white"></span>
                     </div>
                 </div>
@@ -43,24 +87,24 @@
             
             <!-- Image Preview -->
             <div id="imagePreviewSection" class="hidden mb-8">
-                <div class="border border-[#222] rounded-xl overflow-hidden shadow-2xl">
-                    <img id="detImage" class="w-full h-auto max-h-96 object-contain bg-[#0a0a0a]" alt="Prompt Preview">
+                <div class="image-container rounded-xl overflow-hidden">
+                    <img id="detImage" class="w-full h-auto max-h-96 object-contain" alt="Prompt Preview">
                 </div>
             </div>
 
-            <div class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl mb-10">
-                <div class="bg-[#1a1a1a] px-5 py-4 border-b border-[#222] flex justify-between items-center">
+            <div class="code-container rounded-xl overflow-hidden mb-10">
+                <div class="code-header px-5 py-4 flex justify-between items-center">
                     <div class="carbon-dots flex gap-2">
                         <span class="dot-red"></span>
                         <span class="dot-yellow"></span>
                         <span class="dot-green"></span>
                     </div>
                     <div class="flex gap-5 items-center">
-                        <span id="copyStatus" class="text-sm font-bold text-emerald-500 hidden uppercase tracking-widest">Berhasil Disalin</span>
-                        <button id="copyCodeBtn" title="Copy Prompt" class="text-gray-400 hover:text-white transition text-lg">
+                        <span id="copyStatus" class="text-sm font-bold text-emerald-400 hidden uppercase tracking-widest">Berhasil Disalin</span>
+                        <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-gray-400 text-lg">
                             <i class="fa-solid fa-copy"></i>
                         </button>
-                        <button id="downloadBtn" title="Download as .txt" class="text-gray-400 hover:text-white transition text-lg">
+                        <button id="downloadBtn" title="Download as .txt" class="btn-icon text-gray-400 text-lg">
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </div>
@@ -71,7 +115,7 @@
             </div>
         </div>
 
-        <div id="detLoading" class="flex flex-col items-center py-20 text-gray-600">
+        <div id="detLoading" class="flex flex-col items-center py-20 text-gray-500">
              <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
              <p class="text-base font-bold uppercase tracking-widest">Loading...</p>
         </div>
@@ -138,11 +182,11 @@ async function loadDetail() {
 
 function showError(title, message) {
     document.getElementById('detLoading').innerHTML = `
-        <div class="max-w-2xl mx-auto bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl text-center">
+        <div class="max-w-2xl mx-auto bg-gradient-to-br from-[#1a1a1a] to-[#1f1f1f] border border-red-900/50 p-8 rounded-2xl text-center shadow-2xl">
             <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-5 block"></i>
-            <h2 class="text-red-500 font-bold text-2xl uppercase mb-5">${title}</h2>
+            <h2 class="text-red-400 font-bold text-2xl uppercase mb-5">${title}</h2>
             <p class="text-gray-400 mb-8 font-mono">${message}</p>
-            <a href="/" class="bg-white text-black px-8 py-4 rounded-lg font-bold uppercase hover:bg-gray-200 transition">Home</a>
+            <a href="/" class="inline-block bg-gradient-to-r from-gray-200 to-white text-black px-8 py-4 rounded-lg font-bold uppercase hover:from-gray-300 hover:to-gray-100 transition-all shadow-lg hover:shadow-xl">Home</a>
         </div>
     `;
 }
