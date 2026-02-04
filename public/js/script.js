@@ -66,10 +66,43 @@ function toggleModal(show) {
     document.getElementById('formModal').classList.toggle('hidden', !show);
 }
 
-document.getElementById('addForm').addEventListener('submit', function(e) {
+document.getElementById('addForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const msg = `PROMPT BARU!\n\nJudul: ${document.getElementById('formJudul').value}\nKategori: ${document.getElementById('formKategori').value}\nIsi: ${document.getElementById('formIsi').value}`;
-    window.open(`https://t.me/GivyAdmin?text=${encodeURIComponent(msg)}`, '_blank');
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerText;
+    btn.innerText = 'Mengirim...';
+    btn.disabled = true;
+
+    const data = {
+        judul: document.getElementById('formJudul').value,
+        kategori: document.getElementById('formKategori').value,
+        isi: document.getElementById('formIsi').value
+    };
+
+    try {
+        const response = await fetch('/api/request-prompt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('✅ Request berhasil dikirim! Admin akan segera mereview.');
+            toggleModal(false);
+            document.getElementById('addForm').reset();
+        } else {
+            alert('❌ Gagal mengirim request: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
 });
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
