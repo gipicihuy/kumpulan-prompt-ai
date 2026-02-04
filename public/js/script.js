@@ -4,8 +4,8 @@ let selectedCategory = 'all';
 // Bottom Sheet Drag Variables
 let isDragging = false;
 let startY = 0;
-let currentY = 0;
-let sheetCollapsed = false;
+let startTranslateY = 0;
+let sheetHidden = false;
 
 // Initialize drag handlers
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,57 +18,97 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('mouseup', endDrag);
     
     // Touch events
-    dragHandle.addEventListener('touchstart', startDrag);
-    document.addEventListener('touchmove', drag);
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', drag, { passive: false });
     document.addEventListener('touchend', endDrag);
     
     function startDrag(e) {
         isDragging = true;
         startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+        
+        // Get current transform value
+        const transform = window.getComputedStyle(categorySheet).transform;
+        if (transform !== 'none') {
+            const matrix = new DOMMatrix(transform);
+            startTranslateY = matrix.m42;
+        } else {
+            startTranslateY = sheetHidden ? categorySheet.offsetHeight : 0;
+        }
+        
         categorySheet.style.transition = 'none';
+        e.preventDefault();
     }
     
     function drag(e) {
         if (!isDragging) return;
         
-        currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+        const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
         const deltaY = currentY - startY;
         
-        // Only allow upward drag
-        if (deltaY < 0) {
-            const translateY = Math.max(deltaY, -categorySheet.offsetHeight + 20);
-            categorySheet.style.transform = `translateY(${translateY}px)`;
-        }
+        // Calculate new position
+        let newTranslateY = startTranslateY + deltaY;
+        
+        // Limit movement - tidak bisa lebih dari 0 (fully shown) dan tidak lebih dari height (fully hidden)
+        newTranslateY = Math.max(0, Math.min(newTranslateY, categorySheet.offsetHeight));
+        
+        categorySheet.style.transform = `translateY(${newTranslateY}px)`;
+        e.preventDefault();
     }
     
     function endDrag(e) {
         if (!isDragging) return;
         isDragging = false;
         
+        const currentY = e.type === 'mouseup' ? e.clientY : e.changedTouches[0].clientY;
         const deltaY = currentY - startY;
+        
         categorySheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
-        // Threshold untuk collapse (50px)
-        if (deltaY < -50) {
-            categorySheet.classList.add('collapsed');
-            sheetCollapsed = true;
+        // Threshold 100px untuk toggle
+        if (Math.abs(deltaY) > 100) {
+            if (deltaY > 0) {
+                // Drag down - hide sheet
+                hideSheet();
+            } else {
+                // Drag up - show sheet
+                showSheet();
+            }
         } else {
-            categorySheet.classList.remove('collapsed');
-            categorySheet.style.transform = 'translateY(0)';
-            sheetCollapsed = false;
+            // Kembali ke posisi sebelumnya
+            if (sheetHidden) {
+                hideSheet();
+            } else {
+                showSheet();
+            }
         }
     }
     
     // Click pada drag handle untuk toggle
-    dragHandle.addEventListener('click', function() {
-        if (sheetCollapsed) {
-            categorySheet.classList.remove('collapsed');
-            sheetCollapsed = false;
-        } else {
-            categorySheet.classList.add('collapsed');
-            sheetCollapsed = true;
+    dragHandle.addEventListener('click', function(e) {
+        if (e.target === dragHandle || e.target.closest('.drag-handle')) {
+            toggleSheet();
         }
     });
+    
+    function showSheet() {
+        categorySheet.classList.remove('hidden-sheet');
+        categorySheet.style.transform = 'translateY(0)';
+        sheetHidden = false;
+    }
+    
+    function hideSheet() {
+        categorySheet.classList.add('hidden-sheet');
+        categorySheet.style.transform = `translateY(100%)`;
+        sheetHidden = true;
+    }
+    
+    function toggleSheet() {
+        if (sheetHidden) {
+            showSheet();
+        } else {
+            hideSheet();
+        }
+    }
 });
 
 async function fetchPrompts() {
