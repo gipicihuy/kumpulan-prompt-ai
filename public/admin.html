@@ -79,6 +79,7 @@
         if (token) showAdmin();
 
         async function login() {
+            const userVal = document.getElementById('user').value;
             const btn = event.target;
             btn.innerText = 'Verifying...';
             try {
@@ -86,13 +87,14 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
-                        username: document.getElementById('user').value, 
+                        username: userVal, 
                         password: document.getElementById('pass').value 
                     })
                 });
                 const data = await res.json();
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminName', userVal);
                     showAdmin();
                 } else { 
                     alert('Akses Ditolak: Kredensial Salah'); 
@@ -118,7 +120,8 @@
                 slug: document.getElementById('slug').value,
                 judul: document.getElementById('judul').value,
                 kategori: document.getElementById('kategori').value,
-                isi: document.getElementById('isi').value
+                isi: document.getElementById('isi').value,
+                adminName: localStorage.getItem('adminName')
             };
 
             if(!body.slug || !body.judul || !body.isi) {
@@ -152,6 +155,7 @@
 
         function logout() { 
             localStorage.removeItem('adminToken'); 
+            localStorage.removeItem('adminName');
             location.reload(); 
         }
     </script>
