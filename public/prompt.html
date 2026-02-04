@@ -6,6 +6,8 @@
     <title>Detail Prompt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -91,7 +93,7 @@
             </div>
 
             <div class="code-container rounded-lg overflow-hidden mb-6">
-                <div class="code-header px-4 py-2.5 flex justify-between items-center">
+                <div class="code-header px-4 py-2.5 flex justify-between items-center relative">
                     <div class="carbon-dots flex gap-1.5">
                         <span></span>
                         <span></span>
@@ -101,7 +103,6 @@
                         loading.txt
                     </div>
                     <div class="flex gap-3 items-center">
-                        <span id="copyStatus" class="text-[10px] font-bold text-emerald-400 hidden uppercase tracking-widest">Tersalin!</span>
                         <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm">
                             <i class="fa-solid fa-copy"></i>
                         </button>
@@ -198,9 +199,17 @@ function showError(title, message) {
 function setupButtons(item) {
     document.getElementById('copyCodeBtn').onclick = () => {
         navigator.clipboard.writeText(item.isi);
-        const status = document.getElementById('copyStatus');
-        status.classList.remove('hidden');
-        setTimeout(() => status.classList.add('hidden'), 2000);
+        iziToast.success({
+            title: 'Berhasil!',
+            message: 'Prompt berhasil disalin ke clipboard',
+            position: 'topRight',
+            timeout: 2000,
+            backgroundColor: '#10b981',
+            titleColor: '#fff',
+            messageColor: '#fff',
+            iconColor: '#fff',
+            progressBarColor: '#059669'
+        });
     };
     document.getElementById('downloadBtn').onclick = () => {
         const blob = new Blob([item.isi], { type: 'text/plain;charset=utf-8' });
@@ -212,6 +221,18 @@ function setupButtons(item) {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        
+        iziToast.success({
+            title: 'Download!',
+            message: 'File berhasil didownload',
+            position: 'topRight',
+            timeout: 2000,
+            backgroundColor: '#10b981',
+            titleColor: '#fff',
+            messageColor: '#fff',
+            iconColor: '#fff',
+            progressBarColor: '#059669'
+        });
     };
 }
 loadDetail();
