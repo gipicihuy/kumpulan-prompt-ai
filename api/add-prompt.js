@@ -13,8 +13,23 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  const { slug, kategori, judul, isi } = req.body
-  await redis.hset(`prompt:${slug}`, { kategori, judul, isi })
+  const { slug, kategori, judul, isi, adminName } = req.body
+  const createdAt = new Date().toLocaleString('id-ID', { 
+    timeZone: 'Asia/Jakarta',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  await redis.hset(`prompt:${slug}`, { 
+    kategori, 
+    judul, 
+    isi, 
+    uploadedBy: adminName || 'Admin',
+    createdAt: createdAt + ' WIB'
+  })
 
   res.status(200).json({ success: true })
 }
