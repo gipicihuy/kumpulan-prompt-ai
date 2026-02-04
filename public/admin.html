@@ -10,6 +10,7 @@
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; }
         input, textarea { background-color: #0a0a0a !important; border-color: #222 !important; }
         input:focus, textarea:focus { border-color: #fff !important; }
+        .image-preview { max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -61,6 +62,27 @@
                         <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                     </div>
                 </div>
+                
+                <!-- Upload Image Section -->
+                <div>
+                    <label class="text-sm font-bold text-gray-500 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-image"></i> Upload Gambar Preview (Opsional)
+                    </label>
+                    <div class="mt-2">
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-4 rounded-xl border outline-none text-white text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200">
+                    </div>
+                    <!-- Image Preview -->
+                    <div id="imagePreviewContainer" class="mt-4 hidden">
+                        <p class="text-xs text-gray-500 uppercase font-bold mb-2">Preview:</p>
+                        <div class="border border-[#222] rounded-xl p-3 bg-black">
+                            <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
+                        </div>
+                        <button onclick="removeImage()" class="mt-2 text-xs text-red-500 hover:underline font-bold">
+                            <i class="fa-solid fa-trash"></i> Hapus Gambar
+                        </button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="text-sm font-bold text-gray-500 uppercase">Isi Prompt</label>
                     <textarea id="isi" rows="8" placeholder="Paste prompt lengkap di sini..." class="w-full mt-2 p-4 rounded-xl border outline-none text-white resize-none text-base"></textarea>
@@ -77,6 +99,24 @@
     <script>
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
+
+        // Preview gambar saat dipilih
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removeImage() {
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+        }
 
         async function login() {
             const userVal = document.getElementById('user').value;
@@ -115,22 +155,56 @@
             const btn = event.target;
             const originalText = btn.innerText;
             btn.innerText = 'Uploading...';
-
-            const body = {
-                slug: document.getElementById('slug').value,
-                judul: document.getElementById('judul').value,
-                kategori: document.getElementById('kategori').value,
-                isi: document.getElementById('isi').value,
-                adminName: localStorage.getItem('adminName')
-            };
-
-            if(!body.slug || !body.judul || !body.isi) {
-                alert('Isi semua field!');
-                btn.innerText = originalText;
-                return;
-            }
+            btn.disabled = true;
 
             try {
+                let imageUrl = '';
+
+                // Cek apakah ada file gambar yang diupload
+                const imageFile = document.getElementById('imageFile').files[0];
+                if (imageFile) {
+                    btn.innerText = 'Uploading Image...';
+                    
+                    // Upload gambar ke API
+                    const formData = new FormData();
+                    formData.append('file', imageFile);
+
+                    const uploadRes = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': localStorage.getItem('adminToken')
+                        },
+                        body: formData
+                    });
+
+                    const uploadData = await uploadRes.json();
+                    
+                    if (!uploadData.success) {
+                        throw new Error(uploadData.message || 'Gagal upload gambar');
+                    }
+
+                    imageUrl = uploadData.imageUrl;
+                }
+
+                btn.innerText = 'Saving Prompt...';
+
+                // Simpan prompt dengan imageUrl
+                const body = {
+                    slug: document.getElementById('slug').value,
+                    judul: document.getElementById('judul').value,
+                    kategori: document.getElementById('kategori').value,
+                    isi: document.getElementById('isi').value,
+                    adminName: localStorage.getItem('adminName'),
+                    imageUrl: imageUrl
+                };
+
+                if(!body.slug || !body.judul || !body.isi) {
+                    alert('Isi semua field wajib (slug, judul, isi)!');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
                     headers: { 
@@ -141,15 +215,17 @@
                 });
                 
                 if (res.ok) { 
-                    alert('Data Berhasil Disimpan!'); 
+                    alert('✅ Data Berhasil Disimpan!'); 
                     location.reload(); 
                 } else {
-                    alert('Gagal menyimpan data.');
+                    alert('❌ Gagal menyimpan data.');
                 }
             } catch (e) {
-                alert('Koneksi Error');
+                console.error('Error:', e);
+                alert('❌ Error: ' + e.message);
             } finally {
                 btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
 
