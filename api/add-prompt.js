@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  const { slug, kategori, judul, isi, adminName } = req.body
+  const { slug, kategori, judul, isi, adminName, imageUrl } = req.body
   const createdAt = new Date().toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
     day: '2-digit',
@@ -23,13 +23,21 @@ export default async function handler(req, res) {
     minute: '2-digit'
   })
 
-  await redis.hset(`prompt:${slug}`, { 
+  // Data yang akan disimpan
+  const promptData = { 
     kategori, 
     judul, 
     isi, 
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB'
-  })
+  }
+
+  // Tambahkan imageUrl jika ada
+  if (imageUrl) {
+    promptData.imageUrl = imageUrl
+  }
+
+  await redis.hset(`prompt:${slug}`, promptData)
 
   res.status(200).json({ success: true })
 }
