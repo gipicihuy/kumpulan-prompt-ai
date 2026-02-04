@@ -26,13 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
         isDragging = true;
         startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
         
+        const handleHeight = 24;
+        
         // Get current transform value
         const transform = window.getComputedStyle(categorySheet).transform;
         if (transform !== 'none') {
             const matrix = new DOMMatrix(transform);
             startTranslateY = matrix.m42;
         } else {
-            startTranslateY = sheetHidden ? categorySheet.offsetHeight : 0;
+            startTranslateY = sheetHidden ? (categorySheet.offsetHeight - handleHeight) : 0;
         }
         
         categorySheet.style.transition = 'none';
@@ -48,8 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calculate new position
         let newTranslateY = startTranslateY + deltaY;
         
-        // Limit movement - tidak bisa lebih dari 0 (fully shown) dan tidak lebih dari height (fully hidden)
-        newTranslateY = Math.max(0, Math.min(newTranslateY, categorySheet.offsetHeight));
+        // Handle height yang tetap visible
+        const handleHeight = 24;
+        
+        // Limit movement - tidak bisa lebih dari 0 (fully shown) 
+        // dan tidak lebih dari (height - handleHeight) saat hidden
+        newTranslateY = Math.max(0, Math.min(newTranslateY, categorySheet.offsetHeight - handleHeight));
         
         categorySheet.style.transform = `translateY(${newTranslateY}px)`;
         e.preventDefault();
@@ -98,7 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideSheet() {
         categorySheet.classList.add('hidden-sheet');
-        categorySheet.style.transform = `translateY(100%)`;
+        // Tetap nongolin handle 24px
+        const handleHeight = 24;
+        categorySheet.style.transform = `translateY(calc(100% - ${handleHeight}px))`;
         sheetHidden = true;
     }
     
