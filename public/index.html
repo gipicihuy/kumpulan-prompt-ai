@@ -9,42 +9,130 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #000000; color: #ffffff; }
-        .loader { border: 2px solid #222; border-top: 2px solid #ffffff; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+            color: #e5e5e5; 
+            min-height: 100vh;
+        }
+        .loader { border: 2px solid #2a2a2a; border-top: 2px solid #e5e5e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .card { transition: all 0.2s ease; border: 1px solid #222; background-color: #0a0a0a; }
+        
+        .card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 1px solid #2a2a2a; 
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
         .card:active { transform: scale(0.98); }
-        .card:hover { border-color: #ffffff; }
+        .card:hover { 
+            border-color: #444; 
+            background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
         
         /* Skeleton Loading */
-        .skeleton { background: linear-gradient(90deg, #0a0a0a 25%, #1a1a1a 50%, #0a0a0a 75%); background-size: 200% 100%; animation: pulse 1.5s ease-in-out infinite; }
+        .skeleton { 
+            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); 
+            background-size: 200% 100%; 
+            animation: pulse 1.5s ease-in-out infinite; 
+        }
         @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-text { height: 10px; border-radius: 4px; }
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-image { height: 120px; border-radius: 8px; aspect-ratio: 16/9; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
+        
+        /* Header dengan efek glassmorphism */
+        header {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        /* Input dengan style lebih modern */
+        input[type="text"] {
+            background: #1a1a1a !important;
+            border: 1px solid #2a2a2a !important;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus {
+            background: #1f1f1f !important;
+            border-color: #444 !important;
+            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+        }
+        
+        /* Button styling */
+        .btn-primary {
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Category filter buttons */
+        .category-btn {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+        }
+        .category-btn:hover {
+            background: #1f1f1f;
+            border-color: #444;
+        }
+        .category-btn.active {
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            border-color: #e5e5e5;
+            box-shadow: 0 2px 8px rgba(229, 229, 229, 0.2);
+        }
+        
+        /* Footer styling */
+        footer {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #2a2a2a;
+        }
+        
+        /* Modal overlay */
+        .modal-overlay {
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
     </style>
 </head>
 <body class="pb-20">
 
-    <header class="bg-black border-b border-[#222] sticky top-0 z-10 shadow-sm">
+    <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-lg font-bold text-white"><i class="fa-solid fa-terminal mr-2 text-white"></i>AI Prompts</h1>
-                <button onclick="toggleModal(true)" class="text-sm font-bold text-black bg-white px-4 py-2.5 rounded-lg hover:bg-gray-200 transition flex items-center gap-1">
+                <h1 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-white"></i>
+                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompts</span>
+                </h1>
+                <button onclick="toggleModal(true)" class="btn-primary text-sm font-bold text-black px-4 py-2.5 rounded-lg flex items-center gap-2">
                     <span class="material-symbols-outlined" style="font-size: 18px;">assignment_add</span> Request Prompt
                 </button>
             </div>
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-[#222] rounded-lg outline-none text-sm text-white focus:ring-2 focus:ring-white/20 focus:border-white transition" />
+                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
             <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto pb-1"></div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-4">
-        <div id="counter" class="text-base font-bold text-gray-500 uppercase tracking-widest mb-4"></div>
+        <div id="counter" class="text-base font-bold text-gray-400 uppercase tracking-widest mb-4"></div>
         
         <!-- Skeleton Loading -->
         <div id="loading" class="space-y-2.5">
@@ -57,7 +145,7 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 90%;"></div>
-                <div class="pt-1.5 border-t border-[#111]">
+                <div class="pt-1.5 border-t border-[#2a2a2a]">
                     <div class="skeleton skeleton-text" style="width: 120px;"></div>
                 </div>
             </div>
@@ -70,7 +158,7 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 85%;"></div>
-                <div class="pt-1.5 border-t border-[#111]">
+                <div class="pt-1.5 border-t border-[#2a2a2a]">
                     <div class="skeleton skeleton-text" style="width: 120px;"></div>
                 </div>
             </div>
@@ -84,7 +172,7 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 95%;"></div>
-                <div class="pt-1.5 border-t border-[#111]">
+                <div class="pt-1.5 border-t border-[#2a2a2a]">
                     <div class="skeleton skeleton-text" style="width: 120px;"></div>
                 </div>
             </div>
@@ -93,23 +181,23 @@
         <div id="content" class="space-y-2.5"></div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 w-full bg-black border-t border-[#222] py-4 text-center z-10">
-        <p class="text-xs text-gray-600 font-bold uppercase tracking-wider">
+    <footer class="fixed bottom-0 left-0 w-full py-4 text-center z-10">
+        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
             AI Library by fallenxgivy
         </p>
     </footer>
 
-    <div id="formModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-        <div class="bg-[#0a0a0a] border border-[#222] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div class="p-5 border-b border-[#222] flex justify-between items-center">
+    <div id="formModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="modal-content rounded-2xl w-full max-w-md overflow-hidden">
+            <div class="p-5 border-b border-[#2a2a2a] flex justify-between items-center">
                 <h3 class="font-bold text-white uppercase tracking-tight text-base">Kirim ke Admin</h3>
-                <button onclick="toggleModal(false)" class="text-gray-500 text-2xl hover:text-white">&times;</button>
+                <button onclick="toggleModal(false)" class="text-gray-500 text-2xl hover:text-white transition-colors">&times;</button>
             </div>
             <form id="addForm" class="p-5 space-y-4">
-                <input type="text" id="formJudul" placeholder="JUDUL PROMPT" required class="w-full px-4 py-2.5 bg-black border border-[#222] text-white rounded-lg outline-none text-sm focus:border-white transition">
-                <input type="text" id="formKategori" placeholder="KATEGORI" required class="w-full px-4 py-2.5 bg-black border border-[#222] text-white rounded-lg outline-none text-sm focus:border-white transition">
-                <textarea id="formIsi" rows="6" placeholder="TULIS ISI PROMPT..." required class="w-full px-4 py-2.5 bg-black border border-[#222] text-white rounded-lg outline-none text-sm focus:border-white transition"></textarea>
-                <button type="submit" class="w-full bg-white text-black py-3 rounded-lg font-bold text-sm hover:bg-gray-200 transition uppercase tracking-widest">Kirim Sekarang</button>
+                <input type="text" id="formJudul" placeholder="JUDUL PROMPT" required class="w-full px-4 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg outline-none text-sm transition-all">
+                <input type="text" id="formKategori" placeholder="KATEGORI" required class="w-full px-4 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg outline-none text-sm transition-all">
+                <textarea id="formIsi" rows="6" placeholder="TULIS ISI PROMPT..." required class="w-full px-4 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] text-white rounded-lg outline-none text-sm transition-all resize-none"></textarea>
+                <button type="submit" class="w-full btn-primary text-black py-3 rounded-lg font-bold text-sm uppercase tracking-widest">Kirim Sekarang</button>
             </form>
         </div>
     </div>
