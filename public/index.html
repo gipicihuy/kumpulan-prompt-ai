@@ -80,6 +80,7 @@
             border: 1px solid #2a2a2a;
             transition: all 0.3s ease;
             color: #888;
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .category-btn:hover {
             background: #1f1f1f;
@@ -96,54 +97,18 @@
             color: #000 !important;
         }
         
-        /* Bottom Sheet Styling - FIXED */
-        .category-sheet {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 20;
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid #2a2a2a;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateY(0);
-            max-height: 40vh;
-            overflow-y: auto;
-            padding-bottom: 80px; /* Extra space biar ga ketutup navbar HP */
+        /* Hide scrollbar tapi tetap bisa scroll */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
         
-        .category-sheet.hidden-sheet {
-            transform: translateY(calc(100% - 24px)); /* Tetap nongolin handle 24px */
-        }
-        
-        .drag-handle-container {
-            padding: 8px 0 4px 0;
-            cursor: grab;
-            display: flex;
-            justify-content: center;
-            user-select: none;
-            position: sticky;
-            top: 0;
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1;
-        }
-        
-        .drag-handle-container:active {
-            cursor: grabbing;
-        }
-        
-        .drag-handle {
-            width: 40px;
-            height: 4px;
-            background: #444;
-            border-radius: 2px;
-            transition: background 0.2s ease;
-        }
-        
-        .drag-handle-container:hover .drag-handle {
-            background: #666;
+        /* Smooth scrolling */
+        #categoryFilter {
+            scroll-behavior: smooth;
         }
         
         /* Footer styling */
@@ -164,11 +129,6 @@
             border: 1px solid #2a2a2a;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
-        
-        /* Padding bottom untuk konten agar tidak tertutup bottom sheet */
-        main {
-            padding-bottom: 200px;
-        }
     </style>
 </head>
 <body>
@@ -187,23 +147,17 @@
                     Req Prompt
                 </button>
             </div>
-            <div class="relative">
+            <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
+            
+            <!-- Horizontal Scrollable Categories -->
+            <div class="relative -mx-4 px-4">
+                <div id="categoryFilter" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"></div>
+            </div>
         </div>
     </header>
-
-    <!-- Bottom Sheet untuk Kategori - FIXED POSITION -->
-    <div id="categorySheet" class="category-sheet">
-        <!-- Drag Handle -->
-        <div class="drag-handle-container" id="dragHandle">
-            <div class="drag-handle"></div>
-        </div>
-        <div class="max-w-4xl mx-auto px-4 pb-4">
-            <div id="categoryFilter" class="flex flex-wrap gap-1.5"></div>
-        </div>
-    </div>
 
     <main class="max-w-4xl mx-auto px-4 py-4">
         <div id="counter" class="text-base font-bold text-gray-400 uppercase tracking-widest mb-4"></div>
