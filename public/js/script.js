@@ -1,6 +1,75 @@
 let allPrompts = [];
 let selectedCategory = 'all';
-let categoryVisible = true;
+
+// Bottom Sheet Drag Variables
+let isDragging = false;
+let startY = 0;
+let currentY = 0;
+let sheetCollapsed = false;
+
+// Initialize drag handlers
+document.addEventListener('DOMContentLoaded', function() {
+    const dragHandle = document.getElementById('dragHandle');
+    const categorySheet = document.getElementById('categorySheet');
+    
+    // Mouse events
+    dragHandle.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', endDrag);
+    
+    // Touch events
+    dragHandle.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', endDrag);
+    
+    function startDrag(e) {
+        isDragging = true;
+        startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+        categorySheet.style.transition = 'none';
+    }
+    
+    function drag(e) {
+        if (!isDragging) return;
+        
+        currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+        const deltaY = currentY - startY;
+        
+        // Only allow upward drag
+        if (deltaY < 0) {
+            const translateY = Math.max(deltaY, -categorySheet.offsetHeight + 20);
+            categorySheet.style.transform = `translateY(${translateY}px)`;
+        }
+    }
+    
+    function endDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        const deltaY = currentY - startY;
+        categorySheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        // Threshold untuk collapse (50px)
+        if (deltaY < -50) {
+            categorySheet.classList.add('collapsed');
+            sheetCollapsed = true;
+        } else {
+            categorySheet.classList.remove('collapsed');
+            categorySheet.style.transform = 'translateY(0)';
+            sheetCollapsed = false;
+        }
+    }
+    
+    // Click pada drag handle untuk toggle
+    dragHandle.addEventListener('click', function() {
+        if (sheetCollapsed) {
+            categorySheet.classList.remove('collapsed');
+            sheetCollapsed = false;
+        } else {
+            categorySheet.classList.add('collapsed');
+            sheetCollapsed = true;
+        }
+    });
+});
 
 async function fetchPrompts() {
     try {
@@ -44,21 +113,6 @@ async function waitForImagesToLoad(prompts) {
         Promise.all(imagePromises),
         new Promise(resolve => setTimeout(resolve, 10000))
     ]);
-}
-
-function toggleCategory() {
-    const categoryFilter = document.getElementById('categoryFilter');
-    const toggleBtn = document.querySelector('.toggle-category-btn');
-    
-    categoryVisible = !categoryVisible;
-    
-    if (categoryVisible) {
-        categoryFilter.classList.remove('hidden-category');
-        toggleBtn.classList.remove('collapsed');
-    } else {
-        categoryFilter.classList.add('hidden-category');
-        toggleBtn.classList.add('collapsed');
-    }
 }
 
 function renderCategories() {
