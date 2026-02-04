@@ -24,7 +24,8 @@ export default async function handler(req, res) {
           judul: item.judul || 'Tanpa Judul',
           isi: item.isi || '',
           uploadedBy: item.uploadedBy || 'Admin',
-          createdAt: item.createdAt || '-'
+          createdAt: item.createdAt || '-',
+          imageUrl: item.imageUrl || '' // Tambahkan imageUrl
         }
       })
     )
