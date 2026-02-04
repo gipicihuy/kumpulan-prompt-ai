@@ -96,6 +96,36 @@
             color: #000 !important;
         }
         
+        /* Toggle button styling */
+        .toggle-category-btn {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+        }
+        .toggle-category-btn:hover {
+            background: #1f1f1f;
+            border-color: #444;
+        }
+        .toggle-category-btn i {
+            transition: transform 0.3s ease;
+        }
+        .toggle-category-btn.collapsed i {
+            transform: rotate(180deg);
+        }
+        
+        /* Category filter animation */
+        #categoryFilter {
+            max-height: 200px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            opacity: 1;
+        }
+        #categoryFilter.hidden-category {
+            max-height: 0;
+            opacity: 0;
+            margin: 0 !important;
+        }
+        
         /* Footer styling */
         footer {
             background: rgba(26, 26, 26, 0.95);
@@ -136,6 +166,14 @@
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
+            
+            <!-- Toggle Button -->
+            <div class="flex justify-center mb-2">
+                <button onclick="toggleCategory()" class="toggle-category-btn px-4 py-1.5 rounded-lg text-gray-400 hover:text-gray-300 transition-all">
+                    <i class="fa-solid fa-chevron-up text-xs"></i>
+                </button>
+            </div>
+            
             <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto pb-1"></div>
         </div>
     </header>
