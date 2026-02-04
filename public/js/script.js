@@ -48,8 +48,17 @@ function renderPrompts(data) {
         container.innerHTML = `<div class="text-center text-gray-500 py-10 text-sm font-bold uppercase"><i class="fa-solid fa-ghost text-2xl mb-2 block"></i> Tidak ditemukan</div>`;
         return;
     }
-    container.innerHTML = data.map(item => `
+    container.innerHTML = data.map(item => {
+        // Cek apakah ada gambar
+        const hasImage = item.imageUrl && item.imageUrl.trim() !== '';
+        
+        return `
         <a href="/prompt/${item.id}" class="block card rounded-xl p-4 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
+            ${hasImage ? `
+            <div class="mb-3 overflow-hidden rounded-lg border border-[#222]">
+                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
+            </div>
+            ` : ''}
             <div class="flex justify-between items-start mb-2">
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
                 <span class="text-[10px] text-gray-600 font-mono uppercase">${item.createdAt}</span>
@@ -66,7 +75,7 @@ function renderPrompts(data) {
                 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
             </div>
         </a>
-    `).join('');
+    `}).join('');
 }
 
 function toggleModal(show) {
