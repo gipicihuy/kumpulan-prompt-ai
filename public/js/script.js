@@ -177,7 +177,7 @@ function renderPrompts(data) {
             ` : ''}
             <div class="flex justify-between items-start mb-1.5">
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
-                <span class="text-[9px] text-gray-600 font-mono uppercase">${item.createdAt}</span>
+                <span class="text-[9px] text-green-400 font-mono uppercase tracking-wide">${item.createdAt}</span>
             </div>
             <div class="flex justify-between items-center mb-1">
                 <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors">${item.judul}</h3>
