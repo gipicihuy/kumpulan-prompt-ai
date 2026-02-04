@@ -96,33 +96,41 @@
             color: #000 !important;
         }
         
-        /* Toggle button styling */
-        .toggle-category-btn {
-            background: transparent;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        .toggle-category-btn:hover {
-            transform: scale(1.1);
-        }
-        .toggle-category-btn i {
-            transition: transform 0.3s ease;
-        }
-        .toggle-category-btn.collapsed i {
-            transform: rotate(180deg);
+        /* Bottom Sheet Styling */
+        .category-sheet {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
         }
         
-        /* Category filter animation */
-        #categoryFilter {
-            max-height: 200px;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-            opacity: 1;
+        .category-sheet.collapsed {
+            transform: translateY(calc(-100% + 20px));
         }
-        #categoryFilter.hidden-category {
-            max-height: 0;
-            opacity: 0;
-            margin: 0 !important;
+        
+        .drag-handle-container {
+            padding: 8px 0 4px 0;
+            cursor: grab;
+            display: flex;
+            justify-content: center;
+            user-select: none;
+        }
+        
+        .drag-handle-container:active {
+            cursor: grabbing;
+        }
+        
+        .drag-handle {
+            width: 40px;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+            transition: background 0.2s ease;
+        }
+        
+        .drag-handle-container:hover .drag-handle {
+            background: #666;
         }
         
         /* Footer styling */
@@ -165,14 +173,16 @@
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
-            
-            <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto pb-1 mb-2"></div>
-            
-            <!-- Toggle Button di bawah kategori -->
-            <div class="flex justify-center">
-                <button onclick="toggleCategory()" class="toggle-category-btn px-2 py-1 rounded text-gray-400 hover:text-gray-300 transition-all bg-transparent border-0">
-                    <i class="fa-solid fa-chevron-up text-xs"></i>
-                </button>
+        </div>
+        
+        <!-- Bottom Sheet untuk Kategori -->
+        <div id="categorySheet" class="category-sheet">
+            <!-- Drag Handle -->
+            <div class="drag-handle-container" id="dragHandle">
+                <div class="drag-handle"></div>
+            </div>
+            <div class="max-w-4xl mx-auto px-4 pb-3">
+                <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto"></div>
             </div>
         </div>
     </header>
