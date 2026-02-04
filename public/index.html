@@ -98,13 +98,12 @@
         
         /* Toggle button styling */
         .toggle-category-btn {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
+            background: transparent;
+            border: none;
             transition: all 0.3s ease;
         }
         .toggle-category-btn:hover {
-            background: #1f1f1f;
-            border-color: #444;
+            transform: scale(1.1);
         }
         .toggle-category-btn i {
             transition: transform 0.3s ease;
@@ -167,14 +166,14 @@
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
             
-            <!-- Toggle Button -->
-            <div class="flex justify-center mb-2">
-                <button onclick="toggleCategory()" class="toggle-category-btn px-4 py-1.5 rounded-lg text-gray-400 hover:text-gray-300 transition-all">
+            <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto pb-1 mb-2"></div>
+            
+            <!-- Toggle Button di bawah kategori -->
+            <div class="flex justify-center">
+                <button onclick="toggleCategory()" class="toggle-category-btn px-4 py-1.5 rounded-lg text-gray-400 hover:text-gray-300 transition-all bg-transparent border-0">
                     <i class="fa-solid fa-chevron-up text-xs"></i>
                 </button>
             </div>
-            
-            <div id="categoryFilter" class="flex flex-wrap gap-1.5 overflow-x-auto pb-1"></div>
         </div>
     </header>
 
