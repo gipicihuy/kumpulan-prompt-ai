@@ -1,5 +1,6 @@
 let allPrompts = [];
 let selectedCategory = 'all';
+let categoryVisible = true;
 
 async function fetchPrompts() {
     try {
@@ -43,6 +44,21 @@ async function waitForImagesToLoad(prompts) {
         Promise.all(imagePromises),
         new Promise(resolve => setTimeout(resolve, 10000))
     ]);
+}
+
+function toggleCategory() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const toggleBtn = document.querySelector('.toggle-category-btn');
+    
+    categoryVisible = !categoryVisible;
+    
+    if (categoryVisible) {
+        categoryFilter.classList.remove('hidden-category');
+        toggleBtn.classList.remove('collapsed');
+    } else {
+        categoryFilter.classList.add('hidden-category');
+        toggleBtn.classList.add('collapsed');
+    }
 }
 
 function renderCategories() {
