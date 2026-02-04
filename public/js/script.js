@@ -70,6 +70,9 @@ function renderCategories() {
         </button>
     `}).join('');
     
+    // Setup scroll indicators
+    setupScrollIndicators();
+    
     // Auto scroll ke active category
     setTimeout(() => {
         const activeBtn = filterContainer.querySelector('.category-btn.active');
@@ -77,6 +80,41 @@ function renderCategories() {
             activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
     }, 100);
+}
+
+function setupScrollIndicators() {
+    const filterContainer = document.getElementById('categoryFilter');
+    const leftIndicator = document.getElementById('scrollLeftIndicator');
+    const rightIndicator = document.getElementById('scrollRightIndicator');
+    
+    function updateIndicators() {
+        const scrollLeft = filterContainer.scrollLeft;
+        const scrollWidth = filterContainer.scrollWidth;
+        const clientWidth = filterContainer.clientWidth;
+        
+        // Show left indicator if scrolled from start
+        if (scrollLeft > 10) {
+            leftIndicator.classList.remove('hidden');
+        } else {
+            leftIndicator.classList.add('hidden');
+        }
+        
+        // Show right indicator if not at end
+        if (scrollLeft + clientWidth < scrollWidth - 10) {
+            rightIndicator.classList.remove('hidden');
+        } else {
+            rightIndicator.classList.add('hidden');
+        }
+    }
+    
+    // Initial check
+    setTimeout(updateIndicators, 200);
+    
+    // Update on scroll
+    filterContainer.addEventListener('scroll', updateIndicators);
+    
+    // Update on window resize
+    window.addEventListener('resize', updateIndicators);
 }
 
 function setCategory(cat) {
