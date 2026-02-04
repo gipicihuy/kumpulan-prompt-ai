@@ -41,6 +41,13 @@
                 </div>
             </div>
             
+            <!-- Image Preview -->
+            <div id="imagePreviewSection" class="hidden mb-8">
+                <div class="border border-[#222] rounded-xl overflow-hidden shadow-2xl">
+                    <img id="detImage" class="w-full h-auto max-h-96 object-contain bg-[#0a0a0a]" alt="Prompt Preview">
+                </div>
+            </div>
+
             <div class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl mb-10">
                 <div class="bg-[#1a1a1a] px-5 py-4 border-b border-[#222] flex justify-between items-center">
                     <div class="carbon-dots flex gap-2">
@@ -102,6 +109,21 @@ async function loadDetail() {
             document.getElementById('detIsi').innerText = item.isi;
             document.getElementById('detAuthor').innerText = item.uploadedBy;
             document.getElementById('detTime').innerText = item.createdAt;
+            
+            // Tampilkan gambar jika ada
+            if (item.imageUrl && item.imageUrl.trim() !== '') {
+                const imgElement = document.getElementById('detImage');
+                imgElement.src = item.imageUrl;
+                imgElement.alt = item.judul;
+                
+                // Tampilkan section gambar
+                document.getElementById('imagePreviewSection').classList.remove('hidden');
+                
+                // Handle error loading gambar
+                imgElement.onerror = function() {
+                    document.getElementById('imagePreviewSection').classList.add('hidden');
+                };
+            }
             
             setupButtons(item);
             document.getElementById('detLoading').classList.add('hidden');
