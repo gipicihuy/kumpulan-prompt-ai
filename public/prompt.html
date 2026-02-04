@@ -29,6 +29,16 @@
             <div class="mb-8 border-l-2 border-white pl-5">
                 <span id="detKategori" class="text-sm font-bold px-3 py-1 bg-white text-black rounded uppercase border border-white"></span>
                 <h2 id="detJudul" class="text-4xl font-bold text-white mt-4 uppercase tracking-tighter leading-tight"></h2>
+                <div class="mt-4 flex flex-wrap items-center gap-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-check text-white"></i>
+                        Uploaded by <span id="detAuthor" class="text-white"></span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock text-white"></i>
+                        <span id="detTime" class="text-white"></span>
+                    </div>
+                </div>
             </div>
             
             <div class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl mb-10">
@@ -62,98 +72,55 @@
 
     <script>
 async function loadDetail() {
-    // CARA 1: Ambil dari URL path langsung
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    let slug = pathParts[pathParts.length - 1]; // Ambil yang paling terakhir
-    
-    // Bersihkan slug dari .html atau karakter aneh
+    let slug = pathParts[pathParts.length - 1]; 
     slug = slug.replace('.html', '').trim();
     
-    console.log('═══════════════════════════════════════');
-    console.log('🔍 DEBUG INFO:');
-    console.log('Full URL:', window.location.href);
-    console.log('Pathname:', window.location.pathname);
-    console.log('Path parts:', pathParts);
-    console.log('Detected SLUG:', slug);
-    console.log('═══════════════════════════════════════');
-
     if (!slug || slug === 'prompt') {
         showError('❌ Slug kosong atau invalid!', 'URL harus format: /prompt/nama-slug');
         return;
     }
 
     try {
-        console.log('⏳ Fetching data from API...');
         const res = await fetch('/api/get-prompts');
-        
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-        
         const json = await res.json();
-        console.log('✅ API Response:', json);
 
         if (!json.success || !json.data || json.data.length === 0) {
             showError('API Error', 'Data kosong atau gagal load');
             return;
         }
 
-        console.log('📋 Total prompts:', json.data.length);
-        console.log('🔎 Searching for ID:', slug);
-        
-        // Cari yang exact match
         let item = json.data.find(p => p.id === slug);
-        
-        // Coba case-insensitive
         if (!item) {
-            console.log('⚠️ Exact match not found, trying case-insensitive...');
             item = json.data.find(p => p.id.toLowerCase() === slug.toLowerCase());
         }
 
         if (item) {
-            console.log('✅ FOUND:', item);
             document.title = item.judul;
             document.getElementById('detJudul').innerText = item.judul;
             document.getElementById('detKategori').innerText = item.kategori;
             document.getElementById('detIsi').innerText = item.isi;
+            document.getElementById('detAuthor').innerText = item.uploadedBy;
+            document.getElementById('detTime').innerText = item.createdAt;
             
             setupButtons(item);
-
             document.getElementById('detLoading').classList.add('hidden');
             document.getElementById('detailContent').classList.remove('hidden');
         } else {
-            console.log('❌ NOT FOUND');
-            console.log('📋 Available IDs:');
-            json.data.forEach((p, i) => console.log(`  ${i+1}. ${p.id}`));
-            
-            showError(
-                `Prompt tidak ditemukan!`,
-                `Slug: "${slug}"<br><br>Available slugs:<br>${json.data.map(p => p.id).join('<br>')}`
-            );
+            showError(`Prompt tidak ditemukan!`, `Slug: "${slug}"`);
         }
     } catch (e) {
-        console.error('💥 ERROR:', e);
         showError('Fatal Error', e.message);
     }
 }
 
 function showError(title, message) {
     document.getElementById('detLoading').innerHTML = `
-        <div class="max-w-2xl mx-auto bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-5 block text-center"></i>
-            <h2 class="text-red-500 font-bold text-2xl uppercase mb-5 text-center">${title}</h2>
-            <div class="bg-black border border-[#333] p-5 rounded-lg mb-5">
-                <p class="text-gray-400 text-base font-mono break-all">${message}</p>
-            </div>
-            <div class="text-center space-y-3">
-                <a href="/" class="inline-block bg-white text-black px-8 py-4 rounded-lg font-bold uppercase hover:bg-gray-200 transition text-base">
-                    <i class="fa-solid fa-home mr-2"></i>Back to Home
-                </a>
-                <br>
-                <button onclick="location.reload()" class="text-sm text-gray-500 hover:text-white">
-                    <i class="fa-solid fa-rotate-right mr-1"></i>Reload Page
-                </button>
-            </div>
+        <div class="max-w-2xl mx-auto bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl text-center">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-5 block"></i>
+            <h2 class="text-red-500 font-bold text-2xl uppercase mb-5">${title}</h2>
+            <p class="text-gray-400 mb-8 font-mono">${message}</p>
+            <a href="/" class="bg-white text-black px-8 py-4 rounded-lg font-bold uppercase hover:bg-gray-200 transition">Home</a>
         </div>
     `;
 }
@@ -165,7 +132,6 @@ function setupButtons(item) {
         status.classList.remove('hidden');
         setTimeout(() => status.classList.add('hidden'), 2000);
     };
-    
     document.getElementById('downloadBtn').onclick = () => {
         const blob = new Blob([item.isi], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -178,8 +144,6 @@ function setupButtons(item) {
         URL.revokeObjectURL(url);
     };
 }
-
-// Auto run
 loadDetail();
     </script>
 </body>
