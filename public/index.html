@@ -152,8 +152,16 @@
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
             
-            <!-- Horizontal Scrollable Categories -->
+            <!-- Horizontal Scrollable Categories dengan Indicators -->
             <div class="relative -mx-4 px-4">
+                <!-- Left fade indicator -->
+                <div id="scrollLeftIndicator" class="hidden absolute left-0 top-0 bottom-2 w-12 bg-gradient-to-r from-[rgba(26,26,26,0.95)] to-transparent z-10 pointer-events-none"></div>
+                
+                <!-- Right fade indicator -->
+                <div id="scrollRightIndicator" class="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-[rgba(26,26,26,0.95)] to-transparent z-10 pointer-events-none flex items-center justify-end pr-2">
+                    <i class="fa-solid fa-chevron-right text-white text-xs animate-pulse"></i>
+                </div>
+                
                 <div id="categoryFilter" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory"></div>
             </div>
         </div>
