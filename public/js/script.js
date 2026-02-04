@@ -53,26 +53,26 @@ function renderPrompts(data) {
         const hasImage = item.imageUrl && item.imageUrl.trim() !== '';
         
         return `
-        <a href="/prompt/${item.id}" class="block card rounded-xl p-4 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
+        <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm border border-[#222] active:scale-95 transition-all group hover:border-white">
             ${hasImage ? `
-            <div class="mb-3 overflow-hidden rounded-lg border border-[#222]">
-                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
+            <div class="mb-2 overflow-hidden rounded-lg border border-[#222]">
+                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
             </div>
             ` : ''}
-            <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
-                <span class="text-[10px] text-gray-600 font-mono uppercase">${item.createdAt}</span>
+            <div class="flex justify-between items-start mb-1.5">
+                <span class="text-[9px] font-bold px-2 py-0.5 bg-[#1a1a1a] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
+                <span class="text-[9px] text-gray-600 font-mono uppercase">${item.createdAt}</span>
             </div>
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-white text-sm uppercase group-hover:underline underline-offset-4">${item.judul}</h3>
-                <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-white transition-colors"></i>
+                <h3 class="font-bold text-white text-xs uppercase group-hover:underline underline-offset-4">${item.judul}</h3>
+                <i class="fa-solid fa-chevron-right text-gray-600 text-[10px] group-hover:text-white transition-colors"></i>
             </div>
-            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">${item.isi}</p>
-            <div class="pt-2 border-t border-[#111] flex items-center gap-1.5">
-                <div class="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-[8px] text-gray-400"></i>
+            <p class="text-[11px] text-gray-500 line-clamp-2 leading-relaxed mb-2">${item.isi}</p>
+            <div class="pt-1.5 border-t border-[#111] flex items-center gap-1.5">
+                <div class="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
+                    <i class="fa-solid fa-user text-[7px] text-gray-400"></i>
                 </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
+                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
             </div>
         </a>
     `}).join('');
