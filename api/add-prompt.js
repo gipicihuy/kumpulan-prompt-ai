@@ -23,9 +23,9 @@ export default async function handler(req, res) {
     minute: '2-digit'
   })
 
-  // Data yang akan disimpan
+  // Data yang akan disimpan (kategori lowercase)
   const promptData = { 
-    kategori, 
+    kategori: kategori.toLowerCase().trim(), // ✅ NORMALIZE KATEGORI KE LOWERCASE
     judul, 
     isi, 
     uploadedBy: adminName || 'Admin',
