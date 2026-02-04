@@ -7,9 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
-        body { font-family: 'Ubuntu Mono', monospace; background-color: #000000; color: #ffffff; }
-        .carbon-dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        body { font-family: Arial, sans-serif; background-color: #000000; color: #ffffff; }
+        .carbon-dots span { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
         .dot-red { background: #ff5f56; }
         .dot-yellow { background: #ffbd2e; }
         .dot-green { background: #27c93f; }
@@ -17,47 +16,47 @@
 </head>
 <body>
     <header class="bg-black border-b border-[#222] sticky top-0 z-10">
-        <div class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between">
-            <a href="/" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition">
+        <div class="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
+            <a href="/" class="text-gray-400 font-bold text-sm flex items-center gap-2 hover:text-white transition">
                 <i class="fa-solid fa-arrow-left"></i> KEMBALI
             </a>
-            <h1 class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Detail View</h1>
+            <h1 class="text-sm font-bold text-gray-600 uppercase tracking-widest">Detail View</h1>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-8">
         <div id="detailContent" class="hidden">
-            <div class="mb-8 border-l-2 border-white pl-4">
-                <span id="detKategori" class="text-[10px] font-bold px-2 py-0.5 bg-white text-black rounded uppercase border border-white"></span>
-                <h2 id="detJudul" class="text-3xl font-bold text-white mt-3 uppercase tracking-tighter leading-tight"></h2>
+            <div class="mb-8 border-l-2 border-white pl-5">
+                <span id="detKategori" class="text-sm font-bold px-3 py-1 bg-white text-black rounded uppercase border border-white"></span>
+                <h2 id="detJudul" class="text-4xl font-bold text-white mt-4 uppercase tracking-tighter leading-tight"></h2>
             </div>
             
             <div class="bg-[#0a0a0a] border border-[#222] rounded-xl overflow-hidden shadow-2xl mb-10">
-                <div class="bg-[#1a1a1a] px-4 py-3 border-b border-[#222] flex justify-between items-center">
+                <div class="bg-[#1a1a1a] px-5 py-4 border-b border-[#222] flex justify-between items-center">
                     <div class="carbon-dots flex gap-2">
                         <span class="dot-red"></span>
                         <span class="dot-yellow"></span>
                         <span class="dot-green"></span>
                     </div>
-                    <div class="flex gap-4 items-center">
-                        <span id="copyStatus" class="text-[10px] font-bold text-emerald-500 hidden uppercase tracking-widest">Berhasil Disalin</span>
-                        <button id="copyCodeBtn" title="Copy Prompt" class="text-gray-400 hover:text-white transition text-sm">
+                    <div class="flex gap-5 items-center">
+                        <span id="copyStatus" class="text-sm font-bold text-emerald-500 hidden uppercase tracking-widest">Berhasil Disalin</span>
+                        <button id="copyCodeBtn" title="Copy Prompt" class="text-gray-400 hover:text-white transition text-lg">
                             <i class="fa-solid fa-copy"></i>
                         </button>
-                        <button id="downloadBtn" title="Download as .txt" class="text-gray-400 hover:text-white transition text-sm">
+                        <button id="downloadBtn" title="Download as .txt" class="text-gray-400 hover:text-white transition text-lg">
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </div>
                 </div>
-                <div class="p-6 overflow-x-auto">
-                    <pre><code id="detIsi" class="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm block"></code></pre>
+                <div class="p-7 overflow-x-auto">
+                    <pre><code id="detIsi" class="text-gray-300 leading-relaxed whitespace-pre-wrap text-base block"></code></pre>
                 </div>
             </div>
         </div>
 
         <div id="detLoading" class="flex flex-col items-center py-20 text-gray-600">
-             <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
-             <p class="text-xs font-bold uppercase tracking-widest">Loading...</p>
+             <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
+             <p class="text-base font-bold uppercase tracking-widest">Loading...</p>
         </div>
     </main>
 
@@ -141,17 +140,17 @@ async function loadDetail() {
 function showError(title, message) {
     document.getElementById('detLoading').innerHTML = `
         <div class="max-w-2xl mx-auto bg-[#0a0a0a] border border-red-900 p-8 rounded-2xl">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4 block text-center"></i>
-            <h2 class="text-red-500 font-bold text-xl uppercase mb-4 text-center">${title}</h2>
-            <div class="bg-black border border-[#333] p-4 rounded-lg mb-4">
-                <p class="text-gray-400 text-sm font-mono break-all">${message}</p>
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-5 block text-center"></i>
+            <h2 class="text-red-500 font-bold text-2xl uppercase mb-5 text-center">${title}</h2>
+            <div class="bg-black border border-[#333] p-5 rounded-lg mb-5">
+                <p class="text-gray-400 text-base font-mono break-all">${message}</p>
             </div>
-            <div class="text-center space-y-2">
-                <a href="/" class="inline-block bg-white text-black px-6 py-3 rounded-lg font-bold uppercase hover:bg-gray-200 transition">
+            <div class="text-center space-y-3">
+                <a href="/" class="inline-block bg-white text-black px-8 py-4 rounded-lg font-bold uppercase hover:bg-gray-200 transition text-base">
                     <i class="fa-solid fa-home mr-2"></i>Back to Home
                 </a>
                 <br>
-                <button onclick="location.reload()" class="text-xs text-gray-500 hover:text-white">
+                <button onclick="location.reload()" class="text-sm text-gray-500 hover:text-white">
                     <i class="fa-solid fa-rotate-right mr-1"></i>Reload Page
                 </button>
             </div>
