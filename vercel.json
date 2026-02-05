@@ -2,5 +2,15 @@
   "rewrites": [
     { "source": "/prompt/:slug", "destination": "/prompt.html" },
     { "source": "/admin", "destination": "/admin.html" }
-  ]
+  ],
+  "env": {
+    "API_KEY_SECRET": "@API_KEY_SECRET"
+  },
+  "buildCommand": "npm run build || echo 'No build needed'",
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  }
 }
