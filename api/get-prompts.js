@@ -18,6 +18,13 @@ export default async function handler(req, res) {
         const item = await redis.hgetall(key)
         const cleanId = key.replace(/^prompt:/, '')
         
+        // Fetch profile URL dari user
+        let profileUrl = '';
+        if (item.uploadedBy) {
+          const userData = await redis.hgetall(`user:${item.uploadedBy}`);
+          profileUrl = userData?.profileUrl || '';
+        }
+        
         return { 
           id: cleanId, 
           kategori: item.kategori || 'Lainnya',
@@ -25,7 +32,8 @@ export default async function handler(req, res) {
           isi: item.isi || '',
           uploadedBy: item.uploadedBy || 'Admin',
           createdAt: item.createdAt || '-',
-          imageUrl: item.imageUrl || '' // Tambahkan imageUrl
+          imageUrl: item.imageUrl || '',
+          profileUrl: profileUrl
         }
       })
     )
