@@ -33,10 +33,14 @@ export default async function handler(req, res) {
           uploadedBy: item.uploadedBy || 'Admin',
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
-          profileUrl: profileUrl
+          profileUrl: profileUrl,
+          timestamp: parseInt(item.timestamp) || 0 // Ambil timestamp, default 0 untuk data lama
         }
       })
     )
+
+    // SORTING: Urutkan berdasarkan timestamp dari yang TERBARU (descending)
+    data.sort((a, b) => b.timestamp - a.timestamp)
 
     res.status(200).json({ success: true, data } )
   } catch (error) {
