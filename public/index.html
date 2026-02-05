@@ -136,6 +136,83 @@
             height: 28px;
             object-fit: contain;
         }
+
+        /* ========== IMPROVED TOOLTIP STYLING ========== */
+        .request-btn-tooltip {
+            position: absolute;
+            bottom: -3rem;
+            right: -0.5rem;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            border-radius: 0.5rem;
+            white-space: nowrap;
+            border: 1px solid #444;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.05);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        /* Arrow/pointer untuk tooltip */
+        .request-btn-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: 1rem;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+            border-top: 1px solid #444;
+            border-left: 1px solid #444;
+            transform: rotate(45deg);
+        }
+
+        /* Show tooltip on hover */
+        .group:hover .request-btn-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsiveness - pindah posisi di mobile */
+        @media (max-width: 640px) {
+            .request-btn-tooltip {
+                right: 0;
+                left: auto;
+                transform-origin: top right;
+            }
+            .request-btn-tooltip::before {
+                right: 0.75rem;
+            }
+        }
+
+        /* Alternative: Label yang selalu visible di mobile */
+        @media (max-width: 640px) {
+            .mobile-label {
+                display: block;
+                font-size: 0.625rem;
+                color: #888;
+                margin-top: 0.25rem;
+                text-align: center;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .request-btn-tooltip {
+                display: none;
+            }
+        }
+
+        @media (min-width: 641px) {
+            .mobile-label {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -147,10 +224,22 @@
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
                     <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
                 </h1>
-                <button onclick="toggleModal(true)" title="Request Prompt" class="group relative inline-flex items-center justify-center w-10 h-10 bg-white rounded-full hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-md hover:shadow-lg">
-                    <img src="/assets/send-plus.svg" alt="Request" class="w-5 h-5" />
-                    <span class="absolute -bottom-10 right-0 bg-[#1a1a1a] text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[#2a2a2a] pointer-events-none shadow-lg">Request Prompt</span>
-                </button>
+                
+                <!-- IMPROVED REQUEST BUTTON WITH BETTER TOOLTIP -->
+                <div class="flex flex-col items-center">
+                    <button onclick="toggleModal(true)" title="Request Prompt" class="group relative inline-flex items-center justify-center w-10 h-10 bg-white rounded-full hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-md hover:shadow-lg z-20">
+                        <img src="/assets/send-plus.svg" alt="Request" class="w-5 h-5" />
+                        
+                        <!-- Tooltip yang lebih jelas -->
+                        <span class="request-btn-tooltip">
+                            <i class="fa-solid fa-paper-plane mr-1.5 text-xs"></i>
+                            Request Prompt
+                        </span>
+                    </button>
+                    
+                    <!-- Label untuk mobile -->
+                    <span class="mobile-label">Request</span>
+                </div>
             </div>
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
