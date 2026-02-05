@@ -6,8 +6,18 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
+  const apiKeySecret = process.env.API_KEY_SECRET
+
+  if (!apiKeySecret) {
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server configuration error: API_KEY_SECRET not set' 
+    })
+  }
+
   const apiKey = req.headers['x-api-key']
-  if (!apiKey || apiKey !== process.env.API_KEY_SECRET) {
+  
+  if (!apiKey || apiKey !== apiKeySecret) {
     return res.status(401).json({ 
       success: false, 
       message: 'Unauthorized - Invalid or missing API Key' 
