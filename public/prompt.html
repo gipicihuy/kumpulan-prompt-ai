@@ -70,18 +70,6 @@
             width: 32px;
             height: 32px;
         }
-
-        .description-box {
-            background: #0f0f0f;
-            border: 1px solid #2a2a2a;
-        }
-        
-        .description-box hr {
-            border: 0;
-            height: 1px;
-            background: #2a2a2a;
-            margin: 0.75rem 0;
-        }
     </style>
 </head>
 <body>
@@ -113,13 +101,12 @@
             
             <!-- Description Section -->
             <div id="descriptionSection" class="hidden mb-5">
-                <div class="description-box rounded-lg p-4">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="text-base">•</span> Description
-                    </h3>
-                    <hr>
-                    <p id="detDescription" class="text-sm text-gray-300 leading-relaxed"></p>
-                </div>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3">
+                    <span class="text-xl">•</span> Description
+                </h3>
+                <hr class="border-0 h-px bg-[#2a2a2a] mb-3">
+                <p id="detDescription" class="text-sm text-gray-300 leading-relaxed mb-3"></p>
+                <hr class="border-0 h-px bg-[#2a2a2a]">
             </div>
 
             <!-- Image Preview -->
