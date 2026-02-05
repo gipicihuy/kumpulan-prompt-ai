@@ -138,11 +138,11 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
-        // Tampilan profile picture
+        // Tampilan profile picture - LEBIH BESAR
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
-            ? `<img src="${item.profileUrl}" class="w-4 h-4 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
-            : `<div class="w-4 h-4 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
-                 <i class="fa-solid fa-user text-[8px] text-gray-500"></i>
+            ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
+            : `<div class="w-7 h-7 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
+                 <i class="fa-solid fa-user text-xs text-gray-500"></i>
                </div>`;
         
         return `
@@ -156,9 +156,9 @@ function renderPrompts(data) {
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
             <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-2.5">${item.isi}</p>
-            <div class="pt-1.5 border-t border-[#2a2a2a] flex items-center gap-1.5">
+            <div class="pt-1.5 border-t border-[#2a2a2a] flex items-center gap-2">
                 ${profilePicHtml}
-                <span class="text-[10px] font-bold text-gray-300 uppercase tracking-tight">@${item.uploadedBy}</span>
+                <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
             </div>
         </a>
     `}).join('');
