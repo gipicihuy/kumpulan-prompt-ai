@@ -137,47 +137,7 @@ function renderPrompts(data) {
         `;
         return;
     }
-    
-    // Sort berdasarkan createdAt terbaru (descending)
-    const sortedData = [...data].sort((a, b) => {
-        // Parse tanggal dari format "DD MMM YYYY, HH:MM WIB"
-        const parseDate = (dateStr) => {
-            if (!dateStr || dateStr === '-') return new Date(0);
-            
-            // Hapus " WIB" dari string
-            const cleanStr = dateStr.replace(' WIB', '');
-            
-            // Split berdasarkan ", " untuk pisahkan tanggal dan waktu
-            const parts = cleanStr.split(', ');
-            if (parts.length !== 2) return new Date(0);
-            
-            const [datePart, timePart] = parts;
-            
-            // Parse tanggal (format: "DD MMM YYYY")
-            const monthMap = {
-                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                'Mei': '05', 'Jun': '06', 'Jul': '07', 'Agu': '08',
-                'Sep': '09', 'Okt': '10', 'Nov': '11', 'Des': '12'
-            };
-            
-            const dateComponents = datePart.split(' ');
-            if (dateComponents.length !== 3) return new Date(0);
-            
-            const [day, monthStr, year] = dateComponents;
-            const month = monthMap[monthStr] || '01';
-            
-            // Gabungkan menjadi ISO format: YYYY-MM-DD HH:MM
-            const isoDate = `${year}-${month}-${day.padStart(2, '0')} ${timePart}`;
-            return new Date(isoDate);
-        };
-        
-        const dateA = parseDate(a.createdAt);
-        const dateB = parseDate(b.createdAt);
-        
-        return dateB - dateA; // Descending (terbaru di atas)
-    });
-    
-    container.innerHTML = sortedData.map(item => {
+    container.innerHTML = data.map(item => {
         // Tampilan profile picture - LEBIH BESAR
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
