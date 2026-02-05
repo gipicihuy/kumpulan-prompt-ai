@@ -126,6 +126,12 @@
                     <label class="text-sm font-bold text-gray-400 uppercase">Kategori</label>
                     <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
                 </div>
+
+                <div>
+                    <label class="text-sm font-bold text-gray-400 uppercase">Description (Opsional)</label>
+                    <textarea id="description" rows="2" placeholder="Deskripsi singkat prompt ini..." class="w-full mt-2 p-4 rounded-xl border outline-none text-white resize-none text-base"></textarea>
+                    <p class="text-xs text-gray-500 mt-2">💡 Deskripsi singkat yang akan muncul di detail view</p>
+                </div>
                 
                 <!-- Upload Image Section -->
                 <div>
@@ -280,11 +286,12 @@
                 const judul = document.getElementById('judul').value;
                 const slug = generateSlug(judul);
 
-                // Simpan prompt dengan imageUrl
+                // Simpan prompt dengan description dan imageUrl
                 const body = {
                     slug: slug,
                     judul: judul,
                     kategori: document.getElementById('kategori').value,
+                    description: document.getElementById('description').value,
                     isi: document.getElementById('isi').value,
                     adminName: localStorage.getItem('adminName'),
                     imageUrl: imageUrl
