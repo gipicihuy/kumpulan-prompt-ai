@@ -70,6 +70,12 @@
             width: 32px;
             height: 32px;
         }
+
+        .description-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            border-left: 3px solid #4a90e2;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +105,19 @@
                 </div>
             </div>
             
+            <!-- Description Section -->
+            <div id="descriptionSection" class="hidden mb-5">
+                <div class="description-box rounded-lg p-4">
+                    <div class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-info text-blue-400 text-sm mt-0.5"></i>
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wide mb-1">Description</h3>
+                            <p id="detDescription" class="text-sm text-gray-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Image Preview -->
             <div id="imagePreviewSection" class="hidden mb-5">
                 <div class="image-container rounded-lg overflow-hidden">
@@ -173,7 +192,7 @@ async function loadDetail() {
             // Set file name dari slug
             document.getElementById('fileName').innerText = `${slug}.txt`;
             
-            // Render profile picture - LEBIH BESAR
+            // Render profile picture
             const profilePicContainer = document.getElementById('profilePicContainer');
             if (item.profileUrl && item.profileUrl.trim() !== '') {
                 profilePicContainer.innerHTML = `<img src="${item.profileUrl}" class="profile-pic" alt="${item.uploadedBy}">`;
@@ -183,6 +202,12 @@ async function loadDetail() {
                         <i class="fa-solid fa-user text-sm text-gray-500"></i>
                     </div>
                 `;
+            }
+            
+            // Tampilkan description jika ada
+            if (item.description && item.description.trim() !== '') {
+                document.getElementById('detDescription').innerText = item.description;
+                document.getElementById('descriptionSection').classList.remove('hidden');
             }
             
             // Tampilkan gambar jika ada
