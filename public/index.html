@@ -41,7 +41,6 @@
         @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-text { height: 10px; border-radius: 4px; }
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
-        .skeleton-image { height: 120px; border-radius: 8px; aspect-ratio: 16/9; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
         
         /* Header dengan efek glassmorphism */
@@ -178,10 +177,9 @@
     <main class="max-w-4xl mx-auto px-4 py-4">
         <div id="counter" class="text-base font-bold text-gray-400 uppercase tracking-widest mb-4"></div>
         
-        <!-- Skeleton Loading -->
+        <!-- Skeleton Loading - TANPA GAMBAR -->
         <div id="loading" class="space-y-2.5">
             <div class="card rounded-lg p-3 shadow-sm">
-                <div class="skeleton skeleton-image mb-2.5"></div>
                 <div class="flex justify-between items-start mb-2">
                     <div class="skeleton skeleton-badge"></div>
                     <div class="skeleton skeleton-text" style="width: 80px;"></div>
@@ -208,7 +206,6 @@
             </div>
             
             <div class="card rounded-lg p-3 shadow-sm">
-                <div class="skeleton skeleton-image mb-2.5"></div>
                 <div class="flex justify-between items-start mb-2">
                     <div class="skeleton skeleton-badge"></div>
                     <div class="skeleton skeleton-text" style="width: 80px;"></div>
