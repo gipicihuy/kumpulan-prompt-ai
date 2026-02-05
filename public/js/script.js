@@ -7,42 +7,15 @@ async function fetchPrompts() {
         const json = await response.json();
         allPrompts = json.data;
         
-        // Tunggu semua gambar selesai dimuat
-        await waitForImagesToLoad(allPrompts);
-        
         document.getElementById('loading').classList.add('hidden');
         renderCategories();
         applyFilters(); 
     } catch (err) {
         console.error(err);
-        // Tetap tampilkan data meskipun ada error
         document.getElementById('loading').classList.add('hidden');
         renderCategories();
         applyFilters();
     }
-}
-
-// Fungsi untuk menunggu semua gambar selesai dimuat
-async function waitForImagesToLoad(prompts) {
-    const imagePromises = prompts
-        .filter(item => item.imageUrl && item.imageUrl.trim() !== '')
-        .map(item => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve();
-                img.onerror = () => resolve(); // Tetap resolve meskipun error
-                img.src = item.imageUrl;
-                
-                // Timeout 5 detik untuk setiap gambar
-                setTimeout(() => resolve(), 5000);
-            });
-        });
-    
-    // Tunggu semua gambar atau maksimal 10 detik
-    await Promise.race([
-        Promise.all(imagePromises),
-        new Promise(resolve => setTimeout(resolve, 10000))
-    ]);
 }
 
 function renderCategories() {
@@ -165,16 +138,8 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
-        // Cek apakah ada gambar
-        const hasImage = item.imageUrl && item.imageUrl.trim() !== '';
-        
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
-            ${hasImage ? `
-            <div class="mb-2.5 overflow-hidden rounded-lg border border-[#2a2a2a] aspect-video bg-[#1a1a1a]">
-                <img src="${item.imageUrl}" alt="${item.judul}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
-            </div>
-            ` : ''}
             <div class="flex justify-between items-start mb-1.5">
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
                 <span class="text-[9px] text-white font-mono uppercase tracking-wide">${item.createdAt}</span>
