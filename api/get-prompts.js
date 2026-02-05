@@ -6,24 +6,6 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
-  const apiKeySecret = process.env.API_KEY_SECRET
-
-  if (!apiKeySecret) {
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Server configuration error: API_KEY_SECRET not set' 
-    })
-  }
-
-  const apiKey = req.headers['x-api-key']
-  
-  if (!apiKey || apiKey !== apiKeySecret) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Unauthorized - Invalid or missing API Key' 
-    })
-  }
-
   try {
     const keys = await redis.keys('prompt:*')
     
@@ -36,10 +18,11 @@ export default async function handler(req, res) {
         const item = await redis.hgetall(key)
         const cleanId = key.replace(/^prompt:/, '')
         
-        let profileUrl = ''
+        // Fetch profile URL dari user
+        let profileUrl = '';
         if (item.uploadedBy) {
           const userData = await redis.hgetall(`user:${item.uploadedBy}`);
-          profileUrl = userData?.profileUrl || ''
+          profileUrl = userData?.profileUrl || '';
         }
         
         return { 
@@ -52,11 +35,12 @@ export default async function handler(req, res) {
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
           profileUrl: profileUrl,
-          timestamp: parseInt(item.timestamp) || 0
+          timestamp: parseInt(item.timestamp) || 0 // Ambil timestamp, default 0 untuk data lama
         }
       })
     )
 
+    // SORTING: Urutkan berdasarkan timestamp dari yang TERBARU (descending)
     data.sort((a, b) => b.timestamp - a.timestamp)
 
     res.status(200).json({ success: true, data } )
