@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  const { slug, kategori, judul, isi, adminName, imageUrl } = req.body
+  const { slug, kategori, judul, description, isi, adminName, imageUrl } = req.body
   const now = new Date()
   const createdAt = now.toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
@@ -33,6 +33,11 @@ export default async function handler(req, res) {
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB',
     timestamp: timestamp // Tambahkan timestamp untuk sorting
+  }
+
+  // Tambahkan description jika ada
+  if (description) {
+    promptData.description = description
   }
 
   // Tambahkan imageUrl jika ada
