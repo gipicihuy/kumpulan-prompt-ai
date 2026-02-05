@@ -29,6 +29,7 @@ export default async function handler(req, res) {
           id: cleanId, 
           kategori: item.kategori || 'Lainnya',
           judul: item.judul || 'Tanpa Judul',
+          description: item.description || '',
           isi: item.isi || '',
           uploadedBy: item.uploadedBy || 'Admin',
           createdAt: item.createdAt || '-',
