@@ -33,7 +33,6 @@
             transform: translateY(-2px);
         }
         
-        /* Skeleton Loading */
         .skeleton { 
             background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); 
             background-size: 200% 100%; 
@@ -44,14 +43,12 @@
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
         
-        /* Header dengan efek glassmorphism */
         header {
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
         
-        /* Input dengan style lebih modern */
         input[type="text"] {
             background: #1a1a1a !important;
             border: 1px solid #2a2a2a !important;
@@ -63,7 +60,6 @@
             box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
         }
         
-        /* Button styling */
         .btn-primary {
             background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
             transition: all 0.3s ease;
@@ -74,13 +70,12 @@
             transform: translateY(-1px);
         }
         
-        /* Category filter buttons */
         .category-btn {
             background: #1a1a1a;
             border: 1px solid #2a2a2a;
             transition: all 0.3s ease;
             color: #888;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
         .category-btn:hover {
             background: #1f1f1f;
@@ -97,7 +92,6 @@
             color: #000 !important;
         }
         
-        /* Hide scrollbar tapi tetap bisa scroll */
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -106,19 +100,16 @@
             display: none;
         }
         
-        /* Smooth scrolling */
         #categoryFilter {
             scroll-behavior: smooth;
         }
         
-        /* Footer styling */
         footer {
             background: rgba(26, 26, 26, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid #2a2a2a;
         }
         
-        /* Modal overlay */
         .modal-overlay {
             background: rgba(15, 15, 15, 0.95);
             backdrop-filter: blur(8px);
@@ -130,14 +121,12 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
 
-        /* Logo styling - LEBIH BESAR */
         .logo-img {
             width: 36px;
             height: 36px;
             object-fit: contain;
         }
 
-        /* ========== IMPROVED TOOLTIP STYLING ========== */
         .request-btn-tooltip {
             position: absolute;
             bottom: -3rem;
@@ -159,7 +148,6 @@
             letter-spacing: 0.01em;
         }
 
-        /* Arrow/pointer untuk tooltip */
         .request-btn-tooltip::before {
             content: '';
             position: absolute;
@@ -173,13 +161,11 @@
             transform: rotate(45deg);
         }
 
-        /* Show tooltip on hover */
         .group:hover .request-btn-tooltip {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Responsiveness - pindah posisi di mobile */
         @media (max-width: 640px) {
             .request-btn-tooltip {
                 right: 0;
@@ -191,7 +177,6 @@
             }
         }
 
-        /* Alternative: Label yang selalu visible di mobile */
         @media (max-width: 640px) {
             .mobile-label {
                 display: block;
@@ -225,19 +210,16 @@
                     <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
                 </h1>
                 
-                <!-- IMPROVED REQUEST BUTTON WITH BETTER TOOLTIP -->
                 <div class="flex flex-col items-center">
                     <button onclick="toggleModal(true)" title="Request Prompt" class="group relative inline-flex items-center justify-center w-10 h-10 bg-white rounded-full hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-md hover:shadow-lg z-20">
                         <img src="/assets/send-plus.svg" alt="Request" class="w-5 h-5" />
                         
-                        <!-- Tooltip yang lebih jelas -->
                         <span class="request-btn-tooltip">
                             <i class="fa-solid fa-paper-plane mr-1.5 text-xs"></i>
                             Request Prompt
                         </span>
                     </button>
                     
-                    <!-- Label untuk mobile -->
                     <span class="mobile-label">Request</span>
                 </div>
             </div>
@@ -246,22 +228,17 @@
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
             
-            <!-- Horizontal Scrollable Categories dengan Controls -->
             <div class="relative -mx-4 px-4">
-                <!-- Left Navigation Button -->
                 <button id="scrollLeftBtn" class="hidden absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-gradient-to-r from-[#1a1a1a] to-[#1f1f1f] border border-[#2a2a2a] rounded-full flex items-center justify-center text-white hover:bg-[#1f1f1f] hover:border-[#444] transition-all shadow-lg">
                     <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
                 
-                <!-- Right Navigation Button -->
                 <button id="scrollRightBtn" class="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-gradient-to-r from-[#1a1a1a] to-[#1f1f1f] border border-[#2a2a2a] rounded-full flex items-center justify-center text-white hover:bg-[#1f1f1f] hover:border-[#444] transition-all shadow-lg">
                     <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
                 
-                <!-- Left fade indicator -->
                 <div id="scrollLeftIndicator" class="hidden absolute left-0 top-0 bottom-2 w-12 bg-gradient-to-r from-[rgba(26,26,26,0.95)] to-transparent z-10 pointer-events-none"></div>
                 
-                <!-- Right fade indicator -->
                 <div id="scrollRightIndicator" class="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-[rgba(26,26,26,0.95)] to-transparent z-10 pointer-events-none"></div>
                 
                 <div id="categoryFilter" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth"></div>
@@ -272,7 +249,6 @@
     <main class="max-w-4xl mx-auto px-4 py-4">
         <div id="counter" class="text-base font-bold text-gray-400 uppercase tracking-widest mb-4"></div>
         
-        <!-- Skeleton Loading - DENGAN JARAK LEBIH LEBAR -->
         <div id="loading" class="space-y-4">
             <div class="card rounded-lg p-3 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -338,6 +314,9 @@
         </div>
     </div>
 
+    <script>
+        window.API_KEY = 'REPLACE_WITH_ENV_VAR';
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>
