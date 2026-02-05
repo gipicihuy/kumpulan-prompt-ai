@@ -138,6 +138,13 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
+        // Tampilan profile picture
+        const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
+            ? `<img src="${item.profileUrl}" class="w-4 h-4 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
+            : `<div class="w-4 h-4 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
+                 <i class="fa-solid fa-user text-[8px] text-gray-500"></i>
+               </div>`;
+        
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
@@ -150,10 +157,8 @@ function renderPrompts(data) {
             </div>
             <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-2.5">${item.isi}</p>
             <div class="pt-1.5 border-t border-[#2a2a2a] flex items-center gap-1.5">
-                <div class="w-4 h-4 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
-                    <i class="fa-solid fa-user text-[8px] text-gray-500"></i>
-                </div>
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Uploaded by <span class="text-gray-300">${item.uploadedBy}</span></span>
+                ${profilePicHtml}
+                <span class="text-[10px] font-bold text-gray-300 uppercase tracking-tight">@${item.uploadedBy}</span>
             </div>
         </a>
     `}).join('');
