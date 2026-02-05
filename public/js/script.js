@@ -3,8 +3,19 @@ let selectedCategory = 'all';
 
 async function fetchPrompts() {
     try {
-        const response = await fetch('/api/get-prompts');
+        const response = await fetch('/api/get-prompts', {
+            method: 'GET',
+            headers: {
+                'x-api-key': window.API_KEY || ''
+            }
+        });
         const json = await response.json();
+        
+        if (!json.success) {
+            console.error('API Error:', json.message);
+            return;
+        }
+        
         allPrompts = json.data;
         
         document.getElementById('loading').classList.add('hidden');
@@ -21,7 +32,6 @@ async function fetchPrompts() {
 function renderCategories() {
     const filterContainer = document.getElementById('categoryFilter');
     
-    // Ambil unique kategori dengan case-insensitive
     const categoriesMap = {};
     allPrompts.forEach(item => {
         const key = item.kategori.toLowerCase();
@@ -43,10 +53,8 @@ function renderCategories() {
         </button>
     `}).join('');
     
-    // Setup scroll indicators
     setupScrollIndicators();
     
-    // Auto scroll ke active category
     setTimeout(() => {
         const activeBtn = filterContainer.querySelector('.category-btn.active');
         if (activeBtn) {
@@ -67,7 +75,6 @@ function setupScrollIndicators() {
         const scrollWidth = filterContainer.scrollWidth;
         const clientWidth = filterContainer.clientWidth;
         
-        // Show/hide left indicator & button
         if (scrollLeft > 10) {
             leftIndicator.classList.remove('hidden');
             leftBtn.classList.remove('hidden');
@@ -76,7 +83,6 @@ function setupScrollIndicators() {
             leftBtn.classList.add('hidden');
         }
         
-        // Show/hide right indicator & button
         if (scrollLeft + clientWidth < scrollWidth - 10) {
             rightIndicator.classList.remove('hidden');
             rightBtn.classList.remove('hidden');
@@ -86,23 +92,18 @@ function setupScrollIndicators() {
         }
     }
     
-    // Scroll left button click
     leftBtn.addEventListener('click', () => {
         filterContainer.scrollBy({ left: -200, behavior: 'smooth' });
     });
     
-    // Scroll right button click
     rightBtn.addEventListener('click', () => {
         filterContainer.scrollBy({ left: 200, behavior: 'smooth' });
     });
     
-    // Initial check
     setTimeout(updateIndicators, 200);
     
-    // Update on scroll
     filterContainer.addEventListener('scroll', updateIndicators);
     
-    // Update on window resize
     window.addEventListener('resize', updateIndicators);
 }
 
@@ -115,7 +116,6 @@ function setCategory(cat) {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allPrompts.filter(item => {
-        // Case-insensitive kategori comparison
         const matchesCat = selectedCategory === 'all' || 
                           item.kategori.toLowerCase() === selectedCategory.toLowerCase();
         const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || 
@@ -138,7 +138,6 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
-        // Tampilan profile picture - LEBIH BESAR
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
             : `<div class="w-7 h-7 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
