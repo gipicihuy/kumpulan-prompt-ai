@@ -6,6 +6,14 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
+  const apiKey = req.headers['x-api-key']
+  if (!apiKey || apiKey !== process.env.API_KEY_SECRET) {
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Unauthorized - Invalid or missing API Key' 
+    })
+  }
+
   try {
     const keys = await redis.keys('prompt:*')
     
@@ -18,11 +26,10 @@ export default async function handler(req, res) {
         const item = await redis.hgetall(key)
         const cleanId = key.replace(/^prompt:/, '')
         
-        // Fetch profile URL dari user
-        let profileUrl = '';
+        let profileUrl = ''
         if (item.uploadedBy) {
           const userData = await redis.hgetall(`user:${item.uploadedBy}`);
-          profileUrl = userData?.profileUrl || '';
+          profileUrl = userData?.profileUrl || ''
         }
         
         return { 
@@ -35,12 +42,11 @@ export default async function handler(req, res) {
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
           profileUrl: profileUrl,
-          timestamp: parseInt(item.timestamp) || 0 // Ambil timestamp, default 0 untuk data lama
+          timestamp: parseInt(item.timestamp) || 0
         }
       })
     )
 
-    // SORTING: Urutkan berdasarkan timestamp dari yang TERBARU (descending)
     data.sort((a, b) => b.timestamp - a.timestamp)
 
     res.status(200).json({ success: true, data } )
