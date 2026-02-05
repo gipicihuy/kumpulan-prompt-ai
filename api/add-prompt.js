@@ -14,7 +14,8 @@ export default async function handler(req, res) {
   }
 
   const { slug, kategori, judul, isi, adminName, imageUrl } = req.body
-  const createdAt = new Date().toLocaleString('id-ID', { 
+  const now = new Date()
+  const createdAt = now.toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
     day: '2-digit',
     month: 'short',
@@ -22,6 +23,7 @@ export default async function handler(req, res) {
     hour: '2-digit',
     minute: '2-digit'
   })
+  const timestamp = now.getTime() // Timestamp numerik untuk sorting
 
   // Data yang akan disimpan
   const promptData = { 
@@ -29,7 +31,8 @@ export default async function handler(req, res) {
     judul, 
     isi, 
     uploadedBy: adminName || 'Admin',
-    createdAt: createdAt + ' WIB'
+    createdAt: createdAt + ' WIB',
+    timestamp: timestamp // Tambahkan timestamp untuk sorting
   }
 
   // Tambahkan imageUrl jika ada
