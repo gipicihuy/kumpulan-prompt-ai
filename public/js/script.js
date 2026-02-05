@@ -4,11 +4,14 @@ let selectedCategory = 'all';
 async function fetchPrompts() {
     try {
         const response = await fetch('/api/get-prompts', {
-            method: 'GET',
-            headers: {
-                'x-api-key': window.API_KEY || ''
-            }
+            method: 'GET'
         });
+        
+        if (response.status === 401) {
+            console.error('API Key tidak valid atau tidak dikirim');
+            return;
+        }
+        
         const json = await response.json();
         
         if (!json.success) {
