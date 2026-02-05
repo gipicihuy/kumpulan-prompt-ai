@@ -147,11 +147,9 @@
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
                     <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
                 </h1>
-                <button onclick="toggleModal(true)" class="text-sm font-bold text-white px-4 py-2.5 rounded-lg flex items-center gap-2 border border-[#444] bg-[#1a1a1a] hover:bg-[#1f1f1f] hover:border-[#555] transition-all">
-                    <span class="inline-flex items-center justify-center w-5 h-5 bg-white rounded-full">
-                        <img src="/assets/question-icon.svg" alt="Request" class="w-3.5 h-3.5" />
-                    </span>
-                    Req Prompt
+                <button onclick="toggleModal(true)" title="Request Prompt" class="group relative inline-flex items-center justify-center w-10 h-10 bg-white rounded-full hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-md hover:shadow-lg">
+                    <img src="/assets/question-icon.svg" alt="Request" class="w-5 h-5" />
+                    <span class="absolute -bottom-8 right-0 bg-[#1a1a1a] text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-[#2a2a2a] pointer-events-none">Request Prompt</span>
                 </button>
             </div>
             <div class="relative mb-3">
