@@ -21,27 +21,229 @@ export default async function handler(req, res) {
       return res.status(404).send('Prompt not found');
     }
 
-    // Buat meta description dari description atau isi prompt
-    const metaDescription = promptData.description && promptData.description.trim() !== ''
-      ? promptData.description
-      : (promptData.isi || '').substring(0, 150) + '...';
-    
-    // Gunakan imageUrl jika ada, kalau tidak pakai default
-    const metaImage = promptData.imageUrl && promptData.imageUrl.trim() !== ''
-      ? promptData.imageUrl
-      : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
-    
-    const pageTitle = `${promptData.judul} - AI Prompt Hub`;
-    
-    // Fetch profile URL dari user
-    let profileUrl = '';
-    if (promptData.uploadedBy) {
-      const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
-      profileUrl = userData?.profileUrl || '';
+    // Cek apakah prompt ini diproteksi dengan password
+    const isProtected = promptData.isProtected === 'true' || promptData.isProtected === true;
+
+    // Jika diproteksi, tampilkan halaman password input
+    if (isProtected) {
+      return res.status(200).send(renderPasswordPage(slug, promptData));
     }
 
-    // Render HTML dengan meta tags yang sudah terisi
-    const html = `<!DOCTYPE html>
+    // Jika tidak diproteksi, tampilkan halaman normal
+    return res.status(200).send(renderNormalPage(slug, promptData));
+    
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+// Fungsi untuk render halaman password input
+function renderPasswordPage(slug, promptData) {
+  const pageTitle = `${promptData.judul} - AI Prompt Hub`;
+  const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
+  const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+
+  return `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${pageTitle}</title>
+    
+    <!-- Meta tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AI Prompt Hub">
+    <meta property="og:title" content="${pageTitle}">
+    <meta property="og:description" content="${metaDescription}">
+    <meta property="og:image" content="${metaImage}">
+    <meta name="description" content="${metaDescription}">
+    
+    <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+            color: #e5e5e5;
+            min-height: 100vh;
+        }
+        header {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .password-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        input { 
+            background-color: #1a1a1a !important; 
+            border-color: #2a2a2a !important;
+            transition: all 0.3s ease;
+        }
+        input:focus { 
+            border-color: #444 !important; 
+            background-color: #1f1f1f !important;
+            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky top-0 z-10 shadow-lg">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="/" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition-colors">
+                <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
+            </a>
+            <h1 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Protected Content</h1>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-16">
+        <div class="password-card rounded-2xl p-8">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-lock text-5xl mb-4 block text-yellow-500"></i>
+                <h2 class="text-2xl font-bold text-white mb-2">${promptData.judul}</h2>
+                <p class="text-sm text-gray-400 uppercase tracking-wider">Password Required</p>
+            </div>
+            
+            <div class="mb-6">
+                <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">
+                    ${promptData.kategori || 'Lainnya'}
+                </span>
+            </div>
+
+            <p class="text-sm text-gray-300 mb-6 leading-relaxed">
+                <i class="fa-solid fa-info-circle mr-2 text-blue-400"></i>
+                Konten ini diproteksi dengan password. Silakan masukkan password untuk mengakses.
+            </p>
+
+            <form id="passwordForm" class="space-y-5">
+                <div>
+                    <label class="text-sm font-bold text-gray-400 uppercase mb-2 block">Enter Password</label>
+                    <input 
+                        type="password" 
+                        id="passwordInput" 
+                        placeholder="••••••••" 
+                        required 
+                        class="w-full p-4 rounded-xl border outline-none text-white text-base"
+                        autocomplete="off"
+                    >
+                </div>
+                <button type="submit" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base">
+                    <i class="fa-solid fa-unlock mr-2"></i>Unlock Content
+                </button>
+            </form>
+
+            <div id="errorMessage" class="hidden mt-5 p-4 bg-red-900/20 border border-red-800/50 rounded-lg">
+                <p class="text-sm text-red-400 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="errorText"></span>
+                </p>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-700">
+                <p class="text-xs text-gray-500 text-center">
+                    <i class="fa-solid fa-shield-halved mr-1"></i>
+                    Tidak punya password? Hubungi admin yang membuat prompt ini.
+                </p>
+                <p class="text-xs text-gray-400 text-center mt-2">
+                    Admin: <span class="text-white font-semibold">@${promptData.uploadedBy}</span>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifying...';
+            btn.disabled = true;
+
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            try {
+                const response = await fetch('/api/verify-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        slug: '${slug}',
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Password benar, reload halaman (akan menampilkan konten penuh)
+                    // Simpan session di localStorage
+                    sessionStorage.setItem('unlock_${slug}', 'true');
+                    location.reload();
+                } else {
+                    // Password salah
+                    errorText.textContent = result.message || 'Password salah!';
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('passwordInput').value = '';
+                    document.getElementById('passwordInput').focus();
+                    
+                    // Sembunyikan error setelah 3 detik
+                    setTimeout(() => {
+                        errorDiv.classList.add('hidden');
+                    }, 3000);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorText.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Auto focus ke input password
+        document.getElementById('passwordInput').focus();
+    </script>
+</body>
+</html>`;
+}
+
+// Fungsi untuk render halaman normal (tanpa password)
+async function renderNormalPage(slug, promptData) {
+  const metaDescription = promptData.description && promptData.description.trim() !== ''
+    ? promptData.description
+    : (promptData.isi || '').substring(0, 150) + '...';
+  
+  const metaImage = promptData.imageUrl && promptData.imageUrl.trim() !== ''
+    ? promptData.imageUrl
+    : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+  
+  const pageTitle = `${promptData.judul} - AI Prompt Hub`;
+  
+  // Fetch profile URL dari user
+  let profileUrl = '';
+  if (promptData.uploadedBy) {
+    const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
+    profileUrl = userData?.profileUrl || '';
+  }
+
+  return `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -257,12 +459,4 @@ export default async function handler(req, res) {
     </script>
 </body>
 </html>`;
-
-    res.setHeader('Content-Type', 'text/html');
-    res.status(200).send(html);
-    
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
-  }
 }
