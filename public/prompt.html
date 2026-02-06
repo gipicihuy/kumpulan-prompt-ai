@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Prompt</title>
+    
+    <!-- Meta tags untuk preview WhatsApp/Social Media - akan diupdate dinamis -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AI Prompt Hub">
+    <meta property="og:title" content="Detail Prompt - AI Prompt Hub">
+    <meta property="og:description" content="Kumpulan prompt AI yang lagi trend, keren, dll">
+    <meta property="og:image" content="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    <meta name="description" content="Koleksi prompt AI berkualitas untuk berbagai keperluan">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Detail Prompt - AI Prompt Hub">
+    <meta name="twitter:description" content="Koleksi prompt AI berkualitas untuk berbagai keperluan">
+    <meta name="twitter:image" content="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -148,6 +163,46 @@
     </main>
 
     <script>
+// Function untuk update meta tags secara dinamis
+function updateMetaTags(item) {
+    // Update title
+    document.title = `${item.judul} - AI Prompt Hub`;
+    
+    // Buat description dari isi prompt (ambil 150 karakter pertama)
+    let metaDescription = item.description && item.description.trim() !== '' 
+        ? item.description 
+        : item.isi.substring(0, 150) + '...';
+    
+    // Update meta description
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) descMeta.setAttribute('content', metaDescription);
+    
+    // Update Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', `${item.judul} - AI Prompt Hub`);
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', metaDescription);
+    
+    // Jika ada gambar, update og:image
+    if (item.imageUrl && item.imageUrl.trim() !== '') {
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        if (ogImage) ogImage.setAttribute('content', item.imageUrl);
+    }
+    
+    // Update Twitter Card
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', `${item.judul} - AI Prompt Hub`);
+    
+    const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDesc) twitterDesc.setAttribute('content', metaDescription);
+    
+    if (item.imageUrl && item.imageUrl.trim() !== '') {
+        const twitterImage = document.querySelector('meta[name="twitter:image"]');
+        if (twitterImage) twitterImage.setAttribute('content', item.imageUrl);
+    }
+}
+
 async function loadDetail() {
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     let slug = pathParts[pathParts.length - 1]; 
@@ -173,7 +228,9 @@ async function loadDetail() {
         }
 
         if (item) {
-            document.title = item.judul;
+            // UPDATE META TAGS DULU SEBELUM RENDER
+            updateMetaTags(item);
+            
             document.getElementById('detJudul').innerText = item.judul;
             document.getElementById('detKategori').innerText = item.kategori;
             document.getElementById('detIsi').innerText = item.isi;
