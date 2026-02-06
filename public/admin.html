@@ -26,9 +26,9 @@
         }
         .image-preview { 
             max-width: 100%; 
-            max-height: 200px; 
+            max-height: 160px; 
             object-fit: cover; 
-            border-radius: 12px; 
+            border-radius: 8px; 
         }
         
         header {
@@ -84,76 +84,103 @@
             background: rgba(74, 222, 128, 0.1);
             border-color: #4ade80;
         }
+
+        /* Compact label styling */
+        label {
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* File input styling */
+        input[type="file"] {
+            font-size: 0.75rem;
+        }
+        
+        input[type="file"]::file-selector-button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            color: #000;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
     
-    <header class="p-6 shadow-lg">
+    <header class="p-4 shadow-lg">
         <div class="max-w-2xl mx-auto flex justify-between items-center">
-            <h1 class="font-bold tracking-tighter uppercase text-xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Admin_Terminal</h1>
-            <a href="/" class="text-sm text-gray-400 hover:text-white uppercase font-bold transition-colors">Lihat Web</a>
+            <h1 class="font-bold tracking-tight text-base bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Admin Panel</h1>
+            <a href="/" class="text-xs text-gray-400 hover:text-white uppercase font-bold transition-colors">Lihat Web</a>
         </div>
     </header>
 
-    <main class="flex-grow p-6">
-        <div id="loginSection" class="max-w-md mx-auto mt-10">
-            <div class="login-card rounded-2xl p-8">
-                <i class="fa-solid fa-lock text-4xl mb-5 block text-center text-gray-400"></i>
-                <h2 class="text-center font-bold mb-8 uppercase tracking-widest text-xl text-gray-300">Restricted Access</h2>
-                <div class="space-y-5">
+    <main class="flex-grow p-4">
+        <div id="loginSection" class="max-w-md mx-auto mt-8">
+            <div class="login-card rounded-xl p-6">
+                <i class="fa-solid fa-lock text-3xl mb-4 block text-center text-gray-400"></i>
+                <h2 class="text-center font-bold mb-6 uppercase tracking-wide text-lg text-gray-300">Restricted Access</h2>
+                <div class="space-y-4">
                     <div>
-                        <label class="text-sm font-bold text-gray-400 uppercase">Username</label>
-                        <input type="text" id="user" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Username</label>
+                        <input type="text" id="user" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
                     </div>
                     <div>
-                        <label class="text-sm font-bold text-gray-400 uppercase">Password</label>
-                        <input type="password" id="pass" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Password</label>
+                        <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
                     </div>
-                    <button onclick="login()" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base mt-5">Initialize Login</button>
+                    <button onclick="login()" class="w-full btn-primary text-black font-bold py-3 rounded-lg uppercase tracking-wide text-sm mt-4">Login</button>
                 </div>
             </div>
         </div>
 
         <div id="adminSection" class="max-w-2xl mx-auto hidden">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-bold uppercase tracking-tighter border-l-4 border-gray-400 pl-4 text-gray-200">Post New Prompt</h2>
-                <button onclick="logout()" class="text-sm font-bold text-red-400 hover:text-red-300 hover:underline transition-colors">LOGOUT_SESSION</button>
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-lg font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200">New Prompt</h2>
+                <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
             </div>
 
-            <div class="space-y-6 admin-card p-8 rounded-2xl">
+            <div class="space-y-4 admin-card p-5 rounded-xl">
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase">Judul Prompt</label>
-                    <input type="text" id="judul" placeholder="Nama Prompt (Huruf & Angka)" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
-                    <p class="text-xs text-gray-500 mt-2">💡 URL Slug akan otomatis generate dari judul ini</p>
+                    <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
+                    <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                    <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate</p>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase">Preview URL Slug</label>
-                    <div id="slugPreview" class="slug-preview w-full mt-2 p-4 rounded-xl text-gray-500 text-sm font-mono">/prompt/...</div>
+                    <label class="text-gray-400 uppercase block mb-1.5">Preview URL</label>
+                    <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-gray-500 text-xs font-mono">/prompt/...</div>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase">Kategori</label>
-                    <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base">
+                    <label class="text-gray-400 uppercase block mb-1.5">Kategori</label>
+                    <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase">Description (Opsional)</label>
-                    <textarea id="description" rows="2" placeholder="Deskripsi singkat prompt ini..." class="w-full mt-2 p-4 rounded-xl border outline-none text-white resize-none text-base"></textarea>
-                    <p class="text-xs text-gray-500 mt-2">💡 Deskripsi singkat yang akan muncul di detail view</p>
+                    <label class="text-gray-400 uppercase block mb-1.5">Description (Opsional)</label>
+                    <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
                 </div>
                 
                 <!-- Password Protection Section -->
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved"></i> Proteksi Password (Opsional)
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-gray-400 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-xs"></i> Password Protection
                         </label>
                         <button 
                             type="button" 
                             id="togglePassword" 
                             onclick="togglePasswordField()"
-                            class="password-toggle px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all"
+                            class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
                         >
                             <i class="fa-solid fa-lock"></i> Enable
                         </button>
@@ -162,48 +189,50 @@
                         <input 
                             type="text" 
                             id="password" 
-                            placeholder="Masukkan password untuk proteksi prompt ini" 
-                            class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base"
+                            placeholder="Enter password" 
+                            class="w-full p-3 rounded-lg border outline-none text-white text-sm"
                             autocomplete="off"
                         >
-                        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
+                        <p class="text-[10px] text-yellow-500 mt-1 flex items-center gap-1">
                             <i class="fa-solid fa-exclamation-triangle"></i>
-                            User harus memasukkan password ini untuk melihat konten prompt
+                            User perlu password untuk akses
                         </p>
                     </div>
                 </div>
 
                 <!-- Upload Image Section -->
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-image"></i> Upload Gambar Preview (Opsional)
+                    <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
                     </label>
-                    <div class="mt-2">
-                        <input type="file" id="imageFile" accept="image/*" class="w-full p-4 rounded-xl border outline-none text-white text-base file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-gray-200 file:to-white file:text-black hover:file:from-gray-300 hover:file:to-gray-100">
-                    </div>
+                    <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
+                    
                     <!-- Image Preview -->
-                    <div id="imagePreviewContainer" class="mt-4 hidden">
-                        <p class="text-xs text-gray-400 uppercase font-bold mb-2">Preview:</p>
-                        <div class="border border-[#2a2a2a] rounded-xl p-3 bg-[#0f0f0f]">
+                    <div id="imagePreviewContainer" class="mt-3 hidden">
+                        <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
                             <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
                         </div>
-                        <button onclick="removeImage()" class="mt-2 text-xs text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
-                            <i class="fa-solid fa-trash"></i> Hapus Gambar
+                        <button onclick="removeImage()" class="mt-2 text-[10px] text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
+                            <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase">Isi Prompt</label>
-                    <textarea id="isi" rows="8" placeholder="Paste prompt lengkap di sini..." class="w-full mt-2 p-4 rounded-xl border outline-none text-white resize-none text-base"></textarea>
+                    <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
+                    <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
                 </div>
-                <button onclick="save()" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base">Upload to Redis</button>
+                <button onclick="save()" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
+                    <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
+                </button>
             </div>
         </div>
     </main>
 
-    <footer class="p-8 text-center text-sm text-gray-500 font-bold uppercase tracking-[0.2em]">
-        System Version 2.1.0 - Security Active
+    <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8" style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(10px);">
+        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
+            © 2026 Prompt Hub
+        </p>
     </footer>
 
     <script>
@@ -237,8 +266,8 @@
             return text
                 .toLowerCase()
                 .trim()
-                .replace(/[^a-z0-9]+/g, '-')  // Ganti non-alphanumeric dengan dash
-                .replace(/^-+|-+$/g, '');      // Hapus dash di awal & akhir
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
         }
 
         // Update preview slug real-time saat judul diketik
@@ -277,7 +306,10 @@
         async function login() {
             const userVal = document.getElementById('user').value;
             const btn = event.target;
-            btn.innerText = 'Verifying...';
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';
+            btn.disabled = true;
+            
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
@@ -293,12 +325,13 @@
                     localStorage.setItem('adminName', userVal);
                     showAdmin();
                 } else { 
-                    alert('Akses Ditolak: Kredensial Salah'); 
-                    btn.innerText = 'Initialize Login';
+                    alert('❌ Kredensial Salah'); 
                 }
             } catch (e) {
-                alert('Server Error');
-                btn.innerText = 'Initialize Login';
+                alert('❌ Server Error');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
 
@@ -309,8 +342,8 @@
 
         async function save() {
             const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = 'Uploading...';
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Processing...';
             btn.disabled = true;
 
             try {
@@ -319,9 +352,6 @@
                 // Cek apakah ada file gambar yang diupload
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
-                    btn.innerText = 'Uploading Image...';
-                    
-                    // Upload gambar ke API
                     const formData = new FormData();
                     formData.append('file', imageFile);
 
@@ -341,8 +371,6 @@
 
                     imageUrl = uploadData.imageUrl;
                 }
-
-                btn.innerText = 'Saving Prompt...';
 
                 // Generate slug dari judul
                 const judul = document.getElementById('judul').value;
@@ -364,16 +392,16 @@
                 };
 
                 if(!body.slug || !body.judul || !body.isi) {
-                    alert('Isi semua field wajib (judul, kategori, isi)!');
-                    btn.innerText = originalText;
+                    alert('❌ Isi field wajib (judul, kategori, isi)!');
+                    btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
                 }
 
                 // Validasi password jika enabled
                 if (passwordEnabled && (!password || password.trim() === '')) {
-                    alert('Password protection enabled tapi password kosong!');
-                    btn.innerText = originalText;
+                    alert('❌ Password kosong!');
+                    btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
                 }
@@ -388,16 +416,16 @@
                 });
                 
                 if (res.ok) { 
-                    alert('✅ Data Berhasil Disimpan!' + (passwordEnabled ? '\n🔒 Prompt ini diproteksi dengan password.' : '')); 
+                    alert('✅ Prompt berhasil diupload!' + (passwordEnabled ? '\n🔒 Prompt diproteksi.' : '')); 
                     location.reload(); 
                 } else {
-                    alert('❌ Gagal menyimpan data.');
+                    alert('❌ Gagal menyimpan.');
                 }
             } catch (e) {
                 console.error('Error:', e);
                 alert('❌ Error: ' + e.message);
             } finally {
-                btn.innerText = originalText;
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
