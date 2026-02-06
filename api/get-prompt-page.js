@@ -21,7 +21,7 @@ function parseCookies(cookieHeader) {
 
 export default async function handler(req, res) {
   // Ambil slug dari request
-  const { slug } = req.query;
+  const { slug, verified } = req.query;
   
   if (!slug) {
     return res.status(404).send('Slug not found');
@@ -51,29 +51,33 @@ export default async function handler(req, res) {
       const cookies = parseCookies(req.headers.cookie)
       const sessionToken = cookies[`prompt_session_${slug}`]
       
-      if (!sessionToken) {
-        // Tidak ada session cookie, tampilkan halaman password input
-        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+      // Cek apakah ada parameter verified=true dari client-side
+      // Parameter ini hanya dikirim SAAT PERTAMA kali setelah verify password
+      if (verified === 'true' && sessionToken) {
+        // Validate token di Redis
+        const sessionKey = `session:${slug}:${sessionToken}`
+        const isValidSession = await redis.get(sessionKey)
+        
+        if (isValidSession === 'valid') {
+          // Session valid! Tampilkan halaman normal dengan flag untuk sessionStorage
+          return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, true));
+        }
       }
       
-      // Ada session token, validate di Redis
-      const sessionKey = `session:${slug}:${sessionToken}`
-      const isValidSession = await redis.get(sessionKey)
-      
-      if (isValidSession === 'valid') {
-        // Session valid! Tampilkan halaman normal
-        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
-      } else {
-        // Session invalid/expired, hapus cookie dan tampilkan password page
+      // Jika tidak ada verified=true, berarti user refresh/navigate back
+      // Atau cookie invalid, tampilkan password page
+      // Hapus cookie kalau ada
+      if (sessionToken) {
         res.setHeader('Set-Cookie', [
           `prompt_session_${slug}=; Path=/; Max-Age=0`,
         ])
-        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
+      
+      return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
     }
 
     // Jika tidak diproteksi, tampilkan halaman normal
-    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
+    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, false));
     
   } catch (error) {
     console.error('Error:', error);
@@ -235,8 +239,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
                 if (result.success) {
                     // Password benar! Cookie sudah di-set oleh server
-                    // Redirect ke URL yang sama (tanpa query parameter)
-                    window.location.href = '/prompt/${slug}';
+                    // Redirect dengan parameter verified=true untuk set sessionStorage
+                    window.location.href = '/prompt/${slug}?verified=true';
                 } else {
                     // Password salah
                     errorText.textContent = result.message || 'Password salah!';
@@ -267,7 +271,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 }
 
 // Fungsi untuk render halaman normal (tanpa password)
-function renderNormalPage(slug, promptData, profileUrl = '') {
+function renderNormalPage(slug, promptData, profileUrl = '', setSession = false) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
     : (promptData.isi || '').substring(0, 150) + '...';
@@ -452,6 +456,31 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
           isi: promptData.isi,
           slug: slug
         })};
+        
+        const setSession = ${setSession};
+        
+        // SECURITY: Set sessionStorage flag hanya jika baru saja verify password
+        if (setSession) {
+            sessionStorage.setItem('prompt_verified_${slug}', 'true');
+        } else {
+            // Jika tidak ada flag setSession, cek apakah ada sessionStorage
+            // Kalau tidak ada, redirect ke password page (user refresh/navigate back)
+            const isVerified = sessionStorage.getItem('prompt_verified_${slug}');
+            if (!isVerified) {
+                // Redirect ke password page
+                window.location.href = '/prompt/${slug}';
+            }
+        }
+        
+        // SECURITY: Clear sessionStorage saat user keluar dari halaman
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.removeItem('prompt_verified_${slug}');
+        });
+        
+        // SECURITY: Clear sessionStorage saat navigasi (back/forward button)
+        window.addEventListener('pagehide', function() {
+            sessionStorage.removeItem('prompt_verified_${slug}');
+        });
         
         document.getElementById('copyCodeBtn').onclick = () => {
             navigator.clipboard.writeText(promptData.isi);
