@@ -24,13 +24,20 @@ export default async function handler(req, res) {
     // Cek apakah prompt ini diproteksi dengan password
     const isProtected = promptData.isProtected === 'true' || promptData.isProtected === true;
 
+    // Fetch profile URL dari user
+    let profileUrl = '';
+    if (promptData.uploadedBy) {
+      const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
+      profileUrl = userData?.profileUrl || '';
+    }
+
     // Jika diproteksi, tampilkan halaman password input
     if (isProtected) {
-      return res.status(200).send(renderPasswordPage(slug, promptData));
+      return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
     }
 
     // Jika tidak diproteksi, tampilkan halaman normal
-    return res.status(200).send(renderNormalPage(slug, promptData));
+    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
     
   } catch (error) {
     console.error('Error:', error);
@@ -39,7 +46,7 @@ export default async function handler(req, res) {
 }
 
 // Fungsi untuk render halaman password input
-function renderPasswordPage(slug, promptData) {
+function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
@@ -225,7 +232,7 @@ function renderPasswordPage(slug, promptData) {
 }
 
 // Fungsi untuk render halaman normal (tanpa password)
-async function renderNormalPage(slug, promptData) {
+function renderNormalPage(slug, promptData, profileUrl = '') {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
     : (promptData.isi || '').substring(0, 150) + '...';
@@ -235,13 +242,6 @@ async function renderNormalPage(slug, promptData) {
     : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
   
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
-  
-  // Fetch profile URL dari user
-  let profileUrl = '';
-  if (promptData.uploadedBy) {
-    const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
-    profileUrl = userData?.profileUrl || '';
-  }
 
   return `<!DOCTYPE html>
 <html lang="id">
