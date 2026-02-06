@@ -189,12 +189,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             justify-content: center;
             width: 32px;
             height: 32px;
-        }
-        .toggle-password-btn:hover {
-            transform: scale(1.05);
-        }
-        .toggle-password-btn:active {
-            transform: scale(0.95);
+            transition: color 0.2s ease;
         }
         .toggle-password-btn i {
             display: flex;
