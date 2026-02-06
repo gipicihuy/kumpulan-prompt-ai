@@ -170,7 +170,7 @@ export default async function handler(req, res) {
                     Description
                 </h3>
                 <hr class="border-0 h-px bg-[#2a2a2a] mb-2">
-                <p class="text-sm text-gray-300 leading-relaxed mb-3">${promptData.description}</p>
+                <p class="text-sm text-gray-300 leading-relaxed mb-3" style="white-space: pre-line;">${promptData.description}</p>
                 <hr class="border-0 h-px bg-[#2a2a2a]">
             </div>
             ` : ''}
