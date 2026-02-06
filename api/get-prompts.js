@@ -25,19 +25,25 @@ export default async function handler(req, res) {
           profileUrl = userData?.profileUrl || '';
         }
         
+        // Cek apakah prompt ini protected
+        const isProtected = item.isProtected === 'true' || item.isProtected === true;
+        
+        // Untuk protected prompts, JANGAN expose isi dan description ke public API
         return { 
           id: cleanId, 
           kategori: item.kategori || 'Lainnya',
           judul: item.judul || 'Tanpa Judul',
-          description: item.description || '',
-          isi: item.isi || '',
+          // Hidden untuk protected prompts
+          description: isProtected ? '' : (item.description || ''),
+          // Hidden untuk protected prompts - replace dengan placeholder
+          isi: isProtected ? '🔒 This content is password protected' : (item.isi || ''),
           uploadedBy: item.uploadedBy || 'Admin',
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
           profileUrl: profileUrl,
           timestamp: parseInt(item.timestamp) || 0,
-          isProtected: item.isProtected === 'true' || item.isProtected === true || false,
-          // Jangan expose password ke client!
+          isProtected: isProtected,
+          // Password TIDAK PERNAH di-expose ke client!
         }
       })
     )
