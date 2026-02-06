@@ -1,9 +1,17 @@
 import { Redis } from '@upstash/redis'
+import crypto from 'crypto'
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
+
+// Generate secure session token
+function generateSessionToken(slug) {
+  return crypto.createHash('sha256')
+    .update(`${slug}-${Date.now()}-${Math.random()}`)
+    .digest('hex')
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
@@ -31,18 +39,21 @@ export default async function handler(req, res) {
 
     // Verifikasi password
     if (promptData.password === password.trim()) {
-      // Password benar, kembalikan data lengkap
+      // Password benar! Generate secure session token
+      const sessionToken = generateSessionToken(slug)
+      
+      // Simpan session token di Redis dengan TTL 1 jam (3600 detik)
+      await redis.setex(`session:${slug}:${sessionToken}`, 3600, 'valid')
+      
+      // Set cookie dengan HttpOnly dan Secure flags
+      res.setHeader('Set-Cookie', [
+        `prompt_session_${slug}=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600`,
+      ])
+      
+      // Return success tanpa expose token
       return res.status(200).json({ 
-        success: true, 
-        data: {
-          judul: promptData.judul,
-          kategori: promptData.kategori,
-          description: promptData.description || '',
-          isi: promptData.isi,
-          uploadedBy: promptData.uploadedBy,
-          createdAt: promptData.createdAt,
-          imageUrl: promptData.imageUrl || ''
-        }
+        success: true,
+        message: 'Password benar'
       })
     } else {
       // Password salah
