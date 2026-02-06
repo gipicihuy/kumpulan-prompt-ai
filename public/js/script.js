@@ -138,12 +138,17 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
-        // Tampilan profile picture - LEBIH BESAR
+        // Tampilan profile picture
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
             : `<div class="w-7 h-7 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
                  <i class="fa-solid fa-user text-xs text-gray-500"></i>
                </div>`;
+        
+        // Icon lock jika prompt diproteksi
+        const lockIcon = item.isProtected 
+            ? `<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>` 
+            : '';
         
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
@@ -152,7 +157,9 @@ function renderPrompts(data) {
                 <span class="text-[9px] text-white font-mono uppercase tracking-wide">${item.createdAt}</span>
             </div>
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors">${item.judul}</h3>
+                <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors flex items-center">
+                    ${item.judul}${lockIcon}
+                </h3>
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
             <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-2.5">${item.isi}</p>
