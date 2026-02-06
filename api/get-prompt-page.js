@@ -181,6 +181,13 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             justify-content: center;
             margin: 0 auto 1.5rem;
         }
+        .toggle-password-btn {
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-password-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -236,14 +243,25 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                             <i class="fa-solid fa-key text-xs"></i>
                             Enter Password
                         </label>
-                        <input 
-                            type="password" 
-                            id="passwordInput" 
-                            placeholder="••••••••" 
-                            required 
-                            class="w-full p-4 rounded-xl border outline-none text-white text-base"
-                            autocomplete="off"
-                        >
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="passwordInput" 
+                                placeholder="••••••••" 
+                                required 
+                                class="w-full p-4 pr-12 rounded-xl border outline-none text-white text-base"
+                                autocomplete="off"
+                            >
+                            <button 
+                                type="button" 
+                                id="togglePasswordBtn" 
+                                onclick="togglePasswordVisibility()"
+                                class="toggle-password-btn absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-all"
+                                title="Show/Hide Password"
+                            >
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="w-full btn-primary text-black font-bold py-4 rounded-xl uppercase tracking-widest text-sm">
                         <i class="fa-solid fa-unlock mr-2"></i>Unlock Prompt
@@ -274,6 +292,25 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     </main>
 
     <script>
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const icon = toggleBtn.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                toggleBtn.setAttribute('title', 'Hide Password');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                toggleBtn.setAttribute('title', 'Show Password');
+            }
+        }
+
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
