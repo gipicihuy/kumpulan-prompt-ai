@@ -5,9 +5,23 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
+// Helper function untuk parse cookies
+function parseCookies(cookieHeader) {
+  const cookies = {}
+  if (!cookieHeader) return cookies
+  
+  cookieHeader.split(';').forEach(cookie => {
+    const [name, value] = cookie.trim().split('=')
+    if (name && value) {
+      cookies[name] = value
+    }
+  })
+  return cookies
+}
+
 export default async function handler(req, res) {
-  // Ambil slug dan query parameter dari request
-  const { slug, unlocked } = req.query;
+  // Ambil slug dari request
+  const { slug } = req.query;
   
   if (!slug) {
     return res.status(404).send('Slug not found');
@@ -31,12 +45,34 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Jika diproteksi DAN belum unlocked, tampilkan halaman password input
-    if (isProtected && unlocked !== 'true') {
-      return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+    // Jika diproteksi
+    if (isProtected) {
+      // Parse cookies dari request
+      const cookies = parseCookies(req.headers.cookie)
+      const sessionToken = cookies[`prompt_session_${slug}`]
+      
+      if (!sessionToken) {
+        // Tidak ada session cookie, tampilkan halaman password input
+        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+      }
+      
+      // Ada session token, validate di Redis
+      const sessionKey = `session:${slug}:${sessionToken}`
+      const isValidSession = await redis.get(sessionKey)
+      
+      if (isValidSession === 'valid') {
+        // Session valid! Tampilkan halaman normal
+        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
+      } else {
+        // Session invalid/expired, hapus cookie dan tampilkan password page
+        res.setHeader('Set-Cookie', [
+          `prompt_session_${slug}=; Path=/; Max-Age=0`,
+        ])
+        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+      }
     }
 
-    // Jika tidak diproteksi ATAU sudah unlocked, tampilkan halaman normal
+    // Jika tidak diproteksi, tampilkan halaman normal
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
     
   } catch (error) {
@@ -198,8 +234,9 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Password benar! Redirect ke halaman prompt dengan query parameter
-                    window.location.href = '/prompt/${slug}?unlocked=true';
+                    // Password benar! Cookie sudah di-set oleh server
+                    // Redirect ke URL yang sama (tanpa query parameter)
+                    window.location.href = '/prompt/${slug}';
                 } else {
                     // Password salah
                     errorText.textContent = result.message || 'Password salah!';
