@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  const { slug, kategori, judul, description, isi, adminName, imageUrl } = req.body
+  const { slug, kategori, judul, description, isi, adminName, imageUrl, password } = req.body
   const now = new Date()
   const createdAt = now.toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
@@ -43,6 +43,14 @@ export default async function handler(req, res) {
   // Tambahkan imageUrl jika ada
   if (imageUrl) {
     promptData.imageUrl = imageUrl
+  }
+
+  // Tambahkan password jika ada
+  if (password && password.trim() !== '') {
+    promptData.password = password.trim()
+    promptData.isProtected = true
+  } else {
+    promptData.isProtected = false
   }
 
   await redis.hset(`prompt:${slug}`, promptData)
