@@ -150,6 +150,11 @@ function renderPrompts(data) {
             ? `<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>` 
             : '';
         
+        // Untuk protected prompts, tampilkan placeholder text alih-alih konten asli
+        const previewText = item.isProtected 
+            ? '🔒 This content is password protected. Click to unlock.'
+            : item.isi;
+        
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
@@ -162,7 +167,7 @@ function renderPrompts(data) {
                 </h3>
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
-            <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-2.5">${item.isi}</p>
+            <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2.5">${previewText}</p>
             <div class="pt-1.5 border-t border-[#2a2a2a] flex items-center gap-2">
                 ${profilePicHtml}
                 <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
