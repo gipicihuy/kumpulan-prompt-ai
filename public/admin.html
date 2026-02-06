@@ -74,6 +74,16 @@
             border-color: #4ade80;
             background: rgba(74, 222, 128, 0.05);
         }
+
+        .password-toggle {
+            background: #1f1f1f;
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+        }
+        .password-toggle.active {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: #4ade80;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -133,6 +143,36 @@
                     <p class="text-xs text-gray-500 mt-2">💡 Deskripsi singkat yang akan muncul di detail view</p>
                 </div>
                 
+                <!-- Password Protection Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved"></i> Proteksi Password (Opsional)
+                        </label>
+                        <button 
+                            type="button" 
+                            id="togglePassword" 
+                            onclick="togglePasswordField()"
+                            class="password-toggle px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all"
+                        >
+                            <i class="fa-solid fa-lock"></i> Enable
+                        </button>
+                    </div>
+                    <div id="passwordField" class="hidden">
+                        <input 
+                            type="text" 
+                            id="password" 
+                            placeholder="Masukkan password untuk proteksi prompt ini" 
+                            class="w-full mt-2 p-4 rounded-xl border outline-none text-white text-base"
+                            autocomplete="off"
+                        >
+                        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                            User harus memasukkan password ini untuk melihat konten prompt
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Upload Image Section -->
                 <div>
                     <label class="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
@@ -163,12 +203,34 @@
     </main>
 
     <footer class="p-8 text-center text-sm text-gray-500 font-bold uppercase tracking-[0.2em]">
-        System Version 2.0.4 - Security Active
+        System Version 2.1.0 - Security Active
     </footer>
 
     <script>
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
+
+        let passwordEnabled = false;
+
+        // Function untuk toggle password field
+        function togglePasswordField() {
+            passwordEnabled = !passwordEnabled;
+            const passwordField = document.getElementById('passwordField');
+            const toggleBtn = document.getElementById('togglePassword');
+            
+            if (passwordEnabled) {
+                passwordField.classList.remove('hidden');
+                toggleBtn.classList.add('active');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
+                toggleBtn.style.color = '#4ade80';
+            } else {
+                passwordField.classList.add('hidden');
+                toggleBtn.classList.remove('active');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
+                toggleBtn.style.color = '';
+                document.getElementById('password').value = '';
+            }
+        }
 
         // Function untuk generate slug dari judul
         function generateSlug(text) {
@@ -286,7 +348,10 @@
                 const judul = document.getElementById('judul').value;
                 const slug = generateSlug(judul);
 
-                // Simpan prompt dengan description dan imageUrl
+                // Ambil password jika enabled
+                const password = passwordEnabled ? document.getElementById('password').value : '';
+
+                // Simpan prompt dengan description, imageUrl, dan password
                 const body = {
                     slug: slug,
                     judul: judul,
@@ -294,11 +359,20 @@
                     description: document.getElementById('description').value,
                     isi: document.getElementById('isi').value,
                     adminName: localStorage.getItem('adminName'),
-                    imageUrl: imageUrl
+                    imageUrl: imageUrl,
+                    password: password
                 };
 
                 if(!body.slug || !body.judul || !body.isi) {
                     alert('Isi semua field wajib (judul, kategori, isi)!');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Validasi password jika enabled
+                if (passwordEnabled && (!password || password.trim() === '')) {
+                    alert('Password protection enabled tapi password kosong!');
                     btn.innerText = originalText;
                     btn.disabled = false;
                     return;
@@ -314,7 +388,7 @@
                 });
                 
                 if (res.ok) { 
-                    alert('✅ Data Berhasil Disimpan!'); 
+                    alert('✅ Data Berhasil Disimpan!' + (passwordEnabled ? '\n🔒 Prompt ini diproteksi dengan password.' : '')); 
                     location.reload(); 
                 } else {
                     alert('❌ Gagal menyimpan data.');
