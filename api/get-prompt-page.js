@@ -184,9 +184,22 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .toggle-password-btn {
             cursor: pointer;
             user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
         }
         .toggle-password-btn:hover {
             transform: scale(1.05);
+        }
+        .toggle-password-btn:active {
+            transform: scale(0.95);
+        }
+        .toggle-password-btn i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
