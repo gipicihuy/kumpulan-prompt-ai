@@ -6,8 +6,8 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
-  // Ambil slug dari query parameter
-  const { slug } = req.query;
+  // Ambil slug dan query parameter dari request
+  const { slug, unlocked } = req.query;
   
   if (!slug) {
     return res.status(404).send('Slug not found');
@@ -31,12 +31,12 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Jika diproteksi, tampilkan halaman password input
-    if (isProtected) {
+    // Jika diproteksi DAN belum unlocked, tampilkan halaman password input
+    if (isProtected && unlocked !== 'true') {
       return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
     }
 
-    // Jika tidak diproteksi, tampilkan halaman normal
+    // Jika tidak diproteksi ATAU sudah unlocked, tampilkan halaman normal
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
     
   } catch (error) {
@@ -198,10 +198,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Password benar, reload halaman (akan menampilkan konten penuh)
-                    // Simpan session di localStorage
-                    sessionStorage.setItem('unlock_${slug}', 'true');
-                    location.reload();
+                    // Password benar! Redirect ke halaman prompt dengan query parameter
+                    window.location.href = '/prompt/${slug}?unlocked=true';
                 } else {
                     // Password salah
                     errorText.textContent = result.message || 'Password salah!';
