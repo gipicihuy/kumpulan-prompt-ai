@@ -35,7 +35,9 @@ export default async function handler(req, res) {
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
           profileUrl: profileUrl,
-          timestamp: parseInt(item.timestamp) || 0 // Ambil timestamp, default 0 untuk data lama
+          timestamp: parseInt(item.timestamp) || 0,
+          isProtected: item.isProtected === 'true' || item.isProtected === true || false,
+          // Jangan expose password ke client!
         }
       })
     )
