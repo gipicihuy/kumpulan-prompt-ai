@@ -42,12 +42,14 @@ export default async function handler(req, res) {
       // Password benar! Generate secure session token
       const sessionToken = generateSessionToken(slug)
       
-      // Simpan session token di Redis dengan TTL 1 jam (3600 detik)
-      await redis.setex(`session:${slug}:${sessionToken}`, 3600, 'valid')
+      // Simpan session token di Redis dengan TTL 5 menit (300 detik)
+      // Short-lived untuk keamanan lebih tinggi
+      await redis.setex(`session:${slug}:${sessionToken}`, 300, 'valid')
       
-      // Set cookie dengan HttpOnly dan Secure flags
+      // Set session cookie (expire saat browser/tab ditutup)
+      // Tidak pakai Max-Age = session cookie
       res.setHeader('Set-Cookie', [
-        `prompt_session_${slug}=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600`,
+        `prompt_session_${slug}=${sessionToken}; Path=/; HttpOnly; SameSite=Strict`,
       ])
       
       // Return success tanpa expose token
