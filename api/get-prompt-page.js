@@ -81,11 +81,18 @@ export default async function handler(req, res) {
   }
 }
 
-// Fungsi untuk render halaman password input
+// Fungsi untuk render halaman password input - REDESIGNED!
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+
+  // Render profile picture seperti di detail view
+  const profilePicHtml = profileUrl && profileUrl.trim() !== '' 
+    ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
+    : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]">
+         <i class="fa-solid fa-user text-sm text-gray-500"></i>
+       </div>`;
 
   return `<!DOCTYPE html>
 <html lang="id">
@@ -117,10 +124,10 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
-        .password-card {
+        .password-container {
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
         input { 
             background-color: #1a1a1a !important; 
@@ -141,69 +148,127 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
             transform: translateY(-1px);
         }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: #e5e5e5;
+            transform: translateX(-2px);
+        }
+        .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #444;
+        }
+        .profile-pic-placeholder {
+            width: 32px;
+            height: 32px;
+        }
+        .lock-icon-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
     </style>
 </head>
 <body>
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="/" class="text-gray-400 font-bold text-xs flex items-center gap-2 hover:text-white transition-colors">
+            <a href="/" class="back-btn text-gray-400 font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
             <h1 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Protected Content</h1>
         </div>
     </header>
 
-    <main class="max-w-md mx-auto px-4 py-16">
-        <div class="password-card rounded-2xl p-8">
-            <div class="text-center mb-8">
-                <i class="fa-solid fa-lock text-5xl mb-4 block text-yellow-500"></i>
-                <h2 class="text-2xl font-bold text-white mb-2">${promptData.judul}</h2>
-                <p class="text-sm text-gray-400 uppercase tracking-wider">Password Required</p>
-            </div>
-            
-            <div class="mb-6">
-                <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">
-                    ${promptData.kategori || 'Lainnya'}
-                </span>
-            </div>
-
-            <p class="text-sm text-gray-300 mb-6 leading-relaxed">
-                <i class="fa-solid fa-info-circle mr-2 text-blue-400"></i>
-                Konten ini diproteksi dengan password. Silakan masukkan password untuk mengakses.
-            </p>
-
-            <form id="passwordForm" class="space-y-5">
-                <div>
-                    <label class="text-sm font-bold text-gray-400 uppercase mb-2 block">Enter Password</label>
-                    <input 
-                        type="password" 
-                        id="passwordInput" 
-                        placeholder="••••••••" 
-                        required 
-                        class="w-full p-4 rounded-xl border outline-none text-white text-base"
-                        autocomplete="off"
-                    >
+    <main class="max-w-3xl mx-auto px-4 py-6">
+        <!-- Header Info - sama seperti detail view -->
+        <div class="mb-5 border-l-2 border-yellow-500 pl-3">
+            <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">
+                ${promptData.kategori || 'Lainnya'}
+            </span>
+            <h2 class="text-xl font-bold text-white mt-3 uppercase tracking-tight leading-tight flex items-center gap-2">
+                ${promptData.judul}
+                <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
+            </h2>
+            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                <div class="flex items-center gap-2">
+                    ${profilePicHtml}
+                    <span class="font-semibold text-white">Prompt by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
                 </div>
-                <button type="submit" class="w-full btn-primary text-black font-bold py-5 rounded-xl uppercase tracking-widest text-base">
-                    <i class="fa-solid fa-unlock mr-2"></i>Unlock Content
-                </button>
-            </form>
+                <div class="flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
+                    <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
+                </div>
+            </div>
+        </div>
 
-            <div id="errorMessage" class="hidden mt-5 p-4 bg-red-900/20 border border-red-800/50 rounded-lg">
-                <p class="text-sm text-red-400 flex items-center gap-2">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span id="errorText"></span>
+        <!-- Password Form Container - mirip code container di detail view -->
+        <div class="password-container rounded-lg overflow-hidden">
+            <!-- Lock Icon Section -->
+            <div class="p-8 text-center border-b border-[#2a2a2a]">
+                <div class="lock-icon-large rounded-full">
+                    <i class="fa-solid fa-lock text-3xl text-yellow-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">Password Required</h3>
+                <p class="text-sm text-gray-400 leading-relaxed max-w-md mx-auto">
+                    This content is password protected. Please enter the password to view the full prompt.
                 </p>
             </div>
 
-            <div class="mt-6 pt-6 border-t border-gray-700">
-                <p class="text-xs text-gray-500 text-center">
-                    <i class="fa-solid fa-shield-halved mr-1"></i>
-                    Tidak punya password? Hubungi admin yang membuat prompt ini.
-                </p>
-                <p class="text-xs text-gray-400 text-center mt-2">
-                    Admin: <span class="text-white font-semibold">@${promptData.uploadedBy}</span>
-                </p>
+            <!-- Password Form -->
+            <div class="p-8">
+                <form id="passwordForm" class="space-y-5 max-w-md mx-auto">
+                    <div>
+                        <label class="text-sm font-bold text-gray-400 uppercase mb-2 block flex items-center gap-2">
+                            <i class="fa-solid fa-key text-xs"></i>
+                            Enter Password
+                        </label>
+                        <input 
+                            type="password" 
+                            id="passwordInput" 
+                            placeholder="••••••••" 
+                            required 
+                            class="w-full p-4 rounded-xl border outline-none text-white text-base"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-black font-bold py-4 rounded-xl uppercase tracking-widest text-sm">
+                        <i class="fa-solid fa-unlock mr-2"></i>Unlock Content
+                    </button>
+                </form>
+
+                <div id="errorMessage" class="hidden mt-5 p-4 bg-red-900/20 border border-red-800/50 rounded-lg">
+                    <p class="text-sm text-red-400 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="errorText"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
+                <div class="bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">
+                    <p class="text-xs text-gray-400 text-center mb-2">
+                        <i class="fa-solid fa-info-circle mr-1 text-blue-400"></i>
+                        Don't have the password?
+                    </p>
+                    <p class="text-xs text-white text-center font-semibold">
+                        Contact <span class="text-yellow-500">@${promptData.uploadedBy}</span> for access
+                    </p>
+                </div>
             </div>
         </div>
     </main>
@@ -239,7 +304,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                     window.location.href = '/prompt/${slug}';
                 } else {
                     // Password salah
-                    errorText.textContent = result.message || 'Password salah!';
+                    errorText.textContent = result.message || 'Incorrect password';
                     errorDiv.classList.remove('hidden');
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
@@ -251,7 +316,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 }
             } catch (error) {
                 console.error('Error:', error);
-                errorText.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                errorText.textContent = 'An error occurred. Please try again.';
                 errorDiv.classList.remove('hidden');
             } finally {
                 btn.innerHTML = originalText;
