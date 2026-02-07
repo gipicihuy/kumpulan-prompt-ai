@@ -81,6 +81,9 @@ async function uploadToTelegraph(buffer) {
 }
 
 export default async function handler(req, res) {
+  // Set response header untuk JSON SEJAK AWAL
+  res.setHeader('Content-Type', 'application/json');
+
   // Cek method
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -101,8 +104,12 @@ export default async function handler(req, res) {
 
     const [fields, files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve([fields, files]);
+        if (err) {
+          console.error('Formidable parse error:', err);
+          reject(err);
+        } else {
+          resolve([fields, files]);
+        }
       });
     });
 
@@ -113,6 +120,7 @@ export default async function handler(req, res) {
     }
 
     const file = fileArray[0];
+    console.log('File received:', file.originalFilename, 'Size:', file.size, 'bytes');
     
     // Baca file sebagai buffer
     const fileBuffer = await readFile(file.filepath);
@@ -126,16 +134,30 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log('File type detected:', fileType.mime);
+
     // Upload ke catbox.moe (permanent storage)
     let imageUrl;
     try {
+      console.log('Attempting upload to catbox.moe...');
       imageUrl = await uploadCatbox(fileBuffer);
+      console.log('Catbox upload successful:', imageUrl);
     } catch (uploadError) {
       // Fallback ke telegra.ph jika catbox gagal
-      console.log('Catbox failed, trying telegra.ph...');
-      imageUrl = await uploadToTelegraph(fileBuffer);
+      console.log('Catbox failed, trying telegra.ph as fallback...');
+      try {
+        imageUrl = await uploadToTelegraph(fileBuffer);
+        console.log('Telegraph upload successful:', imageUrl);
+      } catch (fallbackError) {
+        console.error('Both upload services failed:', fallbackError);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Gagal mengupload ke semua layanan. Coba lagi nanti.' 
+        });
+      }
     }
 
+    // SUCCESS - Return JSON
     return res.status(200).json({ 
       success: true, 
       imageUrl: imageUrl,
@@ -143,10 +165,12 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error('Upload handler error:', error);
+    
+    // PENTING: Selalu return JSON bahkan saat error
     return res.status(500).json({ 
       success: false, 
-      message: 'Gagal mengupload gambar: ' + error.message 
+      message: 'Gagal mengupload gambar: ' + (error.message || 'Unknown error')
     });
   }
 }
