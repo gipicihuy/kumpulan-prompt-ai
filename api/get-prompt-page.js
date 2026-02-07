@@ -542,28 +542,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         <div id="detailContent">
             <div class="mb-5 border-l-2 border-gray-400 pl-3">
                 <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">${promptData.kategori || 'Lainnya'}</span>
-                
-                <!-- Title + Analytics in one line -->
-                <div class="flex items-center justify-between gap-2 mt-3">
-                    <h2 class="text-xl font-bold text-white uppercase tracking-tight leading-tight">${promptData.judul}</h2>
-                    
-                    <!-- Analytics - Mini version di kanan judul -->
-                    <div class="flex items-center gap-1.5 text-[10px] flex-shrink-0">
-                        <div class="flex items-center gap-0.5" title="Total Views">
-                            <i class="fa-solid fa-eye text-[10px] text-gray-400"></i>
-                            <span id="viewsCount" class="font-bold text-gray-300">${formatNumber(analytics.views)}</span>
-                        </div>
-                        <div class="flex items-center gap-0.5" title="Total Copies">
-                            <i class="fa-solid fa-copy text-[10px] text-gray-400"></i>
-                            <span id="copiesCount" class="font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
-                        </div>
-                        <div class="flex items-center gap-0.5" title="Total Downloads">
-                            <i class="fa-solid fa-download text-[10px] text-gray-400"></i>
-                            <span id="downloadsCount" class="font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
-                        </div>
-                    </div>
-                </div>
-                
+                <h2 class="text-xl font-bold text-white mt-3 uppercase tracking-tight leading-tight">${promptData.judul}</h2>
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
                     <div class="flex items-center gap-2">
                         <div>
@@ -579,6 +558,22 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
                         <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
+                    </div>
+                </div>
+                
+                <!-- Analytics Section - Mini size, posisi bawah seperti semula -->
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <div class="flex items-center gap-0.5" title="Total Views">
+                        <i class="fa-solid fa-eye text-[10px] text-gray-400"></i>
+                        <span id="viewsCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.views)}</span>
+                    </div>
+                    <div class="flex items-center gap-0.5" title="Total Copies">
+                        <i class="fa-solid fa-copy text-[10px] text-gray-400"></i>
+                        <span id="copiesCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
+                    </div>
+                    <div class="flex items-center gap-0.5" title="Total Downloads">
+                        <i class="fa-solid fa-download text-[10px] text-gray-400"></i>
+                        <span id="downloadsCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
