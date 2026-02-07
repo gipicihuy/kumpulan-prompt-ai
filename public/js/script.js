@@ -3,23 +3,66 @@ let selectedCategory = 'all';
 
 async function fetchPrompts() {
     try {
+        console.log('🔄 Fetching prompts from API...');
+        
         const response = await fetch('/api/get-prompts');
+        console.log('📊 Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const json = await response.json();
+        console.log('✅ Data received:', json);
+        
+        if (!json.success) {
+            throw new Error('API returned success: false');
+        }
+        
+        if (!json.data || !Array.isArray(json.data)) {
+            throw new Error('Invalid data format from API');
+        }
+        
         allPrompts = json.data;
+        console.log(`✅ Loaded ${allPrompts.length} prompts`);
         
         document.getElementById('loading').classList.add('hidden');
         renderCategories();
         applyFilters(); 
     } catch (err) {
-        console.error(err);
+        console.error('❌ Error fetching prompts:', err);
         document.getElementById('loading').classList.add('hidden');
-        renderCategories();
-        applyFilters();
+        
+        // Show error message to user
+        const container = document.getElementById('content');
+        container.innerHTML = `
+            <div class="text-center py-16">
+                <div class="inline-block p-8 bg-gradient-to-br from-[#1a1a1a] to-[#1f1f1f] border border-red-900/50 rounded-2xl shadow-2xl">
+                    <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
+                    <h3 class="text-red-400 font-bold text-xl uppercase mb-3">Failed to Load Data</h3>
+                    <p class="text-gray-400 text-sm mb-4 font-mono">${err.message}</p>
+                    <button onclick="window.location.reload()" class="bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase hover:from-gray-300 hover:to-gray-100 transition-all shadow-lg">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Retry
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        renderCategories(); // Still render categories even on error
     }
 }
 
 function renderCategories() {
     const filterContainer = document.getElementById('categoryFilter');
+    
+    if (allPrompts.length === 0) {
+        filterContainer.innerHTML = `
+            <button class="category-btn active whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start">
+                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL
+            </button>
+        `;
+        return;
+    }
     
     // Ambil unique kategori dengan case-insensitive
     const categoriesMap = {};
@@ -33,7 +76,7 @@ function renderCategories() {
     const categories = ['all', ...Object.keys(categoriesMap)];
     
     filterContainer.innerHTML = categories.map(cat => {
-        const displayText = cat === 'all' ? 'all' : categoriesMap[cat];
+        const displayText = cat === 'all' ? 'ALL' : categoriesMap[cat];
         const isActive = selectedCategory === cat;
         return `
         <button onclick="setCategory('${cat}')" 
@@ -138,6 +181,7 @@ function formatNumber(num) {
 function renderPrompts(data) {
     const container = document.getElementById('content');
     document.getElementById('counter').innerText = `${data.length} TOTAL PROMPTS`;
+    
     if (data.length === 0) {
         container.innerHTML = `
             <div class="text-center text-gray-500 py-10 text-sm font-bold uppercase">
@@ -147,6 +191,7 @@ function renderPrompts(data) {
         `;
         return;
     }
+    
     container.innerHTML = data.map(item => {
         // Tampilan profile picture
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
@@ -253,4 +298,7 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
 });
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+// Start fetching on page load
+console.log('🚀 Page loaded, starting fetch...');
 fetchPrompts();
