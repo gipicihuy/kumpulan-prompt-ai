@@ -238,7 +238,7 @@
                     <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
                     <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
                 </div>
-                <button onclick="save()" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
+                <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
                     <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
                 </button>
             </div>
@@ -256,6 +256,7 @@
         if (token) showAdmin();
 
         let passwordEnabled = false;
+        let slugExists = false; // Track apakah slug sudah dipakai
 
         // Function untuk toggle password field
         function togglePasswordField() {
@@ -310,6 +311,7 @@
                 preview.innerText = '/prompt/...';
                 preview.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400', 'active');
                 preview.classList.add('text-gray-500');
+                slugExists = false;
             }
         });
         
@@ -330,19 +332,22 @@
                 const result = await response.json();
                 
                 if (result.success && result.exists) {
-                    // Slug sudah dipakai
+                    // Slug sudah dipakai - SET FLAG!
+                    slugExists = true;
                     preview.classList.remove('text-yellow-400', 'text-green-400');
                     preview.classList.add('text-red-400');
-                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-2">(Sudah dipakai oleh "${result.existingData.judul}")</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-1">(Sudah dipakai oleh "${result.existingData.judul}")</span>`;
                 } else {
                     // Slug tersedia
+                    slugExists = false;
                     preview.classList.remove('text-yellow-400', 'text-red-400');
                     preview.classList.add('text-green-400');
-                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-2">(Tersedia)</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-1">(Tersedia)</span>`;
                 }
             } catch (error) {
                 console.error('Error checking slug:', error);
-                // Jika error, kembalikan ke state normal
+                // Jika error, anggap slug tersedia (safe mode)
+                slugExists = false;
                 preview.classList.remove('text-yellow-400', 'text-red-400');
                 preview.classList.add('text-green-400');
                 preview.innerText = `/prompt/${slug}`;
@@ -407,6 +412,22 @@
         async function save() {
             const btn = event.target;
             const originalText = btn.innerHTML;
+            
+            // VALIDASI: Cek apakah slug sudah dipakai
+            const judul = document.getElementById('judul').value;
+            const slug = generateSlug(judul);
+            
+            if (!slug || !judul || !document.getElementById('isi').value) {
+                alert('❌ Isi field wajib (judul, kategori, isi)!');
+                return;
+            }
+            
+            // HARD STOP jika slug sudah dipakai!
+            if (slugExists) {
+                alert('❌ UPLOAD GAGAL!\n\nSlug sudah dipakai oleh prompt lain.\nSilakan ubah judul agar slug-nya berbeda.');
+                return;
+            }
+            
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Processing...';
             btn.disabled = true;
 
@@ -450,47 +471,16 @@
                     console.log('🖼️ Image URL:', imageUrl);
                 }
 
-                // Generate slug dari judul
-                const judul = document.getElementById('judul').value;
-                const slug = generateSlug(judul);
-
-                // VALIDASI: Check duplicate slug sebelum save
-                console.log('🔍 Checking slug availability...');
-                const slugCheckRes = await fetch('/api/check-slug', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('adminToken')
-                    },
-                    body: JSON.stringify({ slug })
-                });
-
-                const slugCheckData = await slugCheckRes.json();
-                
-                if (slugCheckData.success && slugCheckData.exists) {
-                    // Slug sudah dipakai - STOP!
-                    const existingPrompt = slugCheckData.existingData;
-                    const confirmOverwrite = confirm(
-                        `⚠️ PERINGATAN!\n\n` +
-                        `Slug "${slug}" sudah digunakan oleh:\n` +
-                        `• Judul: "${existingPrompt.judul}"\n` +
-                        `• Kategori: ${existingPrompt.kategori}\n` +
-                        `• Upload by: ${existingPrompt.uploadedBy}\n` +
-                        `• Tanggal: ${existingPrompt.createdAt}\n\n` +
-                        `Apakah Anda yakin ingin MENIMPA prompt yang sudah ada?\n\n` +
-                        `⚠️ DATA LAMA AKAN HILANG PERMANEN!`
-                    );
-                    
-                    if (!confirmOverwrite) {
-                        alert('❌ Upload dibatalkan. Silakan gunakan judul yang berbeda.');
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        return;
-                    }
-                }
-
                 // Ambil password jika enabled
                 const password = passwordEnabled ? document.getElementById('password').value : '';
+
+                // Validasi password jika enabled
+                if (passwordEnabled && (!password || password.trim() === '')) {
+                    alert('❌ Password kosong!');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
 
                 // Simpan prompt dengan description, imageUrl, dan password
                 const body = {
@@ -503,21 +493,6 @@
                     imageUrl: imageUrl,
                     password: password
                 };
-
-                if(!body.slug || !body.judul || !body.isi) {
-                    alert('❌ Isi field wajib (judul, kategori, isi)!');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-
-                // Validasi password jika enabled
-                if (passwordEnabled && (!password || password.trim() === '')) {
-                    alert('❌ Password kosong!');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    return;
-                }
 
                 console.log('💾 Saving prompt...', body);
 
