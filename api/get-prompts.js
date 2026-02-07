@@ -32,6 +32,13 @@ export default async function handler(req, res) {
         const analyticsKey = `analytics:${cleanId}`
         const analyticsData = await redis.hgetall(analyticsKey)
         
+        // FIX: Handle null analytics data dengan default values
+        const analytics = {
+          views: analyticsData && analyticsData.views ? parseInt(analyticsData.views) : 0,
+          copies: analyticsData && analyticsData.copies ? parseInt(analyticsData.copies) : 0,
+          downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
+        }
+        
         // Untuk protected prompts, JANGAN expose isi dan description ke public API
         return { 
           id: cleanId, 
@@ -47,12 +54,8 @@ export default async function handler(req, res) {
           profileUrl: profileUrl,
           timestamp: parseInt(item.timestamp) || 0,
           isProtected: isProtected,
-          // Analytics data
-          analytics: {
-            views: parseInt(analyticsData.views) || 0,
-            copies: parseInt(analyticsData.copies) || 0,
-            downloads: parseInt(analyticsData.downloads) || 0
-          },
+          // Analytics data dengan safe defaults
+          analytics: analytics,
           // Password TIDAK PERNAH di-expose ke client!
         }
       })
@@ -63,6 +66,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ success: true, data } )
   } catch (error) {
+    console.error('❌ Error in get-prompts:', error)
     res.status(500).json({ success: false, error: error.message })
   }
 }
