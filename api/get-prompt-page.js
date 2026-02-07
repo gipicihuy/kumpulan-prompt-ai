@@ -561,19 +561,19 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>
                 
-                <!-- Analytics Section - Mini size, posisi bawah seperti semula -->
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <div class="flex items-center gap-0.5" title="Total Views">
-                        <i class="fa-solid fa-eye text-[10px] text-gray-400"></i>
-                        <span id="viewsCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.views)}</span>
+                <!-- Analytics Section - Samain dengan frontend -->
+                <div class="mt-3 flex flex-wrap gap-3">
+                    <div class="flex items-center gap-1.5" title="Total Views">
+                        <i class="fa-solid fa-eye text-[11px] text-gray-400"></i>
+                        <span id="viewsCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.views)}</span>
                     </div>
-                    <div class="flex items-center gap-0.5" title="Total Copies">
-                        <i class="fa-solid fa-copy text-[10px] text-gray-400"></i>
-                        <span id="copiesCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
+                    <div class="flex items-center gap-1.5" title="Total Copies">
+                        <i class="fa-solid fa-copy text-[11px] text-gray-400"></i>
+                        <span id="copiesCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
                     </div>
-                    <div class="flex items-center gap-0.5" title="Total Downloads">
-                        <i class="fa-solid fa-download text-[10px] text-gray-400"></i>
-                        <span id="downloadsCount" class="text-[10px] font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
+                    <div class="flex items-center gap-1.5" title="Total Downloads">
+                        <i class="fa-solid fa-download text-[11px] text-gray-400"></i>
+                        <span id="downloadsCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
