@@ -28,6 +28,10 @@ export default async function handler(req, res) {
         // Cek apakah prompt ini protected
         const isProtected = item.isProtected === 'true' || item.isProtected === true;
         
+        // Fetch analytics untuk prompt ini
+        const analyticsKey = `analytics:${cleanId}`
+        const analyticsData = await redis.hgetall(analyticsKey)
+        
         // Untuk protected prompts, JANGAN expose isi dan description ke public API
         return { 
           id: cleanId, 
@@ -43,6 +47,12 @@ export default async function handler(req, res) {
           profileUrl: profileUrl,
           timestamp: parseInt(item.timestamp) || 0,
           isProtected: isProtected,
+          // Analytics data
+          analytics: {
+            views: parseInt(analyticsData.views) || 0,
+            copies: parseInt(analyticsData.copies) || 0,
+            downloads: parseInt(analyticsData.downloads) || 0
+          },
           // Password TIDAK PERNAH di-expose ke client!
         }
       })
