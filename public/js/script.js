@@ -210,21 +210,27 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // Analytics badges
+        // Analytics badges - REDESIGNED: di kanan, lebih besar, warna serasi dengan jam
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
-            <div class="flex items-center gap-3 text-[10px] text-gray-500 pt-1.5 border-t border-[#2a2a2a] mt-2">
-                <div class="flex items-center gap-1" title="Views">
-                    <i class="fa-solid fa-eye text-[9px]"></i>
-                    <span class="font-semibold">${formatNumber(analytics.views)}</span>
+            <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
+                <div class="flex items-center gap-2">
+                    ${profilePicHtml}
+                    <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
                 </div>
-                <div class="flex items-center gap-1" title="Copies">
-                    <i class="fa-solid fa-copy text-[9px]"></i>
-                    <span class="font-semibold">${formatNumber(analytics.copies)}</span>
-                </div>
-                <div class="flex items-center gap-1" title="Downloads">
-                    <i class="fa-solid fa-download text-[9px]"></i>
-                    <span class="font-semibold">${formatNumber(analytics.downloads)}</span>
+                <div class="flex items-center gap-3 text-xs text-white">
+                    <div class="flex items-center gap-1.5" title="Views">
+                        <i class="fa-solid fa-eye text-[11px] text-gray-300"></i>
+                        <span class="font-bold">${formatNumber(analytics.views)}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Copies">
+                        <i class="fa-solid fa-copy text-[11px] text-gray-300"></i>
+                        <span class="font-bold">${formatNumber(analytics.copies)}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Downloads">
+                        <i class="fa-solid fa-download text-[11px] text-gray-300"></i>
+                        <span class="font-bold">${formatNumber(analytics.downloads)}</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -242,10 +248,6 @@ function renderPrompts(data) {
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
             <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2">${previewText}</p>
-            <div class="flex items-center gap-2">
-                ${profilePicHtml}
-                <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
-            </div>
             ${analyticsHtml}
         </a>
     `}).join('');
@@ -298,6 +300,29 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
 });
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+// Auto-refresh analytics setiap 10 detik (UPDATE TANPA REFRESH PAGE)
+setInterval(async () => {
+    try {
+        const response = await fetch('/api/get-prompts');
+        const json = await response.json();
+        
+        if (json.success && json.data) {
+            // Update analytics data tanpa re-render seluruh halaman
+            json.data.forEach(newItem => {
+                const oldItem = allPrompts.find(p => p.id === newItem.id);
+                if (oldItem) {
+                    oldItem.analytics = newItem.analytics;
+                }
+            });
+            
+            // Re-render hanya jika ada perubahan yang signifikan
+            applyFilters();
+        }
+    } catch (err) {
+        console.error('Failed to refresh analytics:', err);
+    }
+}, 10000); // Refresh setiap 10 detik
 
 // Start fetching on page load
 console.log('🚀 Page loaded, starting fetch...');
