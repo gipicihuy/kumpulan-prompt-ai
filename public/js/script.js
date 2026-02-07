@@ -125,6 +125,16 @@ function applyFilters() {
     renderPrompts(filtered);
 }
 
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+}
+
 function renderPrompts(data) {
     const container = document.getElementById('content');
     document.getElementById('counter').innerText = `${data.length} TOTAL PROMPTS`;
@@ -155,6 +165,25 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
+        // Analytics badges
+        const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
+        const analyticsHtml = `
+            <div class="flex items-center gap-3 text-[10px] text-gray-500 pt-1.5 border-t border-[#2a2a2a] mt-2">
+                <div class="flex items-center gap-1" title="Views">
+                    <i class="fa-solid fa-eye text-[9px]"></i>
+                    <span class="font-semibold">${formatNumber(analytics.views)}</span>
+                </div>
+                <div class="flex items-center gap-1" title="Copies">
+                    <i class="fa-solid fa-copy text-[9px]"></i>
+                    <span class="font-semibold">${formatNumber(analytics.copies)}</span>
+                </div>
+                <div class="flex items-center gap-1" title="Downloads">
+                    <i class="fa-solid fa-download text-[9px]"></i>
+                    <span class="font-semibold">${formatNumber(analytics.downloads)}</span>
+                </div>
+            </div>
+        `;
+        
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
@@ -167,11 +196,12 @@ function renderPrompts(data) {
                 </h3>
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
-            <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2.5">${previewText}</p>
-            <div class="pt-1.5 border-t border-[#2a2a2a] flex items-center gap-2">
+            <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2">${previewText}</p>
+            <div class="flex items-center gap-2">
                 ${profilePicHtml}
                 <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
             </div>
+            ${analyticsHtml}
         </a>
     `}).join('');
     
