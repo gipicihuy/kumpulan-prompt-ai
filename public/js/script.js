@@ -210,7 +210,7 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // Analytics badges - REDESIGNED: di kanan, lebih besar, warna serasi dengan jam
+        // Analytics badges - REDESIGNED: di kanan, lebih besar, warna abu-abu jelas tapi ga terlalu putih
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
             <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
@@ -218,18 +218,18 @@ function renderPrompts(data) {
                     ${profilePicHtml}
                     <span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span>
                 </div>
-                <div class="flex items-center gap-3 text-xs text-white">
+                <div class="flex items-center gap-3 text-xs">
                     <div class="flex items-center gap-1.5" title="Views">
-                        <i class="fa-solid fa-eye text-[11px] text-gray-300"></i>
-                        <span class="font-bold">${formatNumber(analytics.views)}</span>
+                        <i class="fa-solid fa-eye text-[11px] text-gray-400"></i>
+                        <span class="font-bold text-gray-300">${formatNumber(analytics.views)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Copies">
-                        <i class="fa-solid fa-copy text-[11px] text-gray-300"></i>
-                        <span class="font-bold">${formatNumber(analytics.copies)}</span>
+                        <i class="fa-solid fa-copy text-[11px] text-gray-400"></i>
+                        <span class="font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Downloads">
-                        <i class="fa-solid fa-download text-[11px] text-gray-300"></i>
-                        <span class="font-bold">${formatNumber(analytics.downloads)}</span>
+                        <i class="fa-solid fa-download text-[11px] text-gray-400"></i>
+                        <span class="font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
