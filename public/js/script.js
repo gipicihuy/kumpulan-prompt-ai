@@ -159,7 +159,7 @@ function renderPrompts(data) {
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
-                <span class="text-[9px] text-white font-mono uppercase tracking-wide">${item.createdAt}</span>
+                <span class="time-ago text-[9px] text-white font-mono uppercase tracking-wide" data-timestamp="${item.timestamp}">${timeAgo(item.timestamp)}</span>
             </div>
             <div class="flex justify-between items-center mb-1">
                 <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors flex items-center">
@@ -174,6 +174,9 @@ function renderPrompts(data) {
             </div>
         </a>
     `}).join('');
+    
+    // Update semua time-ago setelah render
+    updateAllTimeAgo();
 }
 
 function toggleModal(show) {
