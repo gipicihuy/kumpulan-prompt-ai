@@ -336,13 +336,13 @@
                     slugExists = true;
                     preview.classList.remove('text-yellow-400', 'text-green-400');
                     preview.classList.add('text-red-400');
-                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-1">(Sudah dipakai oleh "${result.existingData.judul}")</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Sudah dipakai oleh "${result.existingData.judul}")</span>`;
                 } else {
                     // Slug tersedia
                     slugExists = false;
                     preview.classList.remove('text-yellow-400', 'text-red-400');
                     preview.classList.add('text-green-400');
-                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-1">(Tersedia)</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Tersedia)</span>`;
                 }
             } catch (error) {
                 console.error('Error checking slug:', error);
