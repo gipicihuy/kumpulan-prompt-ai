@@ -352,6 +352,8 @@
                 // Cek apakah ada file gambar yang diupload
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
+                    console.log('📤 Uploading image...', imageFile.name);
+                    
                     const formData = new FormData();
                     formData.append('file', imageFile);
 
@@ -363,13 +365,25 @@
                         body: formData
                     });
 
+                    console.log('📊 Upload response status:', uploadRes.status);
+                    
+                    // Cek apakah response adalah JSON
+                    const contentType = uploadRes.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const textResponse = await uploadRes.text();
+                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
+                        throw new Error('Server response bukan JSON. Kemungkinan ada error di server.');
+                    }
+
                     const uploadData = await uploadRes.json();
+                    console.log('✅ Upload response:', uploadData);
                     
                     if (!uploadData.success) {
                         throw new Error(uploadData.message || 'Gagal upload gambar');
                     }
 
                     imageUrl = uploadData.imageUrl;
+                    console.log('🖼️ Image URL:', imageUrl);
                 }
 
                 // Generate slug dari judul
@@ -406,6 +420,8 @@
                     return;
                 }
 
+                console.log('💾 Saving prompt...', body);
+
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
                     headers: { 
@@ -419,10 +435,12 @@
                     alert('✅ Prompt berhasil diupload!' + (passwordEnabled ? '\n🔒 Prompt diproteksi.' : '')); 
                     location.reload(); 
                 } else {
-                    alert('❌ Gagal menyimpan.');
+                    const errorText = await res.text();
+                    console.error('❌ Save error:', errorText);
+                    alert('❌ Gagal menyimpan: ' + errorText);
                 }
             } catch (e) {
-                console.error('Error:', e);
+                console.error('💥 Error:', e);
                 alert('❌ Error: ' + e.message);
             } finally {
                 btn.innerHTML = originalText;
