@@ -45,6 +45,15 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
+    // Fetch analytics data
+    const analyticsKey = `analytics:${slug}`
+    const analyticsData = await redis.hgetall(analyticsKey)
+    const analytics = {
+      views: parseInt(analyticsData.views) || 0,
+      copies: parseInt(analyticsData.copies) || 0,
+      downloads: parseInt(analyticsData.downloads) || 0
+    }
+
     // Jika diproteksi
     if (isProtected) {
       // Parse cookies dari request
@@ -62,7 +71,7 @@ export default async function handler(req, res) {
       
       if (isValidSession === 'valid') {
         // Session valid! Tampilkan halaman normal
-        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
+        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
       } else {
         // Session invalid/expired, hapus cookie dan tampilkan password page
         res.setHeader('Set-Cookie', [
@@ -73,7 +82,7 @@ export default async function handler(req, res) {
     }
 
     // Jika tidak diproteksi, tampilkan halaman normal
-    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl));
+    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
     
   } catch (error) {
     console.error('Error:', error);
@@ -376,8 +385,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </html>`;
 }
 
-// Fungsi untuk render halaman normal (tanpa password)
-function renderNormalPage(slug, promptData, profileUrl = '') {
+// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING
+function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
     : (promptData.isi || '').substring(0, 150) + '...';
@@ -387,6 +396,13 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
     : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
   
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
+
+  // Helper function untuk format number
+  const formatNumber = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
 
   return `<!DOCTYPE html>
 <html lang="id">
@@ -475,6 +491,17 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
             width: 32px;
             height: 32px;
         }
+        
+        .analytics-badge {
+            background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%);
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .analytics-badge:hover {
+            border-color: #444;
+            background: linear-gradient(135deg, #2a2a2a 0%, #2f2f2f 100%);
+        }
     </style>
 </head>
 <body>
@@ -507,6 +534,25 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
                         <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
+                    </div>
+                </div>
+                
+                <!-- Analytics Section -->
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Views">
+                        <i class="fa-solid fa-eye text-gray-400 text-xs"></i>
+                        <span id="viewsCount" class="text-sm font-bold text-white">${formatNumber(analytics.views)}</span>
+                        <span class="text-[10px] text-gray-500 uppercase">Views</span>
+                    </div>
+                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Copies">
+                        <i class="fa-solid fa-copy text-gray-400 text-xs"></i>
+                        <span id="copiesCount" class="text-sm font-bold text-white">${formatNumber(analytics.copies)}</span>
+                        <span class="text-[10px] text-gray-500 uppercase">Copies</span>
+                    </div>
+                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Downloads">
+                        <i class="fa-solid fa-download text-gray-400 text-xs"></i>
+                        <span id="downloadsCount" class="text-sm font-bold text-white">${formatNumber(analytics.downloads)}</span>
+                        <span class="text-[10px] text-gray-500 uppercase">Downloads</span>
                     </div>
                 </div>
             </div>
@@ -563,8 +609,46 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
           slug: slug
         })};
         
-        document.getElementById('copyCodeBtn').onclick = () => {
+        // Format number helper
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+        
+        // Update analytics display
+        function updateAnalyticsDisplay(analytics) {
+            document.getElementById('viewsCount').innerText = formatNumber(analytics.views);
+            document.getElementById('copiesCount').innerText = formatNumber(analytics.copies);
+            document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
+        }
+        
+        // Track analytics
+        async function trackAnalytics(action) {
+            try {
+                const response = await fetch('/api/track-analytics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug: promptData.slug, action })
+                });
+                const result = await response.json();
+                if (result.success && result.analytics) {
+                    updateAnalyticsDisplay(result.analytics);
+                }
+            } catch (error) {
+                console.error('Error tracking analytics:', error);
+            }
+        }
+        
+        // Track view after 2 seconds
+        setTimeout(() => {
+            trackAnalytics('view');
+        }, 2000);
+        
+        // Copy button
+        document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
+            await trackAnalytics('copy');
             iziToast.success({
                 title: 'Berhasil!',
                 message: 'Prompt berhasil disalin ke clipboard',
@@ -578,7 +662,8 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
             });
         };
         
-        document.getElementById('downloadBtn').onclick = () => {
+        // Download button
+        document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -588,6 +673,8 @@ function renderNormalPage(slug, promptData, profileUrl = '') {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            
+            await trackAnalytics('download');
             
             iziToast.success({
                 title: 'Download!',
