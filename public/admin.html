@@ -68,11 +68,27 @@
         .slug-preview {
             background: #0f0f0f;
             border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
         }
         
         .slug-preview.active {
             border-color: #4ade80;
             background: rgba(74, 222, 128, 0.05);
+        }
+        
+        .slug-preview.text-green-400 {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
+        }
+        
+        .slug-preview.text-red-400 {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        .slug-preview.text-yellow-400 {
+            border-color: #facc15;
+            background: rgba(250, 204, 21, 0.05);
         }
 
         .password-toggle {
@@ -270,20 +286,68 @@
                 .replace(/^-+|-+$/g, '');
         }
 
-        // Update preview slug real-time saat judul diketik
+        // Debounce untuk slug check
+        let slugCheckTimeout;
+        
+        // Update preview slug real-time saat judul diketik + check duplicate
         document.getElementById('judul').addEventListener('input', function(e) {
             const slug = generateSlug(e.target.value);
             const preview = document.getElementById('slugPreview');
+            
             if (slug) {
                 preview.innerText = `/prompt/${slug}`;
-                preview.classList.remove('text-gray-500');
-                preview.classList.add('text-green-400', 'active');
+                preview.classList.remove('text-gray-500', 'text-red-400', 'text-green-400');
+                preview.classList.add('text-yellow-400', 'active');
+                
+                // Clear timeout sebelumnya
+                clearTimeout(slugCheckTimeout);
+                
+                // Check duplicate setelah user selesai mengetik (500ms delay)
+                slugCheckTimeout = setTimeout(async () => {
+                    await checkSlugDuplicate(slug);
+                }, 500);
             } else {
                 preview.innerText = '/prompt/...';
-                preview.classList.remove('text-green-400', 'active');
+                preview.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400', 'active');
                 preview.classList.add('text-gray-500');
             }
         });
+        
+        // Function untuk check duplicate slug
+        async function checkSlugDuplicate(slug) {
+            const preview = document.getElementById('slugPreview');
+            
+            try {
+                const response = await fetch('/api/check-slug', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('adminToken')
+                    },
+                    body: JSON.stringify({ slug })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.exists) {
+                    // Slug sudah dipakai
+                    preview.classList.remove('text-yellow-400', 'text-green-400');
+                    preview.classList.add('text-red-400');
+                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-2">(Sudah dipakai oleh "${result.existingData.judul}")</span>`;
+                } else {
+                    // Slug tersedia
+                    preview.classList.remove('text-yellow-400', 'text-red-400');
+                    preview.classList.add('text-green-400');
+                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug} <span class="text-[10px] ml-2">(Tersedia)</span>`;
+                }
+            } catch (error) {
+                console.error('Error checking slug:', error);
+                // Jika error, kembalikan ke state normal
+                preview.classList.remove('text-yellow-400', 'text-red-400');
+                preview.classList.add('text-green-400');
+                preview.innerText = `/prompt/${slug}`;
+            }
+        }
 
         // Preview gambar saat dipilih
         document.getElementById('imageFile').addEventListener('change', function(e) {
@@ -389,6 +453,41 @@
                 // Generate slug dari judul
                 const judul = document.getElementById('judul').value;
                 const slug = generateSlug(judul);
+
+                // VALIDASI: Check duplicate slug sebelum save
+                console.log('🔍 Checking slug availability...');
+                const slugCheckRes = await fetch('/api/check-slug', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('adminToken')
+                    },
+                    body: JSON.stringify({ slug })
+                });
+
+                const slugCheckData = await slugCheckRes.json();
+                
+                if (slugCheckData.success && slugCheckData.exists) {
+                    // Slug sudah dipakai - STOP!
+                    const existingPrompt = slugCheckData.existingData;
+                    const confirmOverwrite = confirm(
+                        `⚠️ PERINGATAN!\n\n` +
+                        `Slug "${slug}" sudah digunakan oleh:\n` +
+                        `• Judul: "${existingPrompt.judul}"\n` +
+                        `• Kategori: ${existingPrompt.kategori}\n` +
+                        `• Upload by: ${existingPrompt.uploadedBy}\n` +
+                        `• Tanggal: ${existingPrompt.createdAt}\n\n` +
+                        `Apakah Anda yakin ingin MENIMPA prompt yang sudah ada?\n\n` +
+                        `⚠️ DATA LAMA AKAN HILANG PERMANEN!`
+                    );
+                    
+                    if (!confirmOverwrite) {
+                        alert('❌ Upload dibatalkan. Silakan gunakan judul yang berbeda.');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        return;
+                    }
+                }
 
                 // Ambil password jika enabled
                 const password = passwordEnabled ? document.getElementById('password').value : '';
