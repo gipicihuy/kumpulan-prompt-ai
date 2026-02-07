@@ -683,7 +683,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             });
         };
         
-        // Download button
+        // Download button - ✅ FIXED: TAMBAHKAN TRACKING!
         document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -695,7 +695,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            await trackAnalytics('download');
+            await trackAnalytics('download');  // ✅ INI YANG DITAMBAHKAN!
             
             iziToast.success({
                 title: 'Download!',
