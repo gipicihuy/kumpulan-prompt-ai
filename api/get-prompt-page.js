@@ -332,7 +332,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             <div class="px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
                 <div class="bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">
                     <p class="text-xs text-gray-400 text-center mb-2">
-                        <i class="fa-solid fa-info-circle mr-1 text-blue-400"></i>
+                        <i class="fa-solid fa-info-circle mr-1 text-gray-300"></i>
                         Don't have the password?
                     </p>
                     <p class="text-xs text-white text-center font-semibold">
@@ -526,17 +526,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             width: 32px;
             height: 32px;
         }
-        
-        .analytics-badge {
-            background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%);
-            border: 1px solid #333;
-            transition: all 0.3s ease;
-        }
-        
-        .analytics-badge:hover {
-            border-color: #444;
-            background: linear-gradient(135deg, #2a2a2a 0%, #2f2f2f 100%);
-        }
     </style>
 </head>
 <body>
@@ -572,22 +561,19 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>
                 
-                <!-- Analytics Section -->
-                <div class="mt-4 flex flex-wrap gap-2">
-                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Views">
-                        <i class="fa-solid fa-eye text-gray-400 text-xs"></i>
-                        <span id="viewsCount" class="text-sm font-bold text-white">${formatNumber(analytics.views)}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">Views</span>
+                <!-- Analytics Section - Simplified: Icons + Numbers Only -->
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <div class="flex items-center gap-2" title="Total Views">
+                        <i class="fa-solid fa-eye text-gray-300 text-base"></i>
+                        <span id="viewsCount" class="text-base font-bold text-white">${formatNumber(analytics.views)}</span>
                     </div>
-                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Copies">
-                        <i class="fa-solid fa-copy text-gray-400 text-xs"></i>
-                        <span id="copiesCount" class="text-sm font-bold text-white">${formatNumber(analytics.copies)}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">Copies</span>
+                    <div class="flex items-center gap-2" title="Total Copies">
+                        <i class="fa-solid fa-copy text-gray-300 text-base"></i>
+                        <span id="copiesCount" class="text-base font-bold text-white">${formatNumber(analytics.copies)}</span>
                     </div>
-                    <div class="analytics-badge px-3 py-1.5 rounded-lg flex items-center gap-2" title="Total Downloads">
-                        <i class="fa-solid fa-download text-gray-400 text-xs"></i>
-                        <span id="downloadsCount" class="text-sm font-bold text-white">${formatNumber(analytics.downloads)}</span>
-                        <span class="text-[10px] text-gray-500 uppercase">Downloads</span>
+                    <div class="flex items-center gap-2" title="Total Downloads">
+                        <i class="fa-solid fa-download text-gray-300 text-base"></i>
+                        <span id="downloadsCount" class="text-base font-bold text-white">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
