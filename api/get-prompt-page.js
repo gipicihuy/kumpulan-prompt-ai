@@ -45,13 +45,15 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Fetch analytics data
+    // Fetch analytics data - FIX NULL HANDLING!
     const analyticsKey = `analytics:${slug}`
     const analyticsData = await redis.hgetall(analyticsKey)
+    
+    // Safe default values kalau analytics belum ada
     const analytics = {
-      views: parseInt(analyticsData.views) || 0,
-      copies: parseInt(analyticsData.copies) || 0,
-      downloads: parseInt(analyticsData.downloads) || 0
+      views: analyticsData && analyticsData.views ? parseInt(analyticsData.views) : 0,
+      copies: analyticsData && analyticsData.copies ? parseInt(analyticsData.copies) : 0,
+      downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
     }
 
     // Jika diproteksi
@@ -85,8 +87,41 @@ export default async function handler(req, res) {
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
     
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('❌ Error in get-prompt-page:', error);
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="id">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Error - AI Prompt Hub</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+          <style>
+              body { 
+                  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+                  background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+                  color: #e5e5e5;
+                  min-height: 100vh;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 1rem;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="max-w-lg mx-auto bg-gradient-to-br from-[#1a1a1a] to-[#1f1f1f] border border-red-900/50 p-8 rounded-xl text-center shadow-xl">
+              <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
+              <h2 class="text-red-400 font-bold text-2xl uppercase mb-4">Internal Server Error</h2>
+              <p class="text-gray-400 text-sm mb-6 font-mono">${error.message}</p>
+              <a href="/" class="inline-block bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase hover:from-gray-300 hover:to-gray-100 transition-all shadow-lg hover:shadow-xl">
+                  <i class="fa-solid fa-home mr-2"></i>Back to Home
+              </a>
+          </div>
+      </body>
+      </html>
+    `);
   }
 }
 
