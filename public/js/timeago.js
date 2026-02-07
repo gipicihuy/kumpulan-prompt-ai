@@ -9,7 +9,6 @@ function timeAgo(timestamp) {
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
     
     // Baru saja (< 1 menit)
     if (diffSec < 60) {
@@ -21,18 +20,28 @@ function timeAgo(timestamp) {
         return `${diffMin} menit yang lalu`;
     }
     
-    // X jam yang lalu (1-23 jam)
-    if (diffHour < 24) {
+    // X jam yang lalu (< 24 jam DAN masih hari yang sama)
+    // Cek apakah masih di hari yang sama
+    const nowDate = new Date(now);
+    const postDate = new Date(timestamp);
+    
+    // Set jam ke 00:00:00 untuk perbandingan tanggal saja
+    const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+    const postDateOnly = new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate());
+    
+    const daysDiff = Math.floor((nowDateOnly - postDateOnly) / (1000 * 60 * 60 * 24));
+    
+    // Jika masih hari ini (daysDiff = 0)
+    if (daysDiff === 0) {
         return `${diffHour} jam yang lalu`;
     }
     
-    // Kemarin (24-48 jam)
-    if (diffDay === 1) {
+    // Jika kemarin (daysDiff = 1)
+    if (daysDiff === 1) {
         return 'Kemarin';
     }
     
-    // Tampilkan tanggal lengkap (> 48 jam)
-    const date = new Date(timestamp);
+    // Tampilkan tanggal lengkap (> 1 hari yang lalu)
     const options = { 
         day: '2-digit', 
         month: 'short', 
@@ -40,7 +49,7 @@ function timeAgo(timestamp) {
         timeZone: 'Asia/Jakarta'
     };
     
-    return date.toLocaleDateString('id-ID', options);
+    return postDate.toLocaleDateString('id-ID', options);
 }
 
 /**
