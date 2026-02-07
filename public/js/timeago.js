@@ -1,14 +1,10 @@
 /**
  * Konversi timestamp ke format relatif (Baru saja, X menit yang lalu, dll)
- * @param {number} timestamp - Unix timestamp dalam milidetik (WIB timezone dari server)
+ * @param {number} timestamp - Unix timestamp dalam milidetik (UTC standar)
  * @returns {string} - Format waktu relatif
  */
 function timeAgo(timestamp) {
-    // PERBAIKAN: Gunakan waktu WIB untuk perhitungan
-    // Server menyimpan timestamp dalam WIB timezone
-    const wibOffset = 7 * 60 * 60 * 1000; // 7 jam dalam milidetik
-    const now = Date.now() + wibOffset; // Konversi waktu sekarang ke WIB
-    
+    const now = Date.now(); // UTC timestamp standar
     const diffMs = now - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
