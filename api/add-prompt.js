@@ -14,15 +14,8 @@ export default async function handler(req, res) {
   }
 
   const { slug, kategori, judul, description, isi, adminName, imageUrl, password } = req.body
-  
-  // PERBAIKAN: Gunakan waktu WIB (UTC+7) untuk timestamp
   const now = new Date()
-  
-  // Konversi ke WIB dengan menambah 7 jam (25200000 ms = 7 * 60 * 60 * 1000)
-  const wibOffset = 7 * 60 * 60 * 1000
-  const wibTime = new Date(now.getTime() + wibOffset)
-  
-  const createdAt = wibTime.toLocaleString('id-ID', { 
+  const createdAt = now.toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
     day: '2-digit',
     month: 'short',
@@ -30,9 +23,7 @@ export default async function handler(req, res) {
     hour: '2-digit',
     minute: '2-digit'
   })
-  
-  // PERBAIKAN: Gunakan timestamp WIB untuk sorting dan timeago
-  const timestamp = wibTime.getTime()
+  const timestamp = now.getTime() // UTC timestamp standar (JANGAN ditambah offset!)
 
   // Data yang akan disimpan
   const promptData = { 
@@ -41,7 +32,7 @@ export default async function handler(req, res) {
     isi, 
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB',
-    timestamp: timestamp // Timestamp WIB untuk sorting
+    timestamp: timestamp // Timestamp UTC untuk sorting
   }
 
   // Tambahkan description jika ada
