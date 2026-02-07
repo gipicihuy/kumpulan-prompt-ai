@@ -564,16 +564,16 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 <!-- Analytics Section - Simplified: Icons + Numbers Only -->
                 <div class="mt-4 flex flex-wrap gap-3">
                     <div class="flex items-center gap-2" title="Total Views">
-                        <i class="fa-solid fa-eye text-gray-300 text-base"></i>
-                        <span id="viewsCount" class="text-base font-bold text-white">${formatNumber(analytics.views)}</span>
+                        <i class="fa-solid fa-eye text-gray-400 text-base"></i>
+                        <span id="viewsCount" class="text-base font-bold text-gray-300">${formatNumber(analytics.views)}</span>
                     </div>
                     <div class="flex items-center gap-2" title="Total Copies">
-                        <i class="fa-solid fa-copy text-gray-300 text-base"></i>
-                        <span id="copiesCount" class="text-base font-bold text-white">${formatNumber(analytics.copies)}</span>
+                        <i class="fa-solid fa-copy text-gray-400 text-base"></i>
+                        <span id="copiesCount" class="text-base font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
                     </div>
                     <div class="flex items-center gap-2" title="Total Downloads">
-                        <i class="fa-solid fa-download text-gray-300 text-base"></i>
-                        <span id="downloadsCount" class="text-base font-bold text-white">${formatNumber(analytics.downloads)}</span>
+                        <i class="fa-solid fa-download text-gray-400 text-base"></i>
+                        <span id="downloadsCount" class="text-base font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
