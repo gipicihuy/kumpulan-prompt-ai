@@ -1,5 +1,6 @@
 let allPrompts = [];
 let selectedCategory = 'all';
+let currentSort = 'newest'; // default sort
 
 async function fetchPrompts() {
     try {
@@ -173,7 +174,67 @@ function applyFilters() {
                             item.isi.toLowerCase().includes(searchTerm);
         return matchesCat && matchesSearch;
     });
-    renderPrompts(filtered);
+    
+    // Apply sorting
+    const sorted = sortPrompts(filtered);
+    renderPrompts(sorted);
+}
+
+function sortPrompts(prompts) {
+    const sorted = [...prompts]; // Clone array
+    
+    switch(currentSort) {
+        case 'newest':
+            // Sort by timestamp descending (newest first)
+            sorted.sort((a, b) => b.timestamp - a.timestamp);
+            break;
+            
+        case 'trending':
+            // Trending = high engagement in last 7 days
+            // Score formula: views*1 + copies*2 + downloads*3
+            // Filter to last 7 days only
+            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            sorted.sort((a, b) => {
+                // Only count if posted in last 7 days
+                const aRecent = a.timestamp >= sevenDaysAgo;
+                const bRecent = b.timestamp >= sevenDaysAgo;
+                
+                if (!aRecent && !bRecent) return b.timestamp - a.timestamp; // both old, sort by date
+                if (!aRecent) return 1; // a is old, b comes first
+                if (!bRecent) return -1; // b is old, a comes first
+                
+                // Both recent, calculate trending score
+                const aScore = (a.analytics?.views || 0) * 1 + 
+                              (a.analytics?.copies || 0) * 2 + 
+                              (a.analytics?.downloads || 0) * 3;
+                const bScore = (b.analytics?.views || 0) * 1 + 
+                              (b.analytics?.copies || 0) * 2 + 
+                              (b.analytics?.downloads || 0) * 3;
+                return bScore - aScore;
+            });
+            break;
+            
+        case 'popular':
+            // Most popular all time (total views)
+            sorted.sort((a, b) => {
+                const aViews = a.analytics?.views || 0;
+                const bViews = b.analytics?.views || 0;
+                return bViews - aViews;
+            });
+            break;
+            
+        case 'a-z':
+            // Alphabetical A-Z
+            sorted.sort((a, b) => a.judul.localeCompare(b.judul, 'id'));
+            break;
+            
+        case 'z-a':
+            // Alphabetical Z-A
+            sorted.sort((a, b) => b.judul.localeCompare(a.judul, 'id'));
+            break;
+    }
+    
+    return sorted;
 }
 
 function formatNumber(num) {
@@ -307,6 +368,54 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
 });
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+// Sort Dropdown Logic
+const sortBtn = document.getElementById('sortBtn');
+const sortMenu = document.getElementById('sortMenu');
+const sortOptions = document.querySelectorAll('.sort-option');
+const sortLabel = document.getElementById('sortLabel');
+const sortIcon = document.getElementById('sortIcon');
+
+// Toggle dropdown
+sortBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sortMenu.classList.toggle('show');
+    sortBtn.classList.toggle('open');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) {
+        sortMenu.classList.remove('show');
+        sortBtn.classList.remove('open');
+    }
+});
+
+// Handle sort option selection
+sortOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        const sortType = option.dataset.sort;
+        
+        // Update active state
+        sortOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        
+        // Update button label and icon
+        const optionIcon = option.querySelector('i').className;
+        const optionText = option.querySelector('span').textContent;
+        
+        sortIcon.className = optionIcon;
+        sortLabel.textContent = optionText;
+        
+        // Update current sort and apply
+        currentSort = sortType;
+        applyFilters();
+        
+        // Close dropdown
+        sortMenu.classList.remove('show');
+        sortBtn.classList.remove('open');
+    });
+});
 
 // Auto-refresh analytics setiap 10 detik (UPDATE TANPA REFRESH PAGE)
 setInterval(async () => {
