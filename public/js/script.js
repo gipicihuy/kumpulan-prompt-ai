@@ -210,20 +210,7 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // 🆕 IMAGE PREVIEW - Tambahkan gambar jika ada
-        let imageHtml = '';
-        if (item.imageUrl && item.imageUrl.trim() !== '') {
-            imageHtml = `
-                <div class="mb-2 rounded-lg overflow-hidden border border-[#2a2a2a]">
-                    <img src="${item.imageUrl}" 
-                         alt="${item.judul}" 
-                         class="w-full h-36 object-cover"
-                         onerror="this.parentElement.style.display='none'">
-                </div>
-            `;
-        }
-        
-        // Analytics badges
+        // Analytics badges - REDESIGNED: di kanan, lebih besar, warna abu-abu jelas tapi ga terlalu putih
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
             <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
@@ -260,7 +247,6 @@ function renderPrompts(data) {
                 </h3>
                 <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
             </div>
-            ${imageHtml}
             <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2">${previewText}</p>
             ${analyticsHtml}
         </a>
