@@ -85,6 +85,47 @@
             width: 32px;
             height: 32px;
         }
+
+        /* Fullscreen Modal */
+        .fullscreen-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .fullscreen-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .fullscreen-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .fullscreen-close:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -126,8 +167,11 @@
 
             <!-- Image Preview -->
             <div id="imagePreviewSection" class="hidden mb-5">
-                <div class="image-container rounded-lg overflow-hidden">
+                <div class="image-container rounded-lg overflow-hidden relative group">
                     <img id="detImage" class="w-full h-auto max-h-64 object-contain" alt="Prompt Preview">
+                    <button id="fullscreenBtn" class="absolute bottom-3 right-3 w-9 h-9 bg-black/70 hover:bg-black/90 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm border border-white/10" title="Fullscreen">
+                        <img src="/assets/open_in_full.svg" class="w-5 h-5" alt="Fullscreen">
+                    </button>
                 </div>
             </div>
 
@@ -138,8 +182,8 @@
                         <span></span>
                         <span></span>
                     </div>
-                    <div id="fileName" class="text-[10px] font-mono text-gray-400 uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
-                        loading.txt
+                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
+                        Prompt
                     </div>
                     <div class="flex gap-3 items-center">
                         <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm">
@@ -161,6 +205,14 @@
              <p class="text-xs font-bold uppercase tracking-widest">Loading...</p>
         </div>
     </main>
+
+    <!-- Fullscreen Modal -->
+    <div id="fullscreenModal" class="hidden fullscreen-modal" onclick="closeFullscreen(event)">
+        <button class="fullscreen-close" onclick="closeFullscreen(event)">
+            <img src="/assets/close.svg" class="w-5 h-5" alt="Close">
+        </button>
+        <img id="fullscreenImage" src="" alt="Fullscreen">
+    </div>
 
     <script>
 // Function untuk update meta tags secara dinamis
@@ -237,9 +289,6 @@ async function loadDetail() {
             document.getElementById('detAuthor').innerText = item.uploadedBy;
             document.getElementById('detTime').innerText = item.createdAt;
             
-            // Set file name dari slug
-            document.getElementById('fileName').innerText = `${slug}.txt`;
-            
             // Render profile picture
             const profilePicContainer = document.getElementById('profilePicContainer');
             if (item.profileUrl && item.profileUrl.trim() !== '') {
@@ -266,6 +315,11 @@ async function loadDetail() {
                 
                 // Tampilkan section gambar
                 document.getElementById('imagePreviewSection').classList.remove('hidden');
+                
+                // Setup fullscreen button
+                document.getElementById('fullscreenBtn').onclick = function() {
+                    openFullscreen(item.imageUrl);
+                };
                 
                 // Handle error loading gambar
                 imgElement.onerror = function() {
@@ -334,6 +388,30 @@ function setupButtons(item) {
         });
     };
 }
+
+// Fullscreen functions
+function openFullscreen(imageUrl) {
+    const modal = document.getElementById('fullscreenModal');
+    const img = document.getElementById('fullscreenImage');
+    img.src = imageUrl;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFullscreen(event) {
+    if (event) event.stopPropagation();
+    const modal = document.getElementById('fullscreenModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// Close on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeFullscreen();
+    }
+});
+
 loadDetail();
     </script>
 </body>
