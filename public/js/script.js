@@ -58,31 +58,39 @@ function renderCategories() {
     if (allPrompts.length === 0) {
         filterContainer.innerHTML = `
             <button class="category-btn active whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start">
-                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL
+                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL (0)
             </button>
         `;
         return;
     }
     
-    // Ambil unique kategori dengan case-insensitive
+    // Ambil unique kategori dengan case-insensitive DAN hitung jumlahnya
     const categoriesMap = {};
+    const categoryCounts = {};
+    
     allPrompts.forEach(item => {
         const key = item.kategori.toLowerCase();
         if (!categoriesMap[key]) {
             categoriesMap[key] = item.kategori;
+            categoryCounts[key] = 0;
         }
+        categoryCounts[key]++;
     });
     
     const categories = ['all', ...Object.keys(categoriesMap)];
     
+    // Total count untuk ALL
+    const totalCount = allPrompts.length;
+    
     filterContainer.innerHTML = categories.map(cat => {
         const displayText = cat === 'all' ? 'ALL' : categoriesMap[cat];
+        const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
         return `
         <button onclick="setCategory('${cat}')" 
             class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start"
             style="${isActive ? 'color: #000 !important;' : ''}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText}
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText} (${count})
         </button>
     `}).join('');
     
@@ -180,7 +188,6 @@ function formatNumber(num) {
 
 function renderPrompts(data) {
     const container = document.getElementById('content');
-    document.getElementById('counter').innerText = `${data.length} TOTAL PROMPTS`;
     
     if (data.length === 0) {
         container.innerHTML = `
@@ -210,7 +217,7 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // Analytics badges - REDESIGNED: di kanan, lebih besar, warna abu-abu jelas tapi ga terlalu putih
+        // Analytics badges
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
             <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
