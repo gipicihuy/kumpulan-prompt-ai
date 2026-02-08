@@ -97,6 +97,79 @@
             color: #000 !important;
         }
         
+        /* Sort Dropdown */
+        .sort-dropdown {
+            position: relative;
+        }
+        
+        .sort-btn {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .sort-btn:hover {
+            background: #1f1f1f;
+            border-color: #444;
+        }
+        
+        .sort-btn.open {
+            border-color: #444;
+            background: #1f1f1f;
+        }
+        
+        .sort-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            z-index: 50;
+            min-width: 180px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+        
+        .sort-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        .sort-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sort-option:last-child {
+            border-bottom: none;
+        }
+        
+        .sort-option:hover {
+            background: #252525;
+        }
+        
+        .sort-option.active {
+            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            color: #000;
+        }
+        
+        .sort-option.active i {
+            color: #000;
+        }
+        
         /* Hide scrollbar tapi tetap bisa scroll */
         .scrollbar-hide {
             -ms-overflow-style: none;
@@ -243,9 +316,43 @@
                     <span class="mobile-label">Request</span>
                 </div>
             </div>
-            <div class="relative mb-3">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
+            <div class="relative mb-3 flex gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
+                </div>
+                
+                <!-- Sort Dropdown -->
+                <div class="sort-dropdown">
+                    <button id="sortBtn" class="sort-btn px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 whitespace-nowrap flex items-center gap-2">
+                        <i id="sortIcon" class="fa-solid fa-fire text-yellow-500"></i>
+                        <span id="sortLabel">Terbaru</span>
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    
+                    <div id="sortMenu" class="sort-menu">
+                        <div class="sort-option active" data-sort="newest">
+                            <i class="fa-solid fa-fire text-yellow-500 text-sm"></i>
+                            <span class="text-sm font-semibold">Terbaru</span>
+                        </div>
+                        <div class="sort-option" data-sort="trending">
+                            <i class="fa-solid fa-chart-line text-orange-500 text-sm"></i>
+                            <span class="text-sm font-semibold">Trending</span>
+                        </div>
+                        <div class="sort-option" data-sort="popular">
+                            <i class="fa-solid fa-trophy text-yellow-600 text-sm"></i>
+                            <span class="text-sm font-semibold">Paling Populer</span>
+                        </div>
+                        <div class="sort-option" data-sort="a-z">
+                            <i class="fa-solid fa-arrow-down-a-z text-blue-500 text-sm"></i>
+                            <span class="text-sm font-semibold">A-Z</span>
+                        </div>
+                        <div class="sort-option" data-sort="z-a">
+                            <i class="fa-solid fa-arrow-up-z-a text-blue-500 text-sm"></i>
+                            <span class="text-sm font-semibold">Z-A</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="relative -mx-4 px-4">
