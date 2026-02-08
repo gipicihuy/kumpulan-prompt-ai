@@ -526,6 +526,47 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             width: 32px;
             height: 32px;
         }
+
+        /* Fullscreen Modal */
+        .fullscreen-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 15, 0.98);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .fullscreen-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .fullscreen-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .fullscreen-close:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -591,8 +632,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
 
             ${promptData.imageUrl && promptData.imageUrl.trim() !== '' ? `
             <div class="mb-5">
-                <div class="image-container rounded-lg overflow-hidden">
+                <div class="image-container rounded-lg overflow-hidden relative group">
                     <img src="${promptData.imageUrl}" class="w-full h-auto max-h-64 object-contain" alt="${promptData.judul}">
+                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 bg-black/70 hover:bg-black/90 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm border border-white/10" title="Fullscreen">
+                        <img src="/assets/open_in_full.svg" class="w-5 h-5" alt="Fullscreen">
+                    </button>
                 </div>
             </div>
             ` : ''}
@@ -604,8 +648,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                         <span></span>
                         <span></span>
                     </div>
-                    <div class="text-[10px] font-mono text-gray-400 uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
-                        ${slug}.txt
+                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
+                        Prompt
                     </div>
                     <div class="flex gap-3 items-center">
                         <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm">
@@ -622,6 +666,14 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             </div>
         </div>
     </main>
+
+    <!-- Fullscreen Modal -->
+    <div id="fullscreenModal" class="hidden fullscreen-modal" onclick="closeFullscreen(event)">
+        <button class="fullscreen-close" onclick="closeFullscreen(event)">
+            <img src="/assets/close.svg" class="w-5 h-5" alt="Close">
+        </button>
+        <img id="fullscreenImage" src="" alt="Fullscreen">
+    </div>
 
     <script>
         const promptData = ${JSON.stringify({
@@ -683,7 +735,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             });
         };
         
-        // Download button - ✅ FIXED: TAMBAHKAN TRACKING!
+        // Download button
         document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -695,7 +747,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            await trackAnalytics('download');  // ✅ INI YANG DITAMBAHKAN!
+            await trackAnalytics('download');
             
             iziToast.success({
                 title: 'Download!',
@@ -709,6 +761,29 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 progressBarColor: '#059669'
             });
         };
+
+        // Fullscreen functions
+        function openFullscreen(imageUrl) {
+            const modal = document.getElementById('fullscreenModal');
+            const img = document.getElementById('fullscreenImage');
+            img.src = imageUrl;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFullscreen(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('fullscreenModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFullscreen();
+            }
+        });
     </script>
 </body>
 </html>`;
