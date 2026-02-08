@@ -540,33 +540,34 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             padding: 1rem;
         }
         
-        .fullscreen-modal img {
+        .fullscreen-image-wrapper {
+            position: relative;
             max-width: 100%;
             max-height: 100%;
+        }
+        
+        .fullscreen-modal img {
+            max-width: 100%;
+            max-height: 100vh;
             object-fit: contain;
             border-radius: 8px;
         }
         
         .fullscreen-close {
             position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
+            top: 1rem;
+            right: 1rem;
             width: 40px;
             height: 40px;
-            background: white;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .fullscreen-close:hover {
-            background: #f5f5f5;
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: scale(1.1);
         }
         
         .fullscreen-close:active {
@@ -639,8 +640,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="mb-5">
                 <div class="image-container rounded-lg overflow-hidden relative">
                     <img src="${promptData.imageUrl}" class="w-full h-auto max-h-64 object-contain" alt="${promptData.judul}">
-                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95" title="Fullscreen">
-                        <img src="/assets/open_in_full.svg" class="w-5 h-5" alt="Fullscreen">
+                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Fullscreen">
+                        <img src="/assets/open_in_full.svg" class="w-6 h-6" alt="Fullscreen">
                     </button>
                 </div>
             </div>
@@ -674,10 +675,12 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
 
     <!-- Fullscreen Modal -->
     <div id="fullscreenModal" class="hidden fullscreen-modal" onclick="closeFullscreen(event)">
-        <button class="fullscreen-close" onclick="closeFullscreen(event)">
-            <img src="/assets/close.svg" class="w-5 h-5" alt="Close">
-        </button>
-        <img id="fullscreenImage" src="" alt="Fullscreen">
+        <div class="fullscreen-image-wrapper">
+            <img id="fullscreenImage" src="" alt="Fullscreen">
+            <button class="fullscreen-close" onclick="closeFullscreen(event)">
+                <img src="/assets/close.svg" class="w-6 h-6" alt="Close">
+            </button>
+        </div>
     </div>
 
     <script>
