@@ -553,19 +553,24 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             right: 1.5rem;
             width: 40px;
             height: 40px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            background: white;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .fullscreen-close:hover {
-            background: rgba(0, 0, 0, 0.95);
+            background: #f5f5f5;
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fullscreen-close:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -632,9 +637,9 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
 
             ${promptData.imageUrl && promptData.imageUrl.trim() !== '' ? `
             <div class="mb-5">
-                <div class="image-container rounded-lg overflow-hidden relative group">
+                <div class="image-container rounded-lg overflow-hidden relative">
                     <img src="${promptData.imageUrl}" class="w-full h-auto max-h-64 object-contain" alt="${promptData.judul}">
-                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 bg-black/70 hover:bg-black/90 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm border border-white/10" title="Fullscreen">
+                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95" title="Fullscreen">
                         <img src="/assets/open_in_full.svg" class="w-5 h-5" alt="Fullscreen">
                     </button>
                 </div>
