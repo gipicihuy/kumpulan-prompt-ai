@@ -463,8 +463,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -690,6 +690,32 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
           slug: slug
         })};
         
+        // Initialize Notyf
+        const notyf = new Notyf({
+            duration: 2000,
+            position: { x: 'center', y: 'top' },
+            types: [
+                {
+                    type: 'success',
+                    background: '#10b981',
+                    icon: {
+                        className: 'fa-solid fa-check',
+                        tagName: 'i',
+                        color: 'white'
+                    }
+                },
+                {
+                    type: 'error',
+                    background: '#ef4444',
+                    icon: {
+                        className: 'fa-solid fa-triangle-exclamation',
+                        tagName: 'i',
+                        color: 'white'
+                    }
+                }
+            ]
+        });
+        
         // Format number helper
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -730,17 +756,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
             await trackAnalytics('copy');
-            iziToast.success({
-                title: 'Berhasil!',
-                message: 'Prompt berhasil disalin ke clipboard',
-                position: 'topRight',
-                timeout: 2000,
-                backgroundColor: '#10b981',
-                titleColor: '#fff',
-                messageColor: '#fff',
-                iconColor: '#fff',
-                progressBarColor: '#059669'
-            });
+            notyf.success('Copied!');
         };
         
         // Download button
@@ -756,18 +772,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             URL.revokeObjectURL(url);
             
             await trackAnalytics('download');
-            
-            iziToast.success({
-                title: 'Download!',
-                message: 'File berhasil didownload',
-                position: 'topRight',
-                timeout: 2000,
-                backgroundColor: '#10b981',
-                titleColor: '#fff',
-                messageColor: '#fff',
-                iconColor: '#fff',
-                progressBarColor: '#059669'
-            });
+            notyf.success('Downloaded!');
         };
 
         // Fullscreen functions
