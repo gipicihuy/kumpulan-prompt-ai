@@ -1,27 +1,12 @@
-// Initialize Notyf
+// Initialize Notyf dengan konfigurasi minimal - gunakan default Notyf styling
 const notyf = new Notyf({
-    duration: 2000,
-    position: { x: 'center', y: 'top' },
-    types: [
-        {
-            type: 'success',
-            background: '#10b981',
-            icon: {
-                className: 'fa-solid fa-check',
-                tagName: 'i',
-                color: 'white'
-            }
-        },
-        {
-            type: 'error',
-            background: '#ef4444',
-            icon: {
-                className: 'fa-solid fa-triangle-exclamation',
-                tagName: 'i',
-                color: 'white'
-            }
-        }
-    ]
+    duration: 2500,
+    position: {
+        x: 'right',
+        y: 'top',
+    },
+    ripple: true, // Enable ripple effect
+    dismissible: true // Allow user to dismiss notifications
 });
 
 let allPrompts = [];
@@ -343,10 +328,12 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
         const result = await response.json();
 
         if (result.success) {
+            // Gunakan default success notification dari Notyf
             notyf.success('Request sent successfully!');
             toggleModal(false);
             document.getElementById('addForm').reset();
         } else {
+            // Gunakan default error notification dari Notyf
             notyf.error(result.message || 'Failed to send request');
         }
     } catch (error) {
