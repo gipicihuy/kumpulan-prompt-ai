@@ -7,6 +7,10 @@
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Notyf CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -101,13 +105,11 @@
             border-color: #4ade80;
         }
 
-        /* Compact label styling */
         label {
             font-size: 0.7rem;
             letter-spacing: 0.05em;
         }
 
-        /* File input styling */
         input[type="file"] {
             font-size: 0.75rem;
         }
@@ -186,7 +188,6 @@
                     <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
                 </div>
                 
-                <!-- Password Protection Section -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="text-gray-400 uppercase flex items-center gap-1.5">
@@ -216,14 +217,12 @@
                     </div>
                 </div>
 
-                <!-- Upload Image Section -->
                 <div>
                     <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
                         <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
                     </label>
                     <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
                     
-                    <!-- Image Preview -->
                     <div id="imagePreviewContainer" class="mt-3 hidden">
                         <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
                             <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
@@ -251,14 +250,27 @@
         </p>
     </footer>
 
+    <!-- Notyf JS - Load after page -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
     <script>
+        // Initialize Notyf dengan konfigurasi minimal - biar Notyf yang handle semua styling
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            ripple: true, // Enable ripple effect
+            dismissible: true // Allow user to dismiss
+        });
+
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
 
         let passwordEnabled = false;
-        let slugExists = false; // Track apakah slug sudah dipakai
+        let slugExists = false;
 
-        // Function untuk toggle password field
         function togglePasswordField() {
             passwordEnabled = !passwordEnabled;
             const passwordField = document.getElementById('passwordField');
@@ -278,7 +290,6 @@
             }
         }
 
-        // Function untuk generate slug dari judul
         function generateSlug(text) {
             return text
                 .toLowerCase()
@@ -287,10 +298,8 @@
                 .replace(/^-+|-+$/g, '');
         }
 
-        // Debounce untuk slug check
         let slugCheckTimeout;
         
-        // Update preview slug real-time saat judul diketik + check duplicate
         document.getElementById('judul').addEventListener('input', function(e) {
             const slug = generateSlug(e.target.value);
             const preview = document.getElementById('slugPreview');
@@ -300,10 +309,8 @@
                 preview.classList.remove('text-gray-500', 'text-red-400', 'text-green-400');
                 preview.classList.add('text-yellow-400', 'active');
                 
-                // Clear timeout sebelumnya
                 clearTimeout(slugCheckTimeout);
                 
-                // Check duplicate setelah user selesai mengetik (500ms delay)
                 slugCheckTimeout = setTimeout(async () => {
                     await checkSlugDuplicate(slug);
                 }, 500);
@@ -315,7 +322,6 @@
             }
         });
         
-        // Function untuk check duplicate slug
         async function checkSlugDuplicate(slug) {
             const preview = document.getElementById('slugPreview');
             
@@ -332,13 +338,11 @@
                 const result = await response.json();
                 
                 if (result.success && result.exists) {
-                    // Slug sudah dipakai - SET FLAG!
                     slugExists = true;
                     preview.classList.remove('text-yellow-400', 'text-green-400');
                     preview.classList.add('text-red-400');
                     preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Sudah dipakai oleh "${result.existingData.judul}")</span>`;
                 } else {
-                    // Slug tersedia
                     slugExists = false;
                     preview.classList.remove('text-yellow-400', 'text-red-400');
                     preview.classList.add('text-green-400');
@@ -346,7 +350,6 @@
                 }
             } catch (error) {
                 console.error('Error checking slug:', error);
-                // Jika error, anggap slug tersedia (safe mode)
                 slugExists = false;
                 preview.classList.remove('text-yellow-400', 'text-red-400');
                 preview.classList.add('text-green-400');
@@ -354,7 +357,6 @@
             }
         }
 
-        // Preview gambar saat dipilih
         document.getElementById('imageFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -392,12 +394,13 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminName', userVal);
+                    notyf.success('Login berhasil!'); // Gunakan default success notification
                     showAdmin();
                 } else { 
-                    alert('❌ Kredensial Salah'); 
+                    notyf.error('Kredensial salah!'); // Gunakan default error notification
                 }
             } catch (e) {
-                alert('❌ Server Error');
+                notyf.error('Server error!');
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -413,18 +416,16 @@
             const btn = event.target;
             const originalText = btn.innerHTML;
             
-            // VALIDASI: Cek apakah slug sudah dipakai
             const judul = document.getElementById('judul').value;
             const slug = generateSlug(judul);
             
             if (!slug || !judul || !document.getElementById('isi').value) {
-                alert('❌ Isi field wajib (judul, kategori, isi)!');
+                notyf.error('Isi field wajib (judul, kategori, isi)!');
                 return;
             }
             
-            // HARD STOP jika slug sudah dipakai!
             if (slugExists) {
-                alert('❌ UPLOAD GAGAL!\n\nSlug sudah dipakai oleh prompt lain.\nSilakan ubah judul agar slug-nya berbeda.');
+                notyf.error('Slug sudah dipakai! Ubah judul.');
                 return;
             }
             
@@ -434,7 +435,6 @@
             try {
                 let imageUrl = '';
 
-                // Cek apakah ada file gambar yang diupload
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
                     console.log('📤 Uploading image...', imageFile.name);
@@ -452,7 +452,6 @@
 
                     console.log('📊 Upload response status:', uploadRes.status);
                     
-                    // Cek apakah response adalah JSON
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
@@ -471,18 +470,15 @@
                     console.log('🖼️ Image URL:', imageUrl);
                 }
 
-                // Ambil password jika enabled
                 const password = passwordEnabled ? document.getElementById('password').value : '';
 
-                // Validasi password jika enabled
                 if (passwordEnabled && (!password || password.trim() === '')) {
-                    alert('❌ Password kosong!');
+                    notyf.error('Password kosong!');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
                 }
 
-                // Simpan prompt dengan description, imageUrl, dan password
                 const body = {
                     slug: slug,
                     judul: judul,
@@ -506,16 +502,16 @@
                 });
                 
                 if (res.ok) { 
-                    alert('✅ Prompt berhasil diupload!' + (passwordEnabled ? '\n🔒 Prompt diproteksi.' : '')); 
-                    location.reload(); 
+                    notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : ''));
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     const errorText = await res.text();
                     console.error('❌ Save error:', errorText);
-                    alert('❌ Gagal menyimpan: ' + errorText);
+                    notyf.error('Gagal menyimpan: ' + errorText);
                 }
             } catch (e) {
                 console.error('💥 Error:', e);
-                alert('❌ Error: ' + e.message);
+                notyf.error('Error: ' + e.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
