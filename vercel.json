@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/prompt/:slug", "destination": "/api/get-prompt-page?slug=:slug" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/request", "destination": "/request.html" }
   ],
   "headers": [
     {
