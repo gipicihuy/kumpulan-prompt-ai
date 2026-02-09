@@ -125,7 +125,7 @@ export default async function handler(req, res) {
   }
 }
 
-// Fungsi untuk render halaman password input - REDESIGNED!
+// Fungsi untuk render halaman password input
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
@@ -156,6 +156,10 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ✅ Notyf CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -274,7 +278,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             </div>
         </div>
 
-        <!-- Password Form Container - mirip code container di detail view -->
+        <!-- Password Form Container -->
         <div class="password-container rounded-lg overflow-hidden">
             <!-- Lock Icon Section -->
             <div class="p-8 text-center border-b border-[#2a2a2a]">
@@ -319,13 +323,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                         <i class="fa-solid fa-unlock mr-2"></i>Unlock Prompt
                     </button>
                 </form>
-
-                <div id="errorMessage" class="hidden mt-5 p-4 bg-red-900/20 border border-red-800/50 rounded-lg">
-                    <p class="text-sm text-red-400 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span id="errorText"></span>
-                    </p>
-                </div>
             </div>
 
             <!-- Footer Info -->
@@ -343,7 +340,21 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         </div>
     </main>
 
+    <!-- ✅ Notyf JS -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
     <script>
+        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            ripple: true,
+            dismissible: true
+        });
+
         // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('passwordInput');
@@ -372,8 +383,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             btn.disabled = true;
 
             const password = document.getElementById('passwordInput').value;
-            const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
 
             try {
                 const response = await fetch('/api/verify-password', {
@@ -388,25 +397,22 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Password benar! Cookie sudah di-set oleh server
-                    // Redirect ke URL yang sama (tanpa query parameter)
-                    window.location.href = '/prompt/${slug}';
+                    // ✅ Password benar! Gunakan default success notification
+                    notyf.success('Access granted! Redirecting...');
+                    
+                    // Redirect setelah 1 detik
+                    setTimeout(() => {
+                        window.location.href = '/prompt/${slug}';
+                    }, 1000);
                 } else {
-                    // Password salah
-                    errorText.textContent = result.message || 'Incorrect password';
-                    errorDiv.classList.remove('hidden');
+                    // ✅ Password salah - gunakan default error notification
+                    notyf.error(result.message || 'Incorrect password');
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
-                    
-                    // Sembunyikan error setelah 3 detik
-                    setTimeout(() => {
-                        errorDiv.classList.add('hidden');
-                    }, 3000);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                errorText.textContent = 'An error occurred. Please try again.';
-                errorDiv.classList.remove('hidden');
+                notyf.error('An error occurred. Please try again.');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -463,8 +469,10 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ✅ Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -608,7 +616,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>
                 
-                <!-- Analytics Section - Samain dengan frontend -->
+                <!-- Analytics Section -->
                 <div class="mt-3 flex flex-wrap gap-3">
                     <div class="flex items-center gap-1.5" title="Total Views">
                         <i class="fa-solid fa-eye text-[11px] text-gray-400"></i>
@@ -683,6 +691,9 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         </div>
     </div>
 
+    <!-- ✅ Notyf JS -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
     <script>
         const promptData = ${JSON.stringify({
           judul: promptData.judul,
@@ -690,30 +701,15 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
           slug: slug
         })};
         
-        // Initialize Notyf
+        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
         const notyf = new Notyf({
-            duration: 2000,
-            position: { x: 'center', y: 'top' },
-            types: [
-                {
-                    type: 'success',
-                    background: '#10b981',
-                    icon: {
-                        className: 'fa-solid fa-check',
-                        tagName: 'i',
-                        color: 'white'
-                    }
-                },
-                {
-                    type: 'error',
-                    background: '#ef4444',
-                    icon: {
-                        className: 'fa-solid fa-triangle-exclamation',
-                        tagName: 'i',
-                        color: 'white'
-                    }
-                }
-            ]
+            duration: 2500,
+            position: {
+                x: 'right',
+                y: 'top',
+            },
+            ripple: true,
+            dismissible: true
         });
         
         // Format number helper
@@ -756,7 +752,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
             await trackAnalytics('copy');
-            notyf.success('Copied!');
+            // ✅ Gunakan default success notification
+            notyf.success('Copied to clipboard!');
         };
         
         // Download button
@@ -772,7 +769,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             URL.revokeObjectURL(url);
             
             await trackAnalytics('download');
-            notyf.success('Downloaded!');
+            // ✅ Gunakan default success notification
+            notyf.success('Downloaded successfully!');
         };
 
         // Fullscreen functions
