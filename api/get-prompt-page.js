@@ -265,7 +265,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
                 <div class="flex items-center gap-2">
                     ${profilePicHtml}
-                    <span class="font-semibold text-white">Prompt by <span class="text-yellow-500">@${promptData.uploadedBy || 'Admin'}</span></span>
+                    <span class="font-semibold text-white">Prompt by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
                 </div>
                 <div class="flex items-center gap-1">
                     <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
@@ -336,7 +336,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                         Don't have the password?
                     </p>
                     <p class="text-xs text-white text-center font-semibold">
-                        Contact <span class="text-yellow-500">@${promptData.uploadedBy}</span> for access
+                        Contact <span class="text-gray-300">@${promptData.uploadedBy}</span> for access
                     </p>
                 </div>
             </div>
