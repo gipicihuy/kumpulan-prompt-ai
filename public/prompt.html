@@ -22,8 +22,8 @@
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
@@ -223,6 +223,32 @@
     </div>
 
     <script>
+// Initialize Notyf
+const notyf = new Notyf({
+    duration: 2000,
+    position: { x: 'center', y: 'top' },
+    types: [
+        {
+            type: 'success',
+            background: '#10b981',
+            icon: {
+                className: 'fa-solid fa-check',
+                tagName: 'i',
+                color: 'white'
+            }
+        },
+        {
+            type: 'error',
+            background: '#ef4444',
+            icon: {
+                className: 'fa-solid fa-triangle-exclamation',
+                tagName: 'i',
+                color: 'white'
+            }
+        }
+    ]
+});
+
 // Function untuk update meta tags secara dinamis
 function updateMetaTags(item) {
     // Update title
@@ -360,18 +386,9 @@ function showError(title, message) {
 function setupButtons(item) {
     document.getElementById('copyCodeBtn').onclick = () => {
         navigator.clipboard.writeText(item.isi);
-        iziToast.success({
-            title: 'Berhasil!',
-            message: 'Prompt berhasil disalin ke clipboard',
-            position: 'topRight',
-            timeout: 2000,
-            backgroundColor: '#10b981',
-            titleColor: '#fff',
-            messageColor: '#fff',
-            iconColor: '#fff',
-            progressBarColor: '#059669'
-        });
+        notyf.success('Copied!');
     };
+    
     document.getElementById('downloadBtn').onclick = () => {
         const blob = new Blob([item.isi], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -383,17 +400,7 @@ function setupButtons(item) {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        iziToast.success({
-            title: 'Download!',
-            message: 'File berhasil didownload',
-            position: 'topRight',
-            timeout: 2000,
-            backgroundColor: '#10b981',
-            titleColor: '#fff',
-            messageColor: '#fff',
-            iconColor: '#fff',
-            progressBarColor: '#059669'
-        });
+        notyf.success('Downloaded!');
     };
 }
 
