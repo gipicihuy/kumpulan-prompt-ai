@@ -1,6 +1,32 @@
+// Initialize Notyf
+const notyf = new Notyf({
+    duration: 2000,
+    position: { x: 'center', y: 'top' },
+    types: [
+        {
+            type: 'success',
+            background: '#10b981',
+            icon: {
+                className: 'fa-solid fa-check',
+                tagName: 'i',
+                color: 'white'
+            }
+        },
+        {
+            type: 'error',
+            background: '#ef4444',
+            icon: {
+                className: 'fa-solid fa-triangle-exclamation',
+                tagName: 'i',
+                color: 'white'
+            }
+        }
+    ]
+});
+
 let allPrompts = [];
 let selectedCategory = 'all';
-let currentSort = 'newest'; // default sort
+let currentSort = 'newest';
 
 async function fetchPrompts() {
     try {
@@ -34,7 +60,6 @@ async function fetchPrompts() {
         console.error('❌ Error fetching prompts:', err);
         document.getElementById('loading').classList.add('hidden');
         
-        // Show error message to user
         const container = document.getElementById('content');
         container.innerHTML = `
             <div class="text-center py-16">
@@ -49,7 +74,7 @@ async function fetchPrompts() {
             </div>
         `;
         
-        renderCategories(); // Still render categories even on error
+        renderCategories();
     }
 }
 
@@ -65,7 +90,6 @@ function renderCategories() {
         return;
     }
     
-    // Ambil unique kategori dengan case-insensitive DAN hitung jumlahnya
     const categoriesMap = {};
     const categoryCounts = {};
     
@@ -79,8 +103,6 @@ function renderCategories() {
     });
     
     const categories = ['all', ...Object.keys(categoriesMap)];
-    
-    // Total count untuk ALL
     const totalCount = allPrompts.length;
     
     filterContainer.innerHTML = categories.map(cat => {
@@ -95,10 +117,8 @@ function renderCategories() {
         </button>
     `}).join('');
     
-    // Setup scroll indicators
     setupScrollIndicators();
     
-    // Auto scroll ke active category
     setTimeout(() => {
         const activeBtn = filterContainer.querySelector('.category-btn.active');
         if (activeBtn) {
@@ -119,7 +139,6 @@ function setupScrollIndicators() {
         const scrollWidth = filterContainer.scrollWidth;
         const clientWidth = filterContainer.clientWidth;
         
-        // Show/hide left indicator & button
         if (scrollLeft > 10) {
             leftIndicator.classList.remove('hidden');
             leftBtn.classList.remove('hidden');
@@ -128,7 +147,6 @@ function setupScrollIndicators() {
             leftBtn.classList.add('hidden');
         }
         
-        // Show/hide right indicator & button
         if (scrollLeft + clientWidth < scrollWidth - 10) {
             rightIndicator.classList.remove('hidden');
             rightBtn.classList.remove('hidden');
@@ -138,23 +156,16 @@ function setupScrollIndicators() {
         }
     }
     
-    // Scroll left button click
     leftBtn.addEventListener('click', () => {
         filterContainer.scrollBy({ left: -200, behavior: 'smooth' });
     });
     
-    // Scroll right button click
     rightBtn.addEventListener('click', () => {
         filterContainer.scrollBy({ left: 200, behavior: 'smooth' });
     });
     
-    // Initial check
     setTimeout(updateIndicators, 200);
-    
-    // Update on scroll
     filterContainer.addEventListener('scroll', updateIndicators);
-    
-    // Update on window resize
     window.addEventListener('resize', updateIndicators);
 }
 
@@ -167,7 +178,6 @@ function setCategory(cat) {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allPrompts.filter(item => {
-        // Case-insensitive kategori comparison
         const matchesCat = selectedCategory === 'all' || 
                           item.kategori.toLowerCase() === selectedCategory.toLowerCase();
         const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || 
@@ -175,35 +185,28 @@ function applyFilters() {
         return matchesCat && matchesSearch;
     });
     
-    // Apply sorting
     const sorted = sortPrompts(filtered);
     renderPrompts(sorted);
 }
 
 function sortPrompts(prompts) {
-    const sorted = [...prompts]; // Clone array
+    const sorted = [...prompts];
     
     switch(currentSort) {
         case 'newest':
-            // Sort by timestamp descending (newest first)
             sorted.sort((a, b) => b.timestamp - a.timestamp);
             break;
             
         case 'trending':
-            // Trending = high engagement in last 7 days
-            // Score formula: views*1 + copies*2 + downloads*3
-            // Filter to last 7 days only
             const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
             sorted.sort((a, b) => {
-                // Only count if posted in last 7 days
                 const aRecent = a.timestamp >= sevenDaysAgo;
                 const bRecent = b.timestamp >= sevenDaysAgo;
                 
-                if (!aRecent && !bRecent) return b.timestamp - a.timestamp; // both old, sort by date
-                if (!aRecent) return 1; // a is old, b comes first
-                if (!bRecent) return -1; // b is old, a comes first
+                if (!aRecent && !bRecent) return b.timestamp - a.timestamp;
+                if (!aRecent) return 1;
+                if (!bRecent) return -1;
                 
-                // Both recent, calculate trending score
                 const aScore = (a.analytics?.views || 0) * 1 + 
                               (a.analytics?.copies || 0) * 2 + 
                               (a.analytics?.downloads || 0) * 3;
@@ -215,7 +218,6 @@ function sortPrompts(prompts) {
             break;
             
         case 'popular':
-            // Most popular all time (total views)
             sorted.sort((a, b) => {
                 const aViews = a.analytics?.views || 0;
                 const bViews = b.analytics?.views || 0;
@@ -224,12 +226,10 @@ function sortPrompts(prompts) {
             break;
             
         case 'a-z':
-            // Alphabetical A-Z
             sorted.sort((a, b) => a.judul.localeCompare(b.judul, 'id'));
             break;
             
         case 'z-a':
-            // Alphabetical Z-A
             sorted.sort((a, b) => b.judul.localeCompare(a.judul, 'id'));
             break;
     }
@@ -238,12 +238,8 @@ function sortPrompts(prompts) {
 }
 
 function formatNumber(num) {
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
 }
 
@@ -261,24 +257,20 @@ function renderPrompts(data) {
     }
     
     container.innerHTML = data.map(item => {
-        // Tampilan profile picture
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== '' 
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
             : `<div class="w-7 h-7 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]">
                  <i class="fa-solid fa-user text-xs text-gray-500"></i>
                </div>`;
         
-        // Icon lock jika prompt diproteksi
         const lockIcon = item.isProtected 
             ? `<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>` 
             : '';
         
-        // Untuk protected prompts, tampilkan placeholder text alih-alih konten asli
         const previewText = item.isProtected 
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // Analytics badges
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
             <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
@@ -320,7 +312,6 @@ function renderPrompts(data) {
         </a>
     `}).join('');
     
-    // Update semua time-ago setelah render
     updateAllTimeAgo();
 }
 
@@ -352,15 +343,15 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
         const result = await response.json();
 
         if (result.success) {
-            alert('✅ Request berhasil dikirim! Admin akan segera mereview.');
+            notyf.success('Request sent successfully!');
             toggleModal(false);
             document.getElementById('addForm').reset();
         } else {
-            alert('❌ Gagal mengirim request: ' + result.message);
+            notyf.error(result.message || 'Failed to send request');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+        notyf.error('An error occurred. Please try again.');
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
@@ -369,21 +360,18 @@ document.getElementById('addForm').addEventListener('submit', async function(e) 
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
-// Sort Dropdown Logic
 const sortBtn = document.getElementById('sortBtn');
 const sortMenu = document.getElementById('sortMenu');
 const sortOptions = document.querySelectorAll('.sort-option');
 const sortLabel = document.getElementById('sortLabel');
 const sortIcon = document.getElementById('sortIcon');
 
-// Toggle dropdown
 sortBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     sortMenu.classList.toggle('show');
     sortBtn.classList.toggle('open');
 });
 
-// Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
     if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) {
         sortMenu.classList.remove('show');
@@ -391,40 +379,33 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Handle sort option selection
 sortOptions.forEach(option => {
     option.addEventListener('click', () => {
         const sortType = option.dataset.sort;
         
-        // Update active state
         sortOptions.forEach(opt => opt.classList.remove('active'));
         option.classList.add('active');
         
-        // Update button label and icon
         const optionIcon = option.querySelector('i').className;
         const optionText = option.querySelector('span').textContent;
         
         sortIcon.className = optionIcon;
         sortLabel.textContent = optionText;
         
-        // Update current sort and apply
         currentSort = sortType;
         applyFilters();
         
-        // Close dropdown
         sortMenu.classList.remove('show');
         sortBtn.classList.remove('open');
     });
 });
 
-// Auto-refresh analytics setiap 10 detik (UPDATE TANPA REFRESH PAGE)
 setInterval(async () => {
     try {
         const response = await fetch('/api/get-prompts');
         const json = await response.json();
         
         if (json.success && json.data) {
-            // Update analytics data tanpa re-render seluruh halaman
             json.data.forEach(newItem => {
                 const oldItem = allPrompts.find(p => p.id === newItem.id);
                 if (oldItem) {
@@ -432,14 +413,12 @@ setInterval(async () => {
                 }
             });
             
-            // Re-render hanya jika ada perubahan yang signifikan
             applyFilters();
         }
     } catch (err) {
         console.error('Failed to refresh analytics:', err);
     }
-}, 10000); // Refresh setiap 10 detik
+}, 10000);
 
-// Start fetching on page load
 console.log('🚀 Page loaded, starting fetch...');
 fetchPrompts();
