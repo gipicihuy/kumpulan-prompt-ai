@@ -300,51 +300,6 @@ function renderPrompts(data) {
     updateAllTimeAgo();
 }
 
-function toggleModal(show) {
-    document.getElementById('formModal').classList.toggle('hidden', !show);
-}
-
-document.getElementById('addForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const btn = e.target.querySelector('button[type="submit"]');
-    const originalText = btn.innerText;
-    btn.innerText = 'Mengirim...';
-    btn.disabled = true;
-
-    const data = {
-        judul: document.getElementById('formJudul').value,
-        kategori: document.getElementById('formKategori').value,
-        isi: document.getElementById('formIsi').value
-    };
-
-    try {
-        const response = await fetch('/api/request-prompt', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Gunakan default success notification dari Notyf
-            notyf.success('Request sent successfully!');
-            toggleModal(false);
-            document.getElementById('addForm').reset();
-        } else {
-            // Gunakan default error notification dari Notyf
-            notyf.error(result.message || 'Failed to send request');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        notyf.error('An error occurred. Please try again.');
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-});
-
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
 const sortBtn = document.getElementById('sortBtn');
