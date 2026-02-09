@@ -7,6 +7,7 @@
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <!-- Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
@@ -36,6 +37,54 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
+
+        /* Logo styling */
+        .logo-img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+        
+        .title-text {
+            font-size: 1.375rem;
+            line-height: 1.2;
+        }
+
+        /* Sidebar Styles */
+        #sidebar-right {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #overlay {
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+        }
+
+        #overlay.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        @media (max-width: 767px) {
+            #sidebar-right {
+                transform: translateX(100%);
+            }
+            #sidebar-right.open {
+                transform: translateX(0);
+            }
+            .title-text {
+                font-size: 1.125rem;
+            }
+            .logo-img {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #sidebar-right {
+                transform: translateX(0);
+            }
+        }
         
         .request-card {
             border: 1px solid #2a2a2a;
@@ -58,14 +107,6 @@
             cursor: not-allowed;
             transform: none;
         }
-        
-        .back-btn {
-            transition: all 0.3s ease;
-        }
-        .back-btn:hover {
-            color: #e5e5e5;
-            transform: translateX(-2px);
-        }
 
         label {
             font-size: 0.7rem;
@@ -81,12 +122,18 @@
 </head>
 <body class="min-h-screen flex flex-col">
     
-    <header class="p-4 shadow-lg">
-        <div class="max-w-2xl mx-auto flex justify-between items-center">
-            <a href="/" class="back-btn text-gray-400 font-bold text-xs flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
-            </a>
-            <h1 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Request Form</h1>
+    <header class="sticky top-0 z-10 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="title-text font-bold text-white flex items-center gap-3">
+                    <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
+                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
+                </h1>
+                
+                <button id="sidebarToggleRight" class="text-white">
+                    <i class="material-icons text-2xl">notes</i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -174,10 +221,87 @@
         </p>
     </footer>
 
+    <!-- Sidebar Right -->
+    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
+        
+        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
+            <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
+                <i class="material-icons text-2xl">close</i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-5 pb-7">
+
+            <nav>
+                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
+                        <span>Home</span>
+                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                    <a href="/request" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm bg-[#1f1f1f] text-white border border-[#2a2a2a] rounded-xl">
+                        <span>Request Prompt</span>
+                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                </div>
+            </nav>
+
+            <nav class="mt-8">
+                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/admin" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
+                        <span>Admin</span>
+                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                </div>
+            </nav>
+
+        </div>
+
+        <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
+            <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
+            <div class="space-y-1">
+                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center py-1 px-4 text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                    <span class="material-icons text-sm mr-3">arrow_outward</span>
+                    <span>Support Us</span>
+                </a>
+            </div>
+        </div>
+
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
+
     <!-- Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
+        // Sidebar Toggle
+        const sidebarToggleRight = document.getElementById('sidebarToggleRight');
+        const sidebarCloseRight = document.getElementById('sidebarCloseRight');
+        const sidebarRight = document.getElementById('sidebar-right');
+        const overlay = document.getElementById('overlay');
+
+        function openSidebarRight() {
+            sidebarRight.classList.add('open');
+            overlay.classList.add('show');
+            overlay.classList.remove('opacity-0', 'invisible');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarRight() {
+            sidebarRight.classList.remove('open');
+            overlay.classList.remove('show');
+            overlay.classList.add('opacity-0', 'invisible');
+            document.body.style.overflow = '';
+        }
+
+        sidebarToggleRight.onclick = openSidebarRight;
+        sidebarCloseRight.onclick = closeSidebarRight;
+        overlay.onclick = closeSidebarRight;
+
         // Initialize Notyf dengan konfigurasi minimal
         const notyf = new Notyf({
             duration: 3000,
