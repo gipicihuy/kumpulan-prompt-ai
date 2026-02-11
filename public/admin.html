@@ -179,6 +179,42 @@
         input[type="file"]::file-selector-button:hover {
             background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
         }
+
+        /* Password field dengan toggle visibility */
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-wrapper input {
+            padding-right: 40px !important;
+            width: 100%;
+        }
+
+        .toggle-password-visibility {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .toggle-password-visibility:hover {
+            color: #e5e5e5;
+        }
+
+        .toggle-password-visibility i {
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -210,7 +246,12 @@
                     </div>
                     <div>
                         <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Password</label>
-                        <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                        <div class="password-input-wrapper">
+                            <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                            <button type="button" id="toggleLoginPassword" class="toggle-password-visibility" title="Show/Hide Password">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <button onclick="login()" class="w-full btn-primary text-black font-bold py-3 rounded-lg uppercase tracking-wide text-sm mt-4">Login</button>
                 </div>
@@ -227,7 +268,7 @@
                 <div>
                     <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
                     <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                    <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate</p>
+                    <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
                 </div>
 
                 <div>
@@ -260,13 +301,24 @@
                         </button>
                     </div>
                     <div id="passwordField" class="hidden">
-                        <input 
-                            type="text" 
-                            id="password" 
-                            placeholder="Enter password" 
-                            class="w-full p-3 rounded-lg border outline-none text-white text-sm"
-                            autocomplete="off"
-                        >
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                placeholder="Enter password" 
+                                class="w-full p-3 rounded-lg border outline-none text-white text-sm"
+                                autocomplete="off"
+                            >
+                            <button 
+                                type="button" 
+                                id="togglePasswordVisibility" 
+                                class="toggle-password-visibility" 
+                                title="Show/Hide Password"
+                                onclick="togglePasswordVisibilityAdmin()"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                         <p class="text-[10px] text-yellow-500 mt-1 flex items-center gap-1">
                             <i class="fa-solid fa-exclamation-triangle"></i>
                             User perlu password untuk akses
@@ -405,6 +457,42 @@
         let passwordEnabled = false;
         let slugExists = false;
 
+        // Toggle password visibility di admin form
+        function togglePasswordVisibilityAdmin() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('togglePasswordVisibility');
+            const icon = toggleBtn.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                toggleBtn.setAttribute('title', 'Hide Password');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                toggleBtn.setAttribute('title', 'Show Password');
+            }
+        }
+
+        // Toggle login password visibility
+        document.getElementById('toggleLoginPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            const passwordInput = document.getElementById('pass');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
         function togglePasswordField() {
             passwordEnabled = !passwordEnabled;
             const passwordField = document.getElementById('passwordField');
@@ -424,6 +512,17 @@
             }
         }
 
+        function capitalizeWords(text) {
+            return text
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join('-');
+        }
+
         function generateSlug(text) {
             return text
                 .toLowerCase()
@@ -435,6 +534,12 @@
         let slugCheckTimeout;
         
         document.getElementById('judul').addEventListener('input', function(e) {
+            // Capitalize kata-kata
+            const capitalizedText = capitalizeWords(e.target.value);
+            if (capitalizedText !== e.target.value) {
+                e.target.value = capitalizedText;
+            }
+
             const slug = generateSlug(e.target.value);
             const preview = document.getElementById('slugPreview');
             
