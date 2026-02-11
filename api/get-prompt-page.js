@@ -426,7 +426,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </html>`;
 }
 
-// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING & LINE NUMBERS
+// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
@@ -444,11 +444,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
-
-  // Generate line numbers untuk prompt
-  const lines = (promptData.isi || '').split('\n');
-  const lineCount = lines.length;
-  const lineNumbersHtml = Array.from({ length: lineCount }, (_, i) => `<span>${i + 1}</span>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="id">
@@ -538,48 +533,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .profile-pic-placeholder {
             width: 32px;
             height: 32px;
-        }
-
-        /* Code with line numbers */
-        .code-content {
-            display: flex;
-            overflow-x: auto;
-        }
-        
-        .line-numbers {
-            padding: 1rem 0.75rem 1rem 1rem;
-            text-align: right;
-            user-select: none;
-            color: #555;
-            border-right: 1px solid #2a2a2a;
-            background: #0f0f0f;
-            min-width: 3.5rem;
-            flex-shrink: 0;
-        }
-        
-        .line-numbers span {
-            display: block;
-            line-height: 1.5rem;
-            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-            font-size: 0.7rem;
-        }
-        
-        .code-lines {
-            flex: 1;
-            padding: 1rem;
-            overflow-x: auto;
-        }
-        
-        .code-lines pre {
-            margin: 0;
-        }
-        
-        .code-lines code {
-            display: block;
-            line-height: 1.5rem;
-            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-            font-size: 0.7rem;
-            color: #e5e5e5;
         }
 
         /* Fullscreen Modal */
@@ -721,11 +674,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                         </button>
                     </div>
                 </div>
-                <div class="code-content">
-                    <div class="line-numbers">${lineNumbersHtml}</div>
-                    <div class="code-lines">
-                        <pre><code class="text-gray-300 leading-relaxed whitespace-pre-wrap block font-mono">${promptData.isi || ''}</code></pre>
-                    </div>
+                <div class="p-4 overflow-x-auto">
+                    <pre><code class="text-gray-300 leading-relaxed whitespace-pre-wrap text-xs block font-mono">${promptData.isi || ''}</code></pre>
                 </div>
             </div>
         </div>
