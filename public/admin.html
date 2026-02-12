@@ -215,6 +215,101 @@
         .toggle-password-visibility i {
             font-size: 0.875rem;
         }
+
+        /* Tab styling */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Manage Prompts List */
+        .prompt-item {
+            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-item:hover {
+            border-color: #444;
+            background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-small.edit {
+            background: #3b82f6;
+            border: 1px solid #2563eb;
+            color: white;
+        }
+
+        .btn-small.delete {
+            background: #ef4444;
+            border: 1px solid #dc2626;
+            color: white;
+        }
+
+        .btn-small.edit:hover {
+            background: #2563eb;
+        }
+
+        .btn-small.delete:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -258,97 +353,129 @@
             </div>
         </div>
 
-        <div id="adminSection" class="max-w-2xl mx-auto hidden">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-lg font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200">New Prompt</h2>
-                <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+        <div id="adminSection" class="max-w-4xl mx-auto hidden">
+            <!-- Tab Navigation -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-4 border-b border-[#2a2a2a]">
+                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-lg font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-lg font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage Prompts</button>
+                    </div>
+                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+                </div>
             </div>
 
-            <div class="space-y-4 admin-card p-5 rounded-xl">
-                <div>
-                    <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
-                    <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                    <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 uppercase block mb-1.5">Preview URL</label>
-                    <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-gray-500 text-xs font-mono">/prompt/...</div>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 uppercase block mb-1.5">Kategori</label>
-                    <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                </div>
-
-                <div>
-                    <label class="text-gray-400 uppercase block mb-1.5">Description (Opsional)</label>
-                    <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
-                </div>
-                
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-gray-400 uppercase flex items-center gap-1.5">
-                            <i class="fa-solid fa-shield-halved text-xs"></i> Password Protection
-                        </label>
-                        <button 
-                            type="button" 
-                            id="togglePassword" 
-                            onclick="togglePasswordField()"
-                            class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
-                        >
-                            <i class="fa-solid fa-lock"></i> Enable
-                        </button>
+            <!-- TAB: New Prompt -->
+            <div id="tab-new" class="tab-content active">
+                <div class="space-y-4 admin-card p-5 rounded-xl">
+                    <div>
+                        <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
+                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                        <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
                     </div>
-                    <div id="passwordField" class="hidden">
-                        <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                placeholder="Enter password" 
-                                class="w-full p-3 rounded-lg border outline-none text-white text-sm"
-                                autocomplete="off"
-                            >
+
+                    <div>
+                        <label class="text-gray-400 uppercase block mb-1.5">Preview URL</label>
+                        <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-gray-500 text-xs font-mono">/prompt/...</div>
+                    </div>
+
+                    <div>
+                        <label class="text-gray-400 uppercase block mb-1.5">Kategori</label>
+                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                    </div>
+
+                    <div>
+                        <label class="text-gray-400 uppercase block mb-1.5">Description (Opsional)</label>
+                        <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-gray-400 uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield-halved text-xs"></i> Password Protection
+                            </label>
                             <button 
                                 type="button" 
-                                id="togglePasswordVisibility" 
-                                class="toggle-password-visibility" 
-                                title="Show/Hide Password"
-                                onclick="togglePasswordVisibilityAdmin()"
+                                id="togglePassword" 
+                                onclick="togglePasswordField()"
+                                class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
                             >
-                                <i class="fa-solid fa-eye"></i>
+                                <i class="fa-solid fa-lock"></i> Enable
                             </button>
                         </div>
-                        <p class="text-[10px] text-yellow-500 mt-1 flex items-center gap-1">
-                            <i class="fa-solid fa-exclamation-triangle"></i>
-                            User perlu password untuk akses
-                        </p>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
-                    </label>
-                    <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
-                    
-                    <div id="imagePreviewContainer" class="mt-3 hidden">
-                        <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
-                            <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
+                        <div id="passwordField" class="hidden">
+                            <div class="password-input-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    placeholder="Enter password" 
+                                    class="w-full p-3 rounded-lg border outline-none text-white text-sm"
+                                    autocomplete="off"
+                                >
+                                <button 
+                                    type="button" 
+                                    id="togglePasswordVisibility" 
+                                    class="toggle-password-visibility" 
+                                    title="Show/Hide Password"
+                                    onclick="togglePasswordVisibilityAdmin()"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-yellow-500 mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-exclamation-triangle"></i>
+                                User perlu password untuk akses
+                            </p>
                         </div>
-                        <button onclick="removeImage()" class="mt-2 text-[10px] text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
-                            <i class="fa-solid fa-trash"></i> Hapus
+                    </div>
+
+                    <div>
+                        <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
+                            <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
+                        </label>
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
+                        
+                        <div id="imagePreviewContainer" class="mt-3 hidden">
+                            <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
+                                <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
+                            </div>
+                            <button onclick="removeImage()" class="mt-2 text-[10px] text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
+                                <i class="fa-solid fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
+                        <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                    </div>
+                    <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
+                        <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: Manage Prompts -->
+            <div id="tab-manage" class="tab-content">
+                <div class="admin-card p-5 rounded-xl space-y-4">
+                    <div class="flex gap-2">
+                        <input type="text" id="searchManage" placeholder="Cari prompt..." class="flex-1 p-2.5 rounded-lg border outline-none text-white text-sm">
+                        <button onclick="loadManagePrompts()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh
                         </button>
                     </div>
-                </div>
 
-                <div>
-                    <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
-                    <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                    <div id="manageLoading" class="text-center py-8">
+                        <div class="inline-block">
+                            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-gray-400"></i>
+                            <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest font-bold">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div id="manageContent" class="space-y-3 hidden">
+                        <!-- Prompts akan di-inject di sini -->
+                    </div>
                 </div>
-                <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
-                    <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
-                </button>
             </div>
         </div>
     </main>
@@ -358,6 +485,89 @@
             © 2026 Prompt Hub
         </p>
     </footer>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <form id="editForm" class="space-y-3">
+                <input type="hidden" id="editSlug">
+
+                <div>
+                    <label class="text-gray-400 uppercase block mb-1">Judul</label>
+                    <input type="text" id="editJudul" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 uppercase block mb-1">Kategori</label>
+                    <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 uppercase block mb-1">Description</label>
+                    <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved"></i> Password
+                        </label>
+                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()" class="password-toggle px-2 py-1 rounded text-[10px] font-bold uppercase">
+                            <i class="fa-solid fa-lock"></i> Enable
+                        </button>
+                    </div>
+                    <div id="editPasswordField" class="hidden">
+                        <div class="password-input-wrapper">
+                            <input type="password" id="editPassword" placeholder="Leave empty to remove protection" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" autocomplete="off">
+                            <button type="button" onclick="toggleEditPasswordVisibility()" class="toggle-password-visibility">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-image"></i> Image
+                    </label>
+                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2.5 rounded-lg border outline-none text-white bg-[#1a1a1a] text-xs">
+                    <div id="editImagePreviewContainer" class="mt-2 hidden">
+                        <img id="editImagePreview" class="image-preview mx-auto" alt="Preview">
+                        <button type="button" onclick="removeEditImage()" class="mt-1 text-[10px] text-red-400 hover:text-red-300">Remove</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 uppercase block mb-1">Isi Prompt</label>
+                    <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
+                </div>
+
+                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm">
+                    <i class="fa-solid fa-save mr-2"></i>Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3 block text-center"></i>
+            <h3 class="text-lg font-bold text-white uppercase mb-2 text-center">Confirm Delete</h3>
+            <p id="deleteConfirmText" class="text-sm text-gray-300 text-center mb-4"></p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Cancel</button>
+                <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Delete</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Sidebar Right -->
     <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
@@ -455,9 +665,13 @@
         if (token) showAdmin();
 
         let passwordEnabled = false;
+        let editPasswordEnabled = false;
         let slugExists = false;
+        let allPrompts = [];
+        let promptToDelete = null;
 
-        // Toggle password visibility di admin form
+        // ============ NEW PROMPT TAB ============
+
         function togglePasswordVisibilityAdmin() {
             const passwordInput = document.getElementById('password');
             const toggleBtn = document.getElementById('togglePasswordVisibility');
@@ -651,6 +865,333 @@
             document.getElementById('adminSection').classList.remove('hidden');
         }
 
+        // ============ TAB SWITCHING ============
+
+        function switchAdminTab(tab) {
+            const tabNew = document.getElementById('tab-new');
+            const tabManage = document.getElementById('tab-manage');
+            const btnNew = document.getElementById('tabNewPrompt');
+            const btnManage = document.getElementById('tabManagePrompt');
+
+            if (tab === 'new') {
+                tabNew.classList.add('active');
+                tabManage.classList.remove('active');
+                btnNew.style.borderBottom = '3px solid #e5e5e5';
+                btnManage.style.borderBottom = '3px solid transparent';
+            } else {
+                tabNew.classList.remove('active');
+                tabManage.classList.add('active');
+                btnNew.style.borderBottom = '3px solid transparent';
+                btnManage.style.borderBottom = '3px solid #e5e5e5';
+                
+                // Load manage prompts saat tab dibuka
+                loadManagePrompts();
+            }
+        }
+
+        // ============ MANAGE PROMPTS TAB ============
+
+        async function loadManagePrompts() {
+            try {
+                const response = await fetch('/api/get-all-prompts', {
+                    headers: { 'Authorization': localStorage.getItem('adminToken') }
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    notyf.error('Gagal load prompts');
+                    return;
+                }
+
+                allPrompts = result.data;
+                renderManagePrompts();
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+                notyf.error('Error loading prompts');
+            }
+        }
+
+        function renderManagePrompts() {
+            const searchTerm = document.getElementById('searchManage').value.toLowerCase();
+            const filtered = allPrompts.filter(p => 
+                p.judul.toLowerCase().includes(searchTerm) ||
+                p.kategori.toLowerCase().includes(searchTerm)
+            );
+
+            const manageContent = document.getElementById('manageContent');
+            const manageLoading = document.getElementById('manageLoading');
+
+            if (filtered.length === 0) {
+                manageContent.innerHTML = '<p class="text-center text-gray-500 text-sm font-bold uppercase py-8">No prompts found</p>';
+                manageContent.classList.remove('hidden');
+                manageLoading.classList.add('hidden');
+                return;
+            }
+
+            manageContent.innerHTML = filtered.map(prompt => `
+                <div class="prompt-item rounded-lg p-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${prompt.judul}</h4>
+                            <p class="text-xs text-gray-400">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
+                        </div>
+                        <span class="text-[10px] text-gray-500">${prompt.createdAt}</span>
+                    </div>
+                    <div class="flex gap-1.5 mb-2 text-xs">
+                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg">
+                            <i class="fa-solid fa-pencil mr-1"></i>Edit
+                        </button>
+                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg">
+                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            manageContent.classList.remove('hidden');
+            manageLoading.classList.add('hidden');
+        }
+
+        document.getElementById('searchManage').addEventListener('input', renderManagePrompts);
+
+        // ============ EDIT MODAL ============
+
+        function openEditModal(slug) {
+            const prompt = allPrompts.find(p => p.slug === slug);
+            if (!prompt) return;
+
+            document.getElementById('editSlug').value = slug;
+            document.getElementById('editJudul').value = prompt.judul;
+            document.getElementById('editKategori').value = prompt.kategori;
+            document.getElementById('editDescription').value = prompt.description;
+            document.getElementById('editIsi').value = prompt.isi;
+
+            // Handle password
+            editPasswordEnabled = prompt.isProtected;
+            const editPasswordField = document.getElementById('editPasswordField');
+            const editToggleBtn = document.getElementById('editTogglePassword');
+
+            if (editPasswordEnabled) {
+                editPasswordField.classList.remove('hidden');
+                editToggleBtn.classList.add('active');
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
+                editToggleBtn.style.color = '#4ade80';
+                document.getElementById('editPassword').value = prompt.password;
+            } else {
+                editPasswordField.classList.add('hidden');
+                editToggleBtn.classList.remove('active');
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
+                editToggleBtn.style.color = '';
+                document.getElementById('editPassword').value = '';
+            }
+
+            // Handle image
+            if (prompt.imageUrl) {
+                document.getElementById('editImagePreview').src = prompt.imageUrl;
+                document.getElementById('editImagePreviewContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('editImagePreviewContainer').classList.add('hidden');
+            }
+
+            document.getElementById('editImageFile').value = '';
+
+            // Show modal
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function toggleEditPasswordField() {
+            editPasswordEnabled = !editPasswordEnabled;
+            const editPasswordField = document.getElementById('editPasswordField');
+            const editToggleBtn = document.getElementById('editTogglePassword');
+
+            if (editPasswordEnabled) {
+                editPasswordField.classList.remove('hidden');
+                editToggleBtn.classList.add('active');
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
+                editToggleBtn.style.color = '#4ade80';
+            } else {
+                editPasswordField.classList.add('hidden');
+                editToggleBtn.classList.remove('active');
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
+                editToggleBtn.style.color = '';
+                document.getElementById('editPassword').value = '';
+            }
+        }
+
+        function toggleEditPasswordVisibility() {
+            const passwordInput = document.getElementById('editPassword');
+            const icon = event.target.closest('button').querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function removeEditImage() {
+            document.getElementById('editImageFile').value = '';
+            document.getElementById('editImagePreviewContainer').classList.add('hidden');
+        }
+
+        document.getElementById('editImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('editImagePreview').src = e.target.result;
+                    document.getElementById('editImagePreviewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const slug = document.getElementById('editSlug').value;
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...';
+            btn.disabled = true;
+
+            try {
+                let imageUrl = '';
+
+                // Check if new image file selected
+                const editImageFile = document.getElementById('editImageFile').files[0];
+                if (editImageFile) {
+                    const formData = new FormData();
+                    formData.append('file', editImageFile);
+
+                    const uploadRes = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Authorization': localStorage.getItem('adminToken') },
+                        body: formData
+                    });
+
+                    const uploadData = await uploadRes.json();
+                    if (!uploadData.success) {
+                        throw new Error(uploadData.message || 'Image upload failed');
+                    }
+                    imageUrl = uploadData.imageUrl;
+                } else {
+                    // Use existing image
+                    const prompt = allPrompts.find(p => p.slug === slug);
+                    imageUrl = prompt.imageUrl;
+                }
+
+                const editData = {
+                    slug: slug,
+                    judul: document.getElementById('editJudul').value,
+                    kategori: document.getElementById('editKategori').value,
+                    description: document.getElementById('editDescription').value,
+                    isi: document.getElementById('editIsi').value,
+                    imageUrl: imageUrl,
+                    password: editPasswordEnabled ? document.getElementById('editPassword').value : ''
+                };
+
+                const response = await fetch('/api/edit-prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('adminToken')
+                    },
+                    body: JSON.stringify(editData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    notyf.success('Prompt updated!');
+                    closeEditModal();
+                    loadManagePrompts();
+                } else {
+                    notyf.error(result.message || 'Failed to update');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                notyf.error('Error: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // ============ DELETE MODAL ============
+
+        function openDeleteModal(slug) {
+            const prompt = allPrompts.find(p => p.slug === slug);
+            if (!prompt) return;
+
+            promptToDelete = slug;
+            document.getElementById('deleteConfirmText').innerHTML = `
+                Are you sure want to delete:<br>
+                <strong>${prompt.judul}</strong><br>
+                <span class="text-xs text-gray-400">(${prompt.kategori})</span>
+            `;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            promptToDelete = null;
+        }
+
+        async function confirmDelete() {
+            if (!promptToDelete) return;
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/delete-prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('adminToken')
+                    },
+                    body: JSON.stringify({ slug: promptToDelete })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    notyf.success('Prompt deleted!');
+                    closeDeleteModal();
+                    loadManagePrompts();
+                } else {
+                    notyf.error(result.message || 'Failed to delete');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                notyf.error('Error deleting prompt');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ============ SAVE NEW PROMPT (Original) ============
+
         async function save() {
             const btn = event.target;
             const originalText = btn.innerHTML;
@@ -689,8 +1230,6 @@
                         body: formData
                     });
 
-                    console.log('📊 Upload response status:', uploadRes.status);
-                    
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
