@@ -254,8 +254,10 @@
             max-width: 600px;
             width: 100%;
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Manage Prompts List */
@@ -358,8 +360,8 @@
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex gap-4 border-b border-[#2a2a2a]">
-                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-lg font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-lg font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage Prompts</button>
+                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
                     </div>
                     <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
                 </div>
@@ -460,8 +462,8 @@
                 <div class="admin-card p-5 rounded-xl space-y-4">
                     <div class="flex gap-2">
                         <input type="text" id="searchManage" placeholder="Cari prompt..." class="flex-1 p-2.5 rounded-lg border outline-none text-white text-sm">
-                        <button onclick="loadManagePrompts()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">
-                            <i class="fa-solid fa-rotate-right"></i> Refresh
+                        <button onclick="loadManagePrompts()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition-all" title="Refresh">
+                            <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
 
@@ -489,14 +491,14 @@
     <!-- Edit Modal -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
                 <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
 
-            <form id="editForm" class="space-y-3">
+            <form id="editForm" class="space-y-3 flex-1 overflow-y-auto pr-2">
                 <input type="hidden" id="editSlug">
 
                 <div>
@@ -549,7 +551,7 @@
                     <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
                 </div>
 
-                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm">
+                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
                     <i class="fa-solid fa-save mr-2"></i>Save Changes
                 </button>
             </form>
