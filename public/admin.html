@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -42,7 +41,6 @@
             border-bottom: 1px solid #2a2a2a;
         }
 
-        /* Logo styling */
         .logo-img {
             width: 48px;
             height: 48px;
@@ -54,7 +52,6 @@
             line-height: 1.2;
         }
 
-        /* Sidebar Styles */
         #sidebar-right {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -180,7 +177,6 @@
             background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
         }
 
-        /* Password field dengan toggle visibility */
         .password-input-wrapper {
             position: relative;
             display: flex;
@@ -216,7 +212,6 @@
             font-size: 0.875rem;
         }
 
-        /* Tab styling */
         .tab-content {
             display: none;
         }
@@ -225,7 +220,6 @@
             display: block;
         }
 
-        /* Modal overlay */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -260,7 +254,6 @@
             flex-direction: column;
         }
 
-        /* Manage Prompts List */
         .prompt-item {
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
@@ -272,7 +265,6 @@
             background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
         }
 
-        /* Loading skeleton */
         .skeleton {
             background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
             background-size: 200% 100%;
@@ -356,7 +348,6 @@
         </div>
 
         <div id="adminSection" class="max-w-4xl mx-auto hidden">
-            <!-- Tab Navigation -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex gap-4 border-b border-[#2a2a2a]">
@@ -367,7 +358,6 @@
                 </div>
             </div>
 
-            <!-- TAB: New Prompt -->
             <div id="tab-new" class="tab-content active">
                 <div class="space-y-4 admin-card p-5 rounded-xl">
                     <div>
@@ -457,7 +447,6 @@
                 </div>
             </div>
 
-            <!-- TAB: Manage Prompts -->
             <div id="tab-manage" class="tab-content">
                 <div class="admin-card p-5 rounded-xl space-y-4">
                     <div class="flex gap-2">
@@ -475,7 +464,6 @@
                     </div>
 
                     <div id="manageContent" class="space-y-3 hidden">
-                        <!-- Prompts akan di-inject di sini -->
                     </div>
                 </div>
             </div>
@@ -488,7 +476,6 @@
         </p>
     </footer>
 
-    <!-- Edit Modal -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
@@ -558,7 +545,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3 block text-center"></i>
@@ -571,7 +557,6 @@
         </div>
     </div>
 
-    <!-- Sidebar Right -->
     <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
         
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
@@ -624,11 +609,9 @@
 
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
 
-    <!-- Notyf JS - Load after page -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
-        // Sidebar Toggle
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
         const sidebarCloseRight = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
@@ -652,7 +635,6 @@
         sidebarCloseRight.onclick = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        // Initialize Notyf dengan konfigurasi minimal - biar Notyf yang handle semua styling
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -672,8 +654,6 @@
         let allPrompts = [];
         let promptToDelete = null;
 
-        // ============ NEW PROMPT TAB ============
-
         function togglePasswordVisibilityAdmin() {
             const passwordInput = document.getElementById('password');
             const toggleBtn = document.getElementById('togglePasswordVisibility');
@@ -692,7 +672,6 @@
             }
         }
 
-        // Toggle login password visibility
         document.getElementById('toggleLoginPassword').addEventListener('click', function(e) {
             e.preventDefault();
             const passwordInput = document.getElementById('pass');
@@ -750,7 +729,6 @@
         let slugCheckTimeout;
         
         document.getElementById('judul').addEventListener('input', function(e) {
-            // Capitalize kata-kata
             const capitalizedText = capitalizeWords(e.target.value);
             if (capitalizedText !== e.target.value) {
                 e.target.value = capitalizedText;
@@ -867,8 +845,6 @@
             document.getElementById('adminSection').classList.remove('hidden');
         }
 
-        // ============ TAB SWITCHING ============
-
         function switchAdminTab(tab) {
             const tabNew = document.getElementById('tab-new');
             const tabManage = document.getElementById('tab-manage');
@@ -886,12 +862,9 @@
                 btnNew.style.borderBottom = '3px solid transparent';
                 btnManage.style.borderBottom = '3px solid #e5e5e5';
                 
-                // Load manage prompts saat tab dibuka
                 loadManagePrompts();
             }
         }
-
-        // ============ MANAGE PROMPTS TAB ============
 
         async function loadManagePrompts() {
             try {
@@ -962,8 +935,6 @@
 
         document.getElementById('searchManage').addEventListener('input', renderManagePrompts);
 
-        // ============ EDIT MODAL ============
-
         function openEditModal(slug) {
             const prompt = allPrompts.find(p => p.slug === slug);
             if (!prompt) return;
@@ -974,7 +945,6 @@
             document.getElementById('editDescription').value = prompt.description;
             document.getElementById('editIsi').value = prompt.isi;
 
-            // Handle password
             editPasswordEnabled = prompt.isProtected;
             const editPasswordField = document.getElementById('editPasswordField');
             const editToggleBtn = document.getElementById('editTogglePassword');
@@ -993,7 +963,6 @@
                 document.getElementById('editPassword').value = '';
             }
 
-            // Handle image
             if (prompt.imageUrl) {
                 document.getElementById('editImagePreview').src = prompt.imageUrl;
                 document.getElementById('editImagePreviewContainer').classList.remove('hidden');
@@ -1003,7 +972,6 @@
 
             document.getElementById('editImageFile').value = '';
 
-            // Show modal
             document.getElementById('editModal').classList.add('show');
         }
 
@@ -1075,9 +1043,10 @@
             try {
                 let imageUrl = '';
 
-                // Check if new image file selected
                 const editImageFile = document.getElementById('editImageFile').files[0];
                 if (editImageFile) {
+                    console.log('📤 Uploading image...');
+                    
                     const formData = new FormData();
                     formData.append('file', editImageFile);
 
@@ -1087,15 +1056,22 @@
                         body: formData
                     });
 
+                    const contentType = uploadRes.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const textResponse = await uploadRes.text();
+                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
+                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
+                    }
+
                     const uploadData = await uploadRes.json();
+                    
                     if (!uploadData.success) {
                         throw new Error(uploadData.message || 'Image upload failed');
                     }
                     imageUrl = uploadData.imageUrl;
                 } else {
-                    // Use existing image
                     const prompt = allPrompts.find(p => p.slug === slug);
-                    imageUrl = prompt.imageUrl;
+                    imageUrl = prompt?.imageUrl || '';
                 }
 
                 const editData = {
@@ -1117,6 +1093,13 @@
                     body: JSON.stringify(editData)
                 });
 
+                const editContentType = response.headers.get('content-type');
+                if (!editContentType || !editContentType.includes('application/json')) {
+                    const textResponse = await response.text();
+                    console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
+                    throw new Error('Save gagal: ' + textResponse.substring(0, 100));
+                }
+
                 const result = await response.json();
 
                 if (result.success) {
@@ -1127,15 +1110,13 @@
                     notyf.error(result.message || 'Failed to update');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                notyf.error('Error: ' + error.message);
+                console.error('❌ Error:', error);
+                notyf.error(error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         });
-
-        // ============ DELETE MODAL ============
 
         function openDeleteModal(slug) {
             const prompt = allPrompts.find(p => p.slug === slug);
@@ -1192,8 +1173,6 @@
             }
         }
 
-        // ============ SAVE NEW PROMPT (Original) ============
-
         async function save() {
             const btn = event.target;
             const originalText = btn.innerHTML;
@@ -1236,7 +1215,7 @@
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
                         console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                        throw new Error('Server response bukan JSON. Kemungkinan ada error di server.');
+                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
                     }
 
                     const uploadData = await uploadRes.json();
@@ -1287,7 +1266,7 @@
                 } else {
                     const errorText = await res.text();
                     console.error('❌ Save error:', errorText);
-                    notyf.error('Gagal menyimpan: ' + errorText);
+                    notyf.error('Gagal menyimpan: ' + errorText.substring(0, 100));
                 }
             } catch (e) {
                 console.error('💥 Error:', e);
