@@ -729,7 +729,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         // Track analytics
         async function trackAnalytics(action) {
             try {
-                const response = await fetch('/api/track-analytics', {
+                const response = await fetch('/api/analytics', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: promptData.slug, action })
