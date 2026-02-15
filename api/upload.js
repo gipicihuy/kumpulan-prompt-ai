@@ -13,7 +13,53 @@ export const config = {
 };
 
 /**
- * Upload to catbox.moe (permanent storage)
+ * Upload to cdn.yupra.my.id (PRIMARY - UTAMA)
+ * @param {Buffer} content File Buffer
+ * @return {Promise<string>}
+ */
+const uploadYupra = async (content) => {
+  try {
+    const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
+    const randomBytes = crypto.randomBytes(5).toString('hex');
+    const formData = new FormData();
+    
+    // Buat filename dengan extension yang benar
+    const filename = `${randomBytes}.${ext || 'bin'}`;
+    formData.append('files', content, filename);
+    
+    console.log('📤 Uploading to cdn.yupra.my.id...', filename);
+    
+    const response = await fetch(
+      "https://cdn.yupra.my.id/upload",
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          ...formData.getHeaders(),
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+      }
+    );
+    
+    const result = await response.json();
+    
+    if (!result.success || !result.files || result.files.length === 0) {
+      throw new Error("Invalid response from cdn.yupra.my.id");
+    }
+    
+    // Format: https://cdn.yupra.my.id/yp/xxxxx.jpg
+    const fullUrl = `https://cdn.yupra.my.id${result.files[0].url}`;
+    
+    console.log("✅ Uploaded to cdn.yupra.my.id successfully:", fullUrl);
+    return fullUrl;
+  } catch (error) {
+    console.error("❌ Upload to cdn.yupra.my.id failed:", error.message || error);
+    throw error;
+  }
+};
+
+/**
+ * Upload to catbox.moe (FALLBACK - CADANGAN)
  * @param {Buffer} content File Buffer
  * @return {Promise<string>}
  */
@@ -25,6 +71,8 @@ const uploadCatbox = async (content) => {
     
     formData.append('fileToUpload', content, `${randomBytes}.${ext || 'bin'}`);
     formData.append('reqtype', 'fileupload');
+    
+    console.log('📤 Uploading to catbox.moe (FALLBACK)...');
     
     const response = await fetch(
       "https://catbox.moe/user/api.php",
@@ -44,41 +92,13 @@ const uploadCatbox = async (content) => {
       throw new Error("Invalid response from catbox.moe");
     }
     
-    console.log("Uploaded to catbox.moe successfully:", result);
+    console.log("✅ Uploaded to catbox.moe successfully:", result);
     return result;
   } catch (error) {
-    console.error("Upload to catbox.moe failed:", error.message || error);
+    console.error("❌ Upload to catbox.moe failed:", error.message || error);
     throw error;
   }
 };
-
-/**
- * Upload to telegra.ph (fallback option)
- * @param {Buffer} buffer Image Buffer
- * @return {Promise<string>}
- */
-async function uploadToTelegraph(buffer) {
-  console.log("Uploading to telegra.ph...");
-  try {
-    const { ext } = await fileTypeFromBuffer(buffer);
-    const form = new FormData();
-    form.append('file', buffer, 'tmp.' + ext);
-    
-    const res = await fetch('https://telegra.ph/upload', {
-      method: 'POST',
-      body: form
-    });
-    
-    const img = await res.json();
-    
-    if (img.error) throw new Error(img.error);
-    console.log("Uploaded to telegra.ph successfully!");
-    return 'https://telegra.ph' + img[0].src;
-  } catch (error) {
-    console.error("Upload to telegra.ph failed:", error.message || error);
-    throw error;
-  }
-}
 
 export default async function handler(req, res) {
   // Set response header untuk JSON SEJAK AWAL
@@ -120,7 +140,7 @@ export default async function handler(req, res) {
     }
 
     const file = fileArray[0];
-    console.log('File received:', file.originalFilename, 'Size:', file.size, 'bytes');
+    console.log('📁 File received:', file.originalFilename, 'Size:', file.size, 'bytes');
     
     // Baca file sebagai buffer
     const fileBuffer = await readFile(file.filepath);
@@ -134,25 +154,35 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log('File type detected:', fileType.mime);
+    console.log('🖼️ File type detected:', fileType.mime);
 
-    // Upload ke catbox.moe (permanent storage)
+    // ✅ UPLOAD STRATEGY: cdn.yupra.my.id PRIMARY -> catbox.moe FALLBACK
     let imageUrl;
+    
     try {
-      console.log('Attempting upload to catbox.moe...');
-      imageUrl = await uploadCatbox(fileBuffer);
-      console.log('Catbox upload successful:', imageUrl);
-    } catch (uploadError) {
-      // Fallback ke telegra.ph jika catbox gagal
-      console.log('Catbox failed, trying telegra.ph as fallback...');
+      // TRY PRIMARY: cdn.yupra.my.id
+      console.log('🎯 Trying PRIMARY: cdn.yupra.my.id...');
+      imageUrl = await uploadYupra(fileBuffer);
+      console.log('✅ PRIMARY upload successful!');
+    } catch (primaryError) {
+      // PRIMARY FAILED - TRY FALLBACK: catbox.moe
+      console.log('⚠️ PRIMARY failed, trying FALLBACK: catbox.moe...');
       try {
-        imageUrl = await uploadToTelegraph(fileBuffer);
-        console.log('Telegraph upload successful:', imageUrl);
+        imageUrl = await uploadCatbox(fileBuffer);
+        console.log('✅ FALLBACK upload successful!');
       } catch (fallbackError) {
-        console.error('Both upload services failed:', fallbackError);
+        // BOTH FAILED
+        console.error('❌ BOTH PRIMARY AND FALLBACK FAILED:', {
+          primary: primaryError.message,
+          fallback: fallbackError.message
+        });
         return res.status(500).json({ 
           success: false, 
-          message: 'Gagal mengupload ke semua layanan. Coba lagi nanti.' 
+          message: 'Gagal mengupload ke semua layanan. Coba lagi nanti.',
+          errors: {
+            primary: primaryError.message,
+            fallback: fallbackError.message
+          }
         });
       }
     }
@@ -165,7 +195,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Upload handler error:', error);
+    console.error('❌ Upload handler error:', error);
     
     // PENTING: Selalu return JSON bahkan saat error
     return res.status(500).json({ 
