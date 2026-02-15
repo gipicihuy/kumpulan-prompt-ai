@@ -12,8 +12,12 @@ export default async function handler(req, res) {
   const userData = await redis.hgetall(`user:${username}`)
 
   if (userData && userData.password === password) {
-    // Di dunia nyata pakai JWT, tapi ini versi simpel:
-    return res.status(200).json({ success: true, token: 'admin-secret-key' })
+    // ✅ TAMBAHKAN profileUrl di response
+    return res.status(200).json({ 
+      success: true, 
+      token: 'admin-secret-key',
+      profileUrl: userData.profileUrl || '' // ✅ FIX: Return profileUrl
+    })
   }
   
   res.status(401).json({ success: false, message: 'Gagal Login' })
