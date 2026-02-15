@@ -79,12 +79,6 @@
                 width: 40px;
                 height: 40px;
             }
-            /* Hide logout text on mobile, show icon only */
-            .logout-section {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 0.25rem;
-            }
         }
 
         @media (min-width: 768px) {
@@ -373,8 +367,8 @@
                         <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
                     </div>
                     <div class="logout-section flex items-center gap-3">
-                        <div class="text-right">
-                            <p class="text-xs text-gray-400 uppercase tracking-wide">Logged in as</p>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-user-circle text-gray-400 text-lg"></i>
                             <p id="loggedInUser" class="text-sm font-bold text-white"></p>
                         </div>
                         <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
@@ -1147,7 +1141,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    notyf.success('Prompt updated!');
+                    notyf.success(result.message || 'Prompt updated!');
                     closeEditModal();
                     loadManagePrompts();
                 } else {
