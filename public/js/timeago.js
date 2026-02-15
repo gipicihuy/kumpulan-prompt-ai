@@ -75,11 +75,11 @@ function updateAllTimeAgo() {
     });
 }
 
-// Update setiap 10 detik agar lebih responsif
+// ✅ FIX: Update setiap 1 DETIK untuk akurasi maksimal!
 if (typeof window !== 'undefined') {
     // Update pertama kali saat halaman dimuat
     document.addEventListener('DOMContentLoaded', updateAllTimeAgo);
     
-    // Update berkala setiap 10 detik
-    setInterval(updateAllTimeAgo, 10000);
+    // ✅ Update berkala setiap 1 DETIK (1000ms)
+    setInterval(updateAllTimeAgo, 1000);
 }
