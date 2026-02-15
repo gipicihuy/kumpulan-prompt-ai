@@ -27,7 +27,17 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    // Update data - KEEP original timestamp, update createdAt untuk "edited" info
+    // CEK APAKAH ADA PERUBAHAN
+    const hasChanges = (
+      judul !== oldData.judul ||
+      isi !== oldData.isi ||
+      (kategori || oldData.kategori) !== oldData.kategori ||
+      (description || '') !== (oldData.description || '') ||
+      (imageUrl || '') !== (oldData.imageUrl || '') ||
+      (password || '') !== (oldData.password || '')
+    )
+
+    // Update data - KEEP original timestamp
     const now = new Date()
     const updatedAt = now.toLocaleString('id-ID', { 
       timeZone: 'Asia/Jakarta',
@@ -38,12 +48,18 @@ export default async function handler(req, res) {
       minute: '2-digit'
     })
 
+    // Ambil original createdAt (tanpa suffix "(edited)")
+    let originalCreatedAt = oldData.createdAt || '-'
+    // Hapus semua "(edited)" yang mungkin sudah ada
+    originalCreatedAt = originalCreatedAt.replace(/\s*\(edited\)$/g, '').trim()
+
     const promptData = {
       kategori: kategori || oldData.kategori,
       judul: judul,
       isi: isi,
       uploadedBy: oldData.uploadedBy || 'Admin',
-      createdAt: oldData.createdAt + ' (edited)', // Mark as edited
+      // HANYA tambahkan (edited) jika BENAR-BENAR ada perubahan
+      createdAt: hasChanges ? `${originalCreatedAt} (edited)` : originalCreatedAt,
       timestamp: parseInt(oldData.timestamp) || now.getTime(), // Keep original timestamp
       updatedAt: updatedAt + ' WIB' // Track last edit time
     }
@@ -76,7 +92,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ 
       success: true,
-      message: 'Prompt berhasil diupdate!',
+      message: hasChanges ? 'Prompt berhasil diupdate!' : 'Tidak ada perubahan',
       slug: slug
     })
   } catch (error) {
