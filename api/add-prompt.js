@@ -13,10 +13,13 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
-  const { slug, kategori, judul, description, isi, adminName, imageUrl, password } = req.body
+  const { slug, kategori, judul, description, isi, adminName, imageUrl, password, clientTimestamp } = req.body
   
-  // ✅ FIX: Gunakan Date.now() langsung untuk timestamp yang AKURAT
-  const timestamp = Date.now() // UTC timestamp standar dalam milliseconds
+  // ✅ FIX: Prioritaskan timestamp dari CLIENT (browser user), fallback ke server time
+  const timestamp = clientTimestamp || Date.now()
+  
+  console.log('🕐 Timestamp source:', clientTimestamp ? 'CLIENT' : 'SERVER');
+  console.log('🕐 Timestamp value:', timestamp);
   
   // Buat createdAt string untuk display (WIB)
   const now = new Date(timestamp)
@@ -29,6 +32,8 @@ export default async function handler(req, res) {
     minute: '2-digit'
   })
 
+  console.log('📅 Created at (WIB):', createdAt);
+
   // Data yang akan disimpan
   const promptData = { 
     kategori, 
@@ -36,7 +41,7 @@ export default async function handler(req, res) {
     isi, 
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB',
-    timestamp: timestamp // ✅ Timestamp UTC untuk sorting dan timeAgo calculation
+    timestamp: timestamp // ✅ Timestamp dari CLIENT untuk sorting dan timeAgo calculation
   }
 
   // Tambahkan description jika ada
