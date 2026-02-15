@@ -45,16 +45,29 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Fetch analytics data - FIX NULL HANDLING!
+    // ✅ FIX: Fetch analytics dengan better handling
     const analyticsKey = `analytics:${slug}`
-    const analyticsData = await redis.hgetall(analyticsKey)
+    let analyticsData = await redis.hgetall(analyticsKey)
     
-    // Safe default values kalau analytics belum ada
-    const analytics = {
-      views: analyticsData && analyticsData.views ? parseInt(analyticsData.views) : 0,
-      copies: analyticsData && analyticsData.copies ? parseInt(analyticsData.copies) : 0,
-      downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
+    // ✅ FIX: Initialize analytics jika belum ada
+    if (!analyticsData || Object.keys(analyticsData).length === 0) {
+      console.log('📊 Creating default analytics for:', slug)
+      await redis.hset(analyticsKey, {
+        views: 0,
+        copies: 0,
+        downloads: 0
+      })
+      analyticsData = { views: 0, copies: 0, downloads: 0 }
     }
+    
+    // Safe parsing dengan fallback
+    const analytics = {
+      views: parseInt(analyticsData.views || 0),
+      copies: parseInt(analyticsData.copies || 0),
+      downloads: parseInt(analyticsData.downloads || 0)
+    }
+    
+    console.log('📊 Analytics for', slug, ':', analytics)
 
     // Jika diproteksi
     if (isProtected) {
@@ -157,7 +170,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ✅ Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -340,11 +352,9 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         </div>
     </main>
 
-    <!-- ✅ Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
-        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -397,15 +407,12 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 const result = await response.json();
 
                 if (result.success) {
-                    // ✅ Password benar! Gunakan default success notification
                     notyf.success('Access granted! Redirecting...');
                     
-                    // Redirect setelah 1 detik
                     setTimeout(() => {
                         window.location.href = '/prompt/${slug}';
                     }, 1000);
                 } else {
-                    // ✅ Password salah - gunakan default error notification
                     notyf.error(result.message || 'Incorrect password');
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
@@ -419,14 +426,13 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             }
         });
 
-        // Auto focus ke input password
         document.getElementById('passwordInput').focus();
     </script>
 </body>
 </html>`;
 }
 
-// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING
+// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING FIXED
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
@@ -470,7 +476,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ✅ Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -691,7 +696,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         </div>
     </div>
 
-    <!-- ✅ Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
@@ -701,7 +705,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
           slug: slug
         })};
         
-        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
         const notyf = new Notyf({
             duration: 2500,
             position: {
@@ -721,56 +724,89 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         
         // Update analytics display
         function updateAnalyticsDisplay(analytics) {
-            document.getElementById('viewsCount').innerText = formatNumber(analytics.views);
-            document.getElementById('copiesCount').innerText = formatNumber(analytics.copies);
-            document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
+            const viewsEl = document.getElementById('viewsCount');
+            const copiesEl = document.getElementById('copiesCount');
+            const downloadsEl = document.getElementById('downloadsCount');
+            
+            if (viewsEl) viewsEl.innerText = formatNumber(analytics.views);
+            if (copiesEl) copiesEl.innerText = formatNumber(analytics.copies);
+            if (downloadsEl) downloadsEl.innerText = formatNumber(analytics.downloads);
         }
         
-        // Track analytics
+        // ✅ FIX: Better error handling di track analytics
         async function trackAnalytics(action) {
             try {
+                console.log('📊 Tracking:', action, 'for slug:', promptData.slug);
+                
                 const response = await fetch('/api/analytics', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: promptData.slug, action })
                 });
+                
+                console.log('📊 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error('Response not OK: ' + response.status);
+                }
+                
                 const result = await response.json();
+                console.log('📊 Result:', result);
+                
                 if (result.success && result.analytics) {
                     updateAnalyticsDisplay(result.analytics);
+                    console.log('✅ Analytics updated successfully');
+                } else {
+                    console.warn('⚠️ Analytics tracking failed:', result);
                 }
             } catch (error) {
-                console.error('Error tracking analytics:', error);
+                console.error('❌ Error tracking analytics:', error);
+                // Silent fail - jangan ganggu UX
             }
         }
         
-        // Track view after 2 seconds
-        setTimeout(() => {
+        // ✅ FIX: Track view saat DOM ready (bukan pakai setTimeout)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('📊 DOM ready, tracking view...');
+                trackAnalytics('view');
+            });
+        } else {
+            console.log('📊 DOM already ready, tracking view...');
             trackAnalytics('view');
-        }, 2000);
+        }
         
         // Copy button
         document.getElementById('copyCodeBtn').onclick = async () => {
-            navigator.clipboard.writeText(promptData.isi);
-            await trackAnalytics('copy');
-            // ✅ Gunakan default success notification
-            notyf.success('Copied to clipboard!');
+            try {
+                await navigator.clipboard.writeText(promptData.isi);
+                await trackAnalytics('copy');
+                notyf.success('Copied to clipboard!');
+            } catch (err) {
+                console.error('Copy failed:', err);
+                notyf.error('Failed to copy');
+            }
         };
         
         // Download button
         document.getElementById('downloadBtn').onclick = async () => {
-            const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = \`\${promptData.judul.replace(/[^a-zA-Z0-9]/g, '_')}.txt\`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            await trackAnalytics('download');
-            // ✅ Gunakan default success notification
-            notyf.success('Downloaded successfully!');
+            try {
+                const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = \`\${promptData.judul.replace(/[^a-zA-Z0-9]/g, '_')}.txt\`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                await trackAnalytics('download');
+                notyf.success('Downloaded successfully!');
+            } catch (err) {
+                console.error('Download failed:', err);
+                notyf.error('Failed to download');
+            }
         };
 
         // Fullscreen functions
