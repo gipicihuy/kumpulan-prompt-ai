@@ -6,9 +6,16 @@
 function timeAgo(timestamp) {
     const now = Date.now(); // UTC timestamp standar
     const diffMs = now - timestamp;
+    
+    // Jika timestamp di masa depan (clock skew), anggap "Baru saja"
+    if (diffMs < 0) {
+        return 'Baru saja';
+    }
+    
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
     
     // Baru saja (< 1 menit)
     if (diffSec < 60) {
@@ -21,18 +28,18 @@ function timeAgo(timestamp) {
     }
     
     // X jam yang lalu (< 24 jam DAN masih hari yang sama)
-    // Cek apakah masih di hari yang sama
-    const nowDate = new Date(now);
-    const postDate = new Date(timestamp);
+    // Cek apakah masih di hari yang sama di timezone Jakarta
+    const nowDateJakarta = new Date(now + (7 * 60 * 60 * 1000)); // UTC+7
+    const postDateJakarta = new Date(timestamp + (7 * 60 * 60 * 1000)); // UTC+7
     
-    // Set jam ke 00:00:00 untuk perbandingan tanggal saja
-    const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
-    const postDateOnly = new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate());
+    // Ambil tanggal saja (tanpa jam)
+    const nowDateOnly = new Date(nowDateJakarta.getFullYear(), nowDateJakarta.getMonth(), nowDateJakarta.getDate());
+    const postDateOnly = new Date(postDateJakarta.getFullYear(), postDateJakarta.getMonth(), postDateJakarta.getDate());
     
     const daysDiff = Math.floor((nowDateOnly - postDateOnly) / (1000 * 60 * 60 * 24));
     
     // Jika masih hari ini (daysDiff = 0)
-    if (daysDiff === 0) {
+    if (daysDiff === 0 && diffHour < 24) {
         return `${diffHour} jam yang lalu`;
     }
     
@@ -42,6 +49,8 @@ function timeAgo(timestamp) {
     }
     
     // Tampilkan tanggal lengkap (> 1 hari yang lalu)
+    // Gunakan timezone Jakarta untuk format
+    const postDate = new Date(timestamp);
     const options = { 
         day: '2-digit', 
         month: 'short', 
