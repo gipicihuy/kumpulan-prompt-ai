@@ -275,7 +275,6 @@
             100% { background-position: -200% 0; }
         }
 
-        /* Icon-only button style - COMPACT */
         .btn-icon-only {
             width: 32px;
             height: 32px;
@@ -832,6 +831,7 @@
             document.getElementById('imagePreviewContainer').classList.add('hidden');
         }
 
+        // ✅ FIXED login() function
         async function login() {
             const userVal = document.getElementById('user').value;
             const btn = event.target;
@@ -852,6 +852,12 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminName', userVal);
+                    
+                    // ✅ FIX: Simpan profileUrl jika ada
+                    if (data.profileUrl) {
+                        localStorage.setItem('adminProfileUrl', data.profileUrl);
+                    }
+                    
                     notyf.success('Login berhasil!');
                     showAdmin();
                 } else { 
@@ -865,21 +871,36 @@
             }
         }
 
+        // ✅ FIXED showAdmin() function
         function showAdmin() {
             console.log('🎭 showAdmin() called');
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
             
-            // Display logged in username - ensure element exists
             const adminName = localStorage.getItem('adminName') || 'Admin';
+            const adminProfileUrl = localStorage.getItem('adminProfileUrl');
             console.log('👤 Setting username to:', '@' + adminName);
+            console.log('🖼️ Profile URL:', adminProfileUrl || 'No profile picture');
             
             const userElement = document.getElementById('loggedInUser');
             console.log('📍 Element found:', !!userElement);
             
             if (userElement) {
-                userElement.textContent = '@' + adminName;
-                console.log('✅ Username set successfully');
+                // ✅ FIX: Tampilkan profile picture jika ada
+                if (adminProfileUrl && adminProfileUrl.trim() !== '') {
+                    userElement.innerHTML = `
+                        <img src="${adminProfileUrl}" 
+                             class="w-6 h-6 rounded-full object-cover border border-[#444] inline-block mr-1" 
+                             alt="${adminName}"
+                             onerror="this.style.display='none'">
+                        <span>@${adminName}</span>
+                    `;
+                    console.log('✅ Profile picture set');
+                } else {
+                    // Tidak ada profile picture, tampilkan username saja
+                    userElement.textContent = '@' + adminName;
+                    console.log('✅ Username only (no profile picture)');
+                }
             } else {
                 console.error('❌ Element loggedInUser not found!');
             }
@@ -1336,6 +1357,7 @@
         function logout() { 
             localStorage.removeItem('adminToken'); 
             localStorage.removeItem('adminName');
+            localStorage.removeItem('adminProfileUrl'); // ✅ FIX: Clear profile URL juga
             location.reload(); 
         }
     </script>
