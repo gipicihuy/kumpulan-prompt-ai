@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -219,25 +220,6 @@
             display: block;
         }
 
-        /* ✅ FIX: Tab button styling - sama untuk active dan inactive */
-        .tab-btn {
-            text-sm font-bold uppercase tracking-tight pl-3 pb-3 transition-colors;
-            border-left: 4px solid transparent;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .tab-btn.active {
-            color: #e5e5e5 !important;
-            border-left-color: #9ca3af !important;
-            border-bottom-color: #e5e5e5 !important;
-        }
-        
-        .tab-btn:not(.active) {
-            color: #6b7280 !important;
-            border-left-color: transparent !important;
-            border-bottom-color: transparent !important;
-        }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -266,9 +248,10 @@
             max-width: 600px;
             width: 100%;
             max-height: 90vh;
-            /* ✅ FIX: Enable scroll di modal */
-            overflow-y: auto;
+            overflow: hidden;
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
         }
 
         .prompt-item {
@@ -292,57 +275,34 @@
             100% { background-position: -200% 0; }
         }
 
-        .btn-icon-only {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem;
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
             transition: all 0.3s ease;
-            font-size: 0.875rem;
         }
 
-        .btn-icon-only:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        .btn-small:hover {
+            transform: translateY(-1px);
         }
 
-        .btn-icon-only:active {
-            transform: scale(0.95);
-        }
-
-        .btn-icon-only.edit {
+        .btn-small.edit {
             background: #3b82f6;
             border: 1px solid #2563eb;
             color: white;
         }
 
-        .btn-icon-only.delete {
+        .btn-small.delete {
             background: #ef4444;
             border: 1px solid #dc2626;
             color: white;
         }
 
-        .btn-icon-only.edit:hover {
+        .btn-small.edit:hover {
             background: #2563eb;
         }
 
-        .btn-icon-only.delete:hover {
+        .btn-small.delete:hover {
             background: #dc2626;
-        }
-        
-        /* ✅ FIX: Profile picture styling */
-        .admin-profile-pic {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #444;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 0.25rem;
         }
     </style>
 </head>
@@ -390,18 +350,11 @@
         <div id="adminSection" class="max-w-4xl mx-auto hidden">
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <!-- ✅ FIX: Tab styling -->
                     <div class="flex gap-4 border-b border-[#2a2a2a]">
-                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="tab-btn active">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="tab-btn">Manage</button>
+                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
                     </div>
-                    <div class="logout-section flex items-center gap-3">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-user-circle text-gray-400 text-lg"></i>
-                            <p id="loggedInUser" class="text-sm font-bold text-white flex items-center"></p>
-                        </div>
-                        <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
-                    </div>
+                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
                 </div>
             </div>
 
@@ -510,7 +463,7 @@
                         </div>
                     </div>
 
-                    <div id="manageContent" class="space-y-2 hidden">
+                    <div id="manageContent" class="space-y-3 hidden">
                     </div>
                 </div>
             </div>
@@ -525,14 +478,14 @@
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
                 <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
 
-            <form id="editForm" class="space-y-3">
+            <form id="editForm" class="space-y-3 flex-1 overflow-y-auto pr-2">
                 <input type="hidden" id="editSlug">
 
                 <div>
@@ -585,7 +538,7 @@
                     <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
                 </div>
 
-                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm">
+                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
                     <i class="fa-solid fa-save mr-2"></i>Save Changes
                 </button>
             </form>
@@ -693,11 +646,7 @@
         });
 
         const token = localStorage.getItem('adminToken');
-        const adminName = localStorage.getItem('adminName');
-        
-        if (token) {
-            showAdmin();
-        }
+        if (token) showAdmin();
 
         let passwordEnabled = false;
         let editPasswordEnabled = false;
@@ -858,7 +807,6 @@
             document.getElementById('imagePreviewContainer').classList.add('hidden');
         }
 
-        // ✅ FIXED login() function
         async function login() {
             const userVal = document.getElementById('user').value;
             const btn = event.target;
@@ -879,12 +827,6 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminName', userVal);
-                    
-                    // ✅ FIX: Simpan profileUrl jika ada
-                    if (data.profileUrl) {
-                        localStorage.setItem('adminProfileUrl', data.profileUrl);
-                    }
-                    
                     notyf.success('Login berhasil!');
                     showAdmin();
                 } else { 
@@ -898,33 +840,11 @@
             }
         }
 
-        // ✅ FIXED showAdmin() function - DENGAN PROFILE PICTURE
         function showAdmin() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
-            
-            const adminName = localStorage.getItem('adminName') || 'Admin';
-            const adminProfileUrl = localStorage.getItem('adminProfileUrl');
-            
-            const userElement = document.getElementById('loggedInUser');
-            
-            if (userElement) {
-                // ✅ FIX: Tampilkan profile picture seperti di frontend
-                if (adminProfileUrl && adminProfileUrl.trim() !== '') {
-                    userElement.innerHTML = `
-                        <img src="${adminProfileUrl}" 
-                             class="admin-profile-pic" 
-                             alt="${adminName}"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.marginLeft='0';">
-                        <span>@${adminName}</span>
-                    `;
-                } else {
-                    userElement.innerHTML = `<span>@${adminName}</span>`;
-                }
-            }
         }
 
-        // ✅ FIXED switchAdminTab() - Tab styling yang konsisten
         function switchAdminTab(tab) {
             const tabNew = document.getElementById('tab-new');
             const tabManage = document.getElementById('tab-manage');
@@ -934,13 +854,13 @@
             if (tab === 'new') {
                 tabNew.classList.add('active');
                 tabManage.classList.remove('active');
-                btnNew.classList.add('active');
-                btnManage.classList.remove('active');
+                btnNew.style.borderBottom = '3px solid #e5e5e5';
+                btnManage.style.borderBottom = '3px solid transparent';
             } else {
                 tabNew.classList.remove('active');
                 tabManage.classList.add('active');
-                btnNew.classList.remove('active');
-                btnManage.classList.add('active');
+                btnNew.style.borderBottom = '3px solid transparent';
+                btnManage.style.borderBottom = '3px solid #e5e5e5';
                 
                 loadManagePrompts();
             }
@@ -984,46 +904,30 @@
                 return;
             }
 
-            manageContent.innerHTML = filtered.map(prompt => {
-                const isEdited = prompt.createdAt.includes('(edited)');
-                const editedBadge = isEdited 
-                    ? '<span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-[9px] font-bold rounded uppercase border border-blue-500/30">Edited</span>' 
-                    : '';
-                
-                return `
-                <div class="prompt-item rounded-lg p-2.5 flex items-center justify-between gap-3">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h4 class="font-bold text-white text-sm truncate">${prompt.judul}</h4>
-                            ${editedBadge}
-                            ${prompt.isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs flex-shrink-0" title="Protected"></i>' : ''}
+            manageContent.innerHTML = filtered.map(prompt => `
+                <div class="prompt-item rounded-lg p-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${prompt.judul}</h4>
+                            <p class="text-xs text-gray-400">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
                         </div>
-                        <div class="flex items-center gap-3 text-xs">
-                            <span class="text-gray-400 truncate">${prompt.kategori}</span>
-                            <span class="text-gray-500 text-[10px] flex-shrink-0">${prompt.createdAt.replace(' (edited)', '')}</span>
-                        </div>
-                        <div class="flex items-center gap-3 mt-1 text-xs">
-                            <span class="text-gray-400 flex items-center gap-1">
-                                <i class="fa-solid fa-eye text-[10px]"></i> ${prompt.analytics.views}
-                            </span>
-                            <span class="text-gray-400 flex items-center gap-1">
-                                <i class="fa-solid fa-copy text-[10px]"></i> ${prompt.analytics.copies}
-                            </span>
-                            <span class="text-gray-400 flex items-center gap-1">
-                                <i class="fa-solid fa-download text-[10px]"></i> ${prompt.analytics.downloads}
-                            </span>
-                        </div>
+                        <span class="text-[10px] text-gray-500">${prompt.createdAt}</span>
                     </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <button onclick="openEditModal('${prompt.slug}')" class="btn-icon-only edit" title="Edit">
-                            <i class="fa-solid fa-pencil"></i>
+                    <div class="flex gap-1.5 mb-2 text-xs">
+                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg">
+                            <i class="fa-solid fa-pencil mr-1"></i>Edit
                         </button>
-                        <button onclick="openDeleteModal('${prompt.slug}')" class="btn-icon-only delete" title="Delete">
-                            <i class="fa-solid fa-trash"></i>
+                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg">
+                            <i class="fa-solid fa-trash mr-1"></i>Delete
                         </button>
                     </div>
                 </div>
-            `}).join('');
+            `).join('');
 
             manageContent.classList.remove('hidden');
             manageLoading.classList.add('hidden');
@@ -1141,6 +1045,8 @@
 
                 const editImageFile = document.getElementById('editImageFile').files[0];
                 if (editImageFile) {
+                    console.log('📤 Uploading image...');
+                    
                     const formData = new FormData();
                     formData.append('file', editImageFile);
 
@@ -1153,6 +1059,7 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
+                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                         throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
                     }
 
@@ -1189,13 +1096,14 @@
                 const editContentType = response.headers.get('content-type');
                 if (!editContentType || !editContentType.includes('application/json')) {
                     const textResponse = await response.text();
+                    console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                     throw new Error('Save gagal: ' + textResponse.substring(0, 100));
                 }
 
                 const result = await response.json();
 
                 if (result.success) {
-                    notyf.success(result.message || 'Prompt updated!');
+                    notyf.success('Prompt updated!');
                     closeEditModal();
                     loadManagePrompts();
                 } else {
@@ -1290,6 +1198,8 @@
 
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
+                    console.log('📤 Uploading image...', imageFile.name);
+                    
                     const formData = new FormData();
                     formData.append('file', imageFile);
 
@@ -1304,16 +1214,19 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
+                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                         throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
                     }
 
                     const uploadData = await uploadRes.json();
+                    console.log('✅ Upload response:', uploadData);
                     
                     if (!uploadData.success) {
                         throw new Error(uploadData.message || 'Gagal upload gambar');
                     }
 
                     imageUrl = uploadData.imageUrl;
+                    console.log('🖼️ Image URL:', imageUrl);
                 }
 
                 const password = passwordEnabled ? document.getElementById('password').value : '';
@@ -1336,6 +1249,8 @@
                     password: password
                 };
 
+                console.log('💾 Saving prompt...', body);
+
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
                     headers: { 
@@ -1350,6 +1265,7 @@
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     const errorText = await res.text();
+                    console.error('❌ Save error:', errorText);
                     notyf.error('Gagal menyimpan: ' + errorText.substring(0, 100));
                 }
             } catch (e) {
@@ -1364,7 +1280,6 @@
         function logout() { 
             localStorage.removeItem('adminToken'); 
             localStorage.removeItem('adminName');
-            localStorage.removeItem('adminProfileUrl');
             location.reload(); 
         }
     </script>
