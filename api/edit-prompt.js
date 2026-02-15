@@ -42,20 +42,33 @@ export default async function handler(req, res) {
     const oldDescription = oldData.description || ''
     const newDescription = description || ''
     const oldImageUrl = oldData.imageUrl || ''
-    const newImageUrl = imageUrl || oldData.imageUrl || ''
+    // ✅ FIX: Jika imageUrl kosong dari frontend, artinya keep old image
+    const newImageUrl = (imageUrl && imageUrl.trim() !== '') ? imageUrl : (oldData.imageUrl || '')
     const oldPassword = oldData.password || ''
     const newPassword = password?.trim() || ''
     const oldIsProtected = oldData.isProtected === 'true' || oldData.isProtected === true
     const newIsProtected = password && password.trim() !== ''
 
+    // Debug log
+    console.log('🔍 Checking changes:')
+    console.log('Judul:', oldData.judul, '→', judul, '=', oldData.judul === judul)
+    console.log('Kategori:', oldData.kategori, '→', kategori, '=', oldData.kategori === kategori)
+    console.log('Isi length:', oldData.isi?.length, '→', isi?.length, '=', oldData.isi === isi)
+    console.log('Description:', oldDescription, '→', newDescription, '=', oldDescription === newDescription)
+    console.log('ImageUrl:', oldImageUrl, '→', newImageUrl, '=', oldImageUrl === newImageUrl)
+    console.log('Password:', oldPassword, '→', newPassword, '=', oldPassword === newPassword)
+    console.log('IsProtected:', oldIsProtected, '→', newIsProtected, '=', oldIsProtected === newIsProtected)
+
     const hasChanges = 
       oldData.judul !== judul ||
-      oldData.kategori !== (kategori || oldData.kategori) ||
+      oldData.kategori !== kategori ||
       oldData.isi !== isi ||
       oldDescription !== newDescription ||
       oldImageUrl !== newImageUrl ||
       oldPassword !== newPassword ||
       oldIsProtected !== newIsProtected
+
+    console.log('✅ Has changes:', hasChanges)
 
     // ✅ Clean old createdAt dari "(edited)" jika ada
     const cleanCreatedAt = oldData.createdAt.replace(/ \(edited\)$/, '').trim()
@@ -71,15 +84,15 @@ export default async function handler(req, res) {
       updatedAt: hasChanges ? updatedAt + ' WIB' : oldData.updatedAt // Only update if changed
     }
 
-    // Optional fields
-    if (description && description.trim() !== '') {
-      promptData.description = description
-    }
-
+    // Optional fields - Always set to maintain consistency
+    promptData.description = description && description.trim() !== '' ? description : ''
+    
     if (imageUrl && imageUrl.trim() !== '') {
       promptData.imageUrl = imageUrl
     } else if (oldData.imageUrl) {
       promptData.imageUrl = oldData.imageUrl // Keep old image if no new one
+    } else {
+      promptData.imageUrl = ''
     }
 
     // Password handling
