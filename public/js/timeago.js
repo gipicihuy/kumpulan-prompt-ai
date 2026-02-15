@@ -12,6 +12,7 @@ function timeAgo(timestamp) {
         return 'Baru saja';
     }
     
+    // ✅ FIX: Pakai Math.floor untuk exact calculation (bukan round up)
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
