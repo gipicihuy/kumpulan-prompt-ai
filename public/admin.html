@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -220,6 +219,25 @@
             display: block;
         }
 
+        /* ✅ FIX: Tab button styling - sama untuk active dan inactive */
+        .tab-btn {
+            text-sm font-bold uppercase tracking-tight pl-3 pb-3 transition-colors;
+            border-left: 4px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: #e5e5e5 !important;
+            border-left-color: #9ca3af !important;
+            border-bottom-color: #e5e5e5 !important;
+        }
+        
+        .tab-btn:not(.active) {
+            color: #6b7280 !important;
+            border-left-color: transparent !important;
+            border-bottom-color: transparent !important;
+        }
+
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -248,10 +266,9 @@
             max-width: 600px;
             width: 100%;
             max-height: 90vh;
-            overflow: hidden;
+            /* ✅ FIX: Enable scroll di modal */
+            overflow-y: auto;
             padding: 2rem;
-            display: flex;
-            flex-direction: column;
         }
 
         .prompt-item {
@@ -315,6 +332,18 @@
         .btn-icon-only.delete:hover {
             background: #dc2626;
         }
+        
+        /* ✅ FIX: Profile picture styling */
+        .admin-profile-pic {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #444;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.25rem;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -361,14 +390,15 @@
         <div id="adminSection" class="max-w-4xl mx-auto hidden">
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
+                    <!-- ✅ FIX: Tab styling -->
                     <div class="flex gap-4 border-b border-[#2a2a2a]">
-                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
+                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="tab-btn active">New Prompt</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="tab-btn">Manage</button>
                     </div>
                     <div class="logout-section flex items-center gap-3">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-user-circle text-gray-400 text-lg"></i>
-                            <p id="loggedInUser" class="text-sm font-bold text-white"></p>
+                            <p id="loggedInUser" class="text-sm font-bold text-white flex items-center"></p>
                         </div>
                         <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
                     </div>
@@ -495,14 +525,14 @@
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+            <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
                 <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
 
-            <form id="editForm" class="space-y-3 flex-1 overflow-y-auto pr-2">
+            <form id="editForm" class="space-y-3">
                 <input type="hidden" id="editSlug">
 
                 <div>
@@ -555,7 +585,7 @@
                     <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
                 </div>
 
-                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
+                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm">
                     <i class="fa-solid fa-save mr-2"></i>Save Changes
                 </button>
             </form>
@@ -664,11 +694,8 @@
 
         const token = localStorage.getItem('adminToken');
         const adminName = localStorage.getItem('adminName');
-        console.log('🔑 Token:', token ? 'exists' : 'null');
-        console.log('👤 AdminName:', adminName);
         
         if (token) {
-            console.log('✅ Auto-login...');
             showAdmin();
         }
 
@@ -871,41 +898,33 @@
             }
         }
 
-        // ✅ FIXED showAdmin() function
+        // ✅ FIXED showAdmin() function - DENGAN PROFILE PICTURE
         function showAdmin() {
-            console.log('🎭 showAdmin() called');
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
             
             const adminName = localStorage.getItem('adminName') || 'Admin';
             const adminProfileUrl = localStorage.getItem('adminProfileUrl');
-            console.log('👤 Setting username to:', '@' + adminName);
-            console.log('🖼️ Profile URL:', adminProfileUrl || 'No profile picture');
             
             const userElement = document.getElementById('loggedInUser');
-            console.log('📍 Element found:', !!userElement);
             
             if (userElement) {
-                // ✅ FIX: Tampilkan profile picture jika ada
+                // ✅ FIX: Tampilkan profile picture seperti di frontend
                 if (adminProfileUrl && adminProfileUrl.trim() !== '') {
                     userElement.innerHTML = `
                         <img src="${adminProfileUrl}" 
-                             class="w-6 h-6 rounded-full object-cover border border-[#444] inline-block mr-1" 
+                             class="admin-profile-pic" 
                              alt="${adminName}"
-                             onerror="this.style.display='none'">
+                             onerror="this.style.display='none'; this.nextElementSibling.style.marginLeft='0';">
                         <span>@${adminName}</span>
                     `;
-                    console.log('✅ Profile picture set');
                 } else {
-                    // Tidak ada profile picture, tampilkan username saja
-                    userElement.textContent = '@' + adminName;
-                    console.log('✅ Username only (no profile picture)');
+                    userElement.innerHTML = `<span>@${adminName}</span>`;
                 }
-            } else {
-                console.error('❌ Element loggedInUser not found!');
             }
         }
 
+        // ✅ FIXED switchAdminTab() - Tab styling yang konsisten
         function switchAdminTab(tab) {
             const tabNew = document.getElementById('tab-new');
             const tabManage = document.getElementById('tab-manage');
@@ -915,13 +934,13 @@
             if (tab === 'new') {
                 tabNew.classList.add('active');
                 tabManage.classList.remove('active');
-                btnNew.style.borderBottom = '3px solid #e5e5e5';
-                btnManage.style.borderBottom = '3px solid transparent';
+                btnNew.classList.add('active');
+                btnManage.classList.remove('active');
             } else {
                 tabNew.classList.remove('active');
                 tabManage.classList.add('active');
-                btnNew.style.borderBottom = '3px solid transparent';
-                btnManage.style.borderBottom = '3px solid #e5e5e5';
+                btnNew.classList.remove('active');
+                btnManage.classList.add('active');
                 
                 loadManagePrompts();
             }
@@ -1122,8 +1141,6 @@
 
                 const editImageFile = document.getElementById('editImageFile').files[0];
                 if (editImageFile) {
-                    console.log('📤 Uploading image...');
-                    
                     const formData = new FormData();
                     formData.append('file', editImageFile);
 
@@ -1136,7 +1153,6 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                         throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
                     }
 
@@ -1173,7 +1189,6 @@
                 const editContentType = response.headers.get('content-type');
                 if (!editContentType || !editContentType.includes('application/json')) {
                     const textResponse = await response.text();
-                    console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                     throw new Error('Save gagal: ' + textResponse.substring(0, 100));
                 }
 
@@ -1275,8 +1290,6 @@
 
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
-                    console.log('📤 Uploading image...', imageFile.name);
-                    
                     const formData = new FormData();
                     formData.append('file', imageFile);
 
@@ -1291,19 +1304,16 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
                         throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
                     }
 
                     const uploadData = await uploadRes.json();
-                    console.log('✅ Upload response:', uploadData);
                     
                     if (!uploadData.success) {
                         throw new Error(uploadData.message || 'Gagal upload gambar');
                     }
 
                     imageUrl = uploadData.imageUrl;
-                    console.log('🖼️ Image URL:', imageUrl);
                 }
 
                 const password = passwordEnabled ? document.getElementById('password').value : '';
@@ -1326,8 +1336,6 @@
                     password: password
                 };
 
-                console.log('💾 Saving prompt...', body);
-
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
                     headers: { 
@@ -1342,7 +1350,6 @@
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     const errorText = await res.text();
-                    console.error('❌ Save error:', errorText);
                     notyf.error('Gagal menyimpan: ' + errorText.substring(0, 100));
                 }
             } catch (e) {
@@ -1357,7 +1364,7 @@
         function logout() { 
             localStorage.removeItem('adminToken'); 
             localStorage.removeItem('adminName');
-            localStorage.removeItem('adminProfileUrl'); // ✅ FIX: Clear profile URL juga
+            localStorage.removeItem('adminProfileUrl');
             location.reload(); 
         }
     </script>
