@@ -29,21 +29,21 @@ function timeAgo(timestamp, createdAt) {
         return `${diffMin} menit yang lalu`;
     }
     
-    // X jam yang lalu (< 24 jam DAN masih hari yang sama)
-    // Cek apakah masih di hari yang sama di timezone Jakarta
-    const nowDateJakarta = new Date(now + (7 * 60 * 60 * 1000)); // UTC+7
-    const postDateJakarta = new Date(timestamp + (7 * 60 * 60 * 1000)); // UTC+7
-    
-    // Ambil tanggal saja (tanpa jam)
-    const nowDateOnly = new Date(nowDateJakarta.getFullYear(), nowDateJakarta.getMonth(), nowDateJakarta.getDate());
-    const postDateOnly = new Date(postDateJakarta.getFullYear(), postDateJakarta.getMonth(), postDateJakarta.getDate());
-    
-    const daysDiff = Math.floor((nowDateOnly - postDateOnly) / (1000 * 60 * 60 * 24));
-    
-    // Jika masih hari ini (daysDiff = 0)
-    if (daysDiff === 0 && diffHour < 24) {
+    // X jam yang lalu (< 24 jam)
+    if (diffHour < 24) {
         return `${diffHour} jam yang lalu`;
     }
+    
+    // ✅ Cek hari (untuk "Kemarin" atau tanggal lengkap)
+    // Pakai Date object langsung (browser otomatis handle timezone)
+    const nowDate = new Date(now);
+    const postDate = new Date(timestamp);
+    
+    // Ambil tanggal saja (tanpa jam) di timezone lokal
+    const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+    const postDateOnly = new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate());
+    
+    const daysDiff = Math.floor((nowDateOnly - postDateOnly) / (1000 * 60 * 60 * 24));
     
     // Jika kemarin (daysDiff = 1)
     if (daysDiff === 1) {
