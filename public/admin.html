@@ -664,7 +664,14 @@
         });
 
         const token = localStorage.getItem('adminToken');
-        if (token) showAdmin();
+        const adminName = localStorage.getItem('adminName');
+        console.log('🔑 Token:', token ? 'exists' : 'null');
+        console.log('👤 AdminName:', adminName);
+        
+        if (token) {
+            console.log('✅ Auto-login...');
+            showAdmin();
+        }
 
         let passwordEnabled = false;
         let editPasswordEnabled = false;
@@ -859,12 +866,23 @@
         }
 
         function showAdmin() {
+            console.log('🎭 showAdmin() called');
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
             
-            // Display logged in username
+            // Display logged in username - ensure element exists
             const adminName = localStorage.getItem('adminName') || 'Admin';
-            document.getElementById('loggedInUser').textContent = '@' + adminName;
+            console.log('👤 Setting username to:', '@' + adminName);
+            
+            const userElement = document.getElementById('loggedInUser');
+            console.log('📍 Element found:', !!userElement);
+            
+            if (userElement) {
+                userElement.textContent = '@' + adminName;
+                console.log('✅ Username set successfully');
+            } else {
+                console.error('❌ Element loggedInUser not found!');
+            }
         }
 
         function switchAdminTab(tab) {
