@@ -19,8 +19,12 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
+// NEW: Generate unique session ID untuk tracking views
+function generateSessionId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
 export default async function handler(req, res) {
-  // Ambil slug dari request
   const { slug } = req.query;
   
   if (!slug) {
@@ -45,40 +49,66 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Fetch analytics data - FIX NULL HANDLING!
+    // Fetch analytics data
     const analyticsKey = `analytics:${slug}`
     const analyticsData = await redis.hgetall(analyticsKey)
     
-    // Safe default values kalau analytics belum ada
     const analytics = {
       views: analyticsData && analyticsData.views ? parseInt(analyticsData.views) : 0,
       copies: analyticsData && analyticsData.copies ? parseInt(analyticsData.copies) : 0,
       downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
     }
 
+    // ===== NEW: TRACK VIEW DENGAN SESSION =====
+    // Parse cookies untuk cek apakah user sudah pernah view dalam session
+    const cookies = parseCookies(req.headers.cookie);
+    const viewSessionCookie = `view_${slug}`;
+    const hasViewedInSession = cookies[viewSessionCookie];
+
+    // Jika belum pernah view dalam session, track view dan set cookie
+    if (!hasViewedInSession && !isProtected) {
+      try {
+        // Increment view counter
+        await redis.hincrby(analyticsKey, 'views', 1);
+        
+        // Update analytics object
+        analytics.views += 1;
+        
+        // Generate session ID
+        const sessionId = generateSessionId();
+        
+        // Set cookie yang expire dalam 30 menit
+        res.setHeader('Set-Cookie', [
+          `${viewSessionCookie}=${sessionId}; Path=/; Max-Age=1800; SameSite=Lax`
+        ]);
+        
+        console.log(`✅ View tracked for slug: ${slug}, new count: ${analytics.views}`);
+      } catch (trackError) {
+        console.error('❌ Failed to track view:', trackError);
+        // Continue rendering even if tracking fails
+      }
+    } else {
+      console.log(`ℹ️ View already tracked in this session for slug: ${slug}`);
+    }
+    // ===== END NEW TRACKING =====
+
     // Jika diproteksi
     if (isProtected) {
-      // Parse cookies dari request
-      const cookies = parseCookies(req.headers.cookie)
-      const sessionToken = cookies[`prompt_session_${slug}`]
+      const sessionToken = cookies[`prompt_session_${slug}`];
       
       if (!sessionToken) {
-        // Tidak ada session cookie, tampilkan halaman password input
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
       
-      // Ada session token, validate di Redis
-      const sessionKey = `session:${slug}:${sessionToken}`
-      const isValidSession = await redis.get(sessionKey)
+      const sessionKey = `session:${slug}:${sessionToken}`;
+      const isValidSession = await redis.get(sessionKey);
       
       if (isValidSession === 'valid') {
-        // Session valid! Tampilkan halaman normal
         return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
       } else {
-        // Session invalid/expired, hapus cookie dan tampilkan password page
         res.setHeader('Set-Cookie', [
           `prompt_session_${slug}=; Path=/; Max-Age=0`,
-        ])
+        ]);
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
     }
@@ -131,7 +161,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
   const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
 
-  // Render profile picture seperti di detail view
   const profilePicHtml = profileUrl && profileUrl.trim() !== '' 
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
     : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]">
@@ -157,7 +186,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ✅ Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -257,7 +285,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     </header>
 
     <main class="max-w-3xl mx-auto px-4 py-6">
-        <!-- Header Info - sama seperti detail view -->
         <div class="mb-5 border-l-2 border-gray-400 pl-3">
             <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">
                 ${promptData.kategori || 'Lainnya'}
@@ -278,9 +305,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             </div>
         </div>
 
-        <!-- Password Form Container -->
         <div class="password-container rounded-lg overflow-hidden">
-            <!-- Lock Icon Section -->
             <div class="p-8 text-center border-b border-[#2a2a2a]">
                 <div class="lock-icon-large rounded-full">
                     <i class="fa-solid fa-lock text-3xl text-yellow-500"></i>
@@ -291,7 +316,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 </p>
             </div>
 
-            <!-- Password Form -->
             <div class="p-8">
                 <form id="passwordForm" class="space-y-5 max-w-md mx-auto">
                     <div>
@@ -325,7 +349,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 </form>
             </div>
 
-            <!-- Footer Info -->
             <div class="px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
                 <div class="bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">
                     <p class="text-xs text-gray-400 text-center mb-2">
@@ -340,11 +363,9 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         </div>
     </main>
 
-    <!-- ✅ Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
-        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -355,7 +376,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             dismissible: true
         });
 
-        // Toggle password visibility
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('passwordInput');
             const toggleBtn = document.getElementById('togglePasswordBtn');
@@ -397,15 +417,12 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                 const result = await response.json();
 
                 if (result.success) {
-                    // ✅ Password benar! Gunakan default success notification
                     notyf.success('Access granted! Redirecting...');
                     
-                    // Redirect setelah 1 detik
                     setTimeout(() => {
                         window.location.href = '/prompt/${slug}';
                     }, 1000);
                 } else {
-                    // ✅ Password salah - gunakan default error notification
                     notyf.error(result.message || 'Incorrect password');
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
@@ -419,14 +436,13 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             }
         });
 
-        // Auto focus ke input password
         document.getElementById('passwordInput').focus();
     </script>
 </body>
 </html>`;
 }
 
-// Fungsi untuk render halaman normal (tanpa password) - DENGAN ANALYTICS TRACKING
+// Fungsi untuk render halaman normal (WITHOUT FRONTEND TRACKING - sudah di-track di backend)
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
@@ -438,7 +454,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
   
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
 
-  // Helper function untuk format number
   const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -452,7 +467,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
     
-    <!-- Meta tags untuk preview WhatsApp/Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
@@ -460,7 +474,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta property="og:image" content="${metaImage}">
     <meta name="description" content="${metaDescription}">
     
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${pageTitle}">
     <meta name="twitter:description" content="${metaDescription}">
@@ -470,7 +483,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ✅ Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
@@ -535,7 +547,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             height: 32px;
         }
 
-        /* Fullscreen Modal */
         .fullscreen-modal {
             position: fixed;
             inset: 0;
@@ -681,7 +692,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         </div>
     </main>
 
-    <!-- Fullscreen Modal -->
     <div id="fullscreenModal" class="hidden fullscreen-modal" onclick="closeFullscreen(event)">
         <div class="fullscreen-image-wrapper">
             <img id="fullscreenImage" src="" alt="Fullscreen">
@@ -691,7 +701,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         </div>
     </div>
 
-    <!-- ✅ Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
@@ -701,7 +710,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
           slug: slug
         })};
         
-        // ✅ Initialize Notyf dengan minimal config - gunakan default styling
         const notyf = new Notyf({
             duration: 2500,
             position: {
@@ -712,21 +720,19 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             dismissible: true
         });
         
-        // Format number helper
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
             if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
             return num.toString();
         }
         
-        // Update analytics display
         function updateAnalyticsDisplay(analytics) {
             document.getElementById('viewsCount').innerText = formatNumber(analytics.views);
             document.getElementById('copiesCount').innerText = formatNumber(analytics.copies);
             document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
         }
         
-        // Track analytics
+        // Track copy/download ONLY (view sudah di-track di backend saat page load)
         async function trackAnalytics(action) {
             try {
                 const response = await fetch('/api/analytics', {
@@ -743,16 +749,10 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             }
         }
         
-        // Track view after 2 seconds
-        setTimeout(() => {
-            trackAnalytics('view');
-        }, 2000);
-        
         // Copy button
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
             await trackAnalytics('copy');
-            // ✅ Gunakan default success notification
             notyf.success('Copied to clipboard!');
         };
         
@@ -769,11 +769,9 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             URL.revokeObjectURL(url);
             
             await trackAnalytics('download');
-            // ✅ Gunakan default success notification
             notyf.success('Downloaded successfully!');
         };
 
-        // Fullscreen functions
         function openFullscreen(imageUrl) {
             const modal = document.getElementById('fullscreenModal');
             const img = document.getElementById('fullscreenImage');
@@ -789,7 +787,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.body.style.overflow = '';
         }
 
-        // Close on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeFullscreen();
