@@ -275,33 +275,45 @@
             100% { background-position: -200% 0; }
         }
 
-        .btn-small {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
+        /* Icon-only button style - COMPACT */
+        .btn-icon-only {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
             transition: all 0.3s ease;
+            font-size: 0.875rem;
         }
 
-        .btn-small:hover {
-            transform: translateY(-1px);
+        .btn-icon-only:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
         }
 
-        .btn-small.edit {
+        .btn-icon-only:active {
+            transform: scale(0.95);
+        }
+
+        .btn-icon-only.edit {
             background: #3b82f6;
             border: 1px solid #2563eb;
             color: white;
         }
 
-        .btn-small.delete {
+        .btn-icon-only.delete {
             background: #ef4444;
             border: 1px solid #dc2626;
             color: white;
         }
 
-        .btn-small.edit:hover {
+        .btn-icon-only.edit:hover {
             background: #2563eb;
         }
 
-        .btn-small.delete:hover {
+        .btn-icon-only.delete:hover {
             background: #dc2626;
         }
     </style>
@@ -463,7 +475,7 @@
                         </div>
                     </div>
 
-                    <div id="manageContent" class="space-y-3 hidden">
+                    <div id="manageContent" class="space-y-2 hidden">
                     </div>
                 </div>
             </div>
@@ -905,25 +917,34 @@
             }
 
             manageContent.innerHTML = filtered.map(prompt => `
-                <div class="prompt-item rounded-lg p-3">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="font-bold text-white text-sm">${prompt.judul}</h4>
-                            <p class="text-xs text-gray-400">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
+                <div class="prompt-item rounded-lg p-2.5 flex items-center justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="font-bold text-white text-sm truncate">${prompt.judul}</h4>
+                            ${prompt.isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs flex-shrink-0" title="Protected"></i>' : ''}
                         </div>
-                        <span class="text-[10px] text-gray-500">${prompt.createdAt}</span>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="text-gray-400 truncate">${prompt.kategori}</span>
+                            <span class="text-gray-500 text-[10px] flex-shrink-0">${prompt.createdAt}</span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1 text-xs">
+                            <span class="text-gray-400 flex items-center gap-1">
+                                <i class="fa-solid fa-eye text-[10px]"></i> ${prompt.analytics.views}
+                            </span>
+                            <span class="text-gray-400 flex items-center gap-1">
+                                <i class="fa-solid fa-copy text-[10px]"></i> ${prompt.analytics.copies}
+                            </span>
+                            <span class="text-gray-400 flex items-center gap-1">
+                                <i class="fa-solid fa-download text-[10px]"></i> ${prompt.analytics.downloads}
+                            </span>
+                        </div>
                     </div>
-                    <div class="flex gap-1.5 mb-2 text-xs">
-                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg">
-                            <i class="fa-solid fa-pencil mr-1"></i>Edit
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button onclick="openEditModal('${prompt.slug}')" class="btn-icon-only edit" title="Edit">
+                            <i class="fa-solid fa-pencil"></i>
                         </button>
-                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg">
-                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                        <button onclick="openDeleteModal('${prompt.slug}')" class="btn-icon-only delete" title="Delete">
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </div>
