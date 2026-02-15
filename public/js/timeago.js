@@ -1,9 +1,10 @@
 /**
  * Konversi timestamp ke format relatif (Baru saja, X menit yang lalu, dll)
  * @param {number} timestamp - Unix timestamp dalam milidetik (UTC standar)
+ * @param {string} createdAt - String tanggal dari database (fallback untuk > 1 hari)
  * @returns {string} - Format waktu relatif
  */
-function timeAgo(timestamp) {
+function timeAgo(timestamp, createdAt) {
     const now = Date.now(); // UTC timestamp standar
     const diffMs = now - timestamp;
     
@@ -49,8 +50,13 @@ function timeAgo(timestamp) {
         return 'Kemarin';
     }
     
-    // Tampilkan tanggal lengkap (> 1 hari yang lalu)
-    // Gunakan timezone Jakarta untuk format
+    // ✅ Tampilkan tanggal DARI DATABASE (> 1 hari yang lalu)
+    // Kalau ada createdAt dari database, pakai itu (format lengkap dengan jam)
+    if (createdAt && createdAt !== '-') {
+        return createdAt;
+    }
+    
+    // Fallback: format sendiri kalau ga ada createdAt
     const postDate = new Date(timestamp);
     const options = { 
         day: '2-digit', 
@@ -69,8 +75,9 @@ function updateAllTimeAgo() {
     const elements = document.querySelectorAll('.time-ago');
     elements.forEach(el => {
         const timestamp = parseInt(el.dataset.timestamp);
+        const createdAt = el.dataset.createdAt; // ✅ Ambil createdAt dari data attribute
         if (!isNaN(timestamp)) {
-            el.textContent = timeAgo(timestamp);
+            el.textContent = timeAgo(timestamp, createdAt);
         }
     });
 }
