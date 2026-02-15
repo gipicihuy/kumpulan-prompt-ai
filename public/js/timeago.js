@@ -17,7 +17,6 @@ function timeAgo(timestamp, createdAt) {
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
     
     // Baru saja (< 1 menit)
     if (diffSec < 60) {
@@ -34,19 +33,36 @@ function timeAgo(timestamp, createdAt) {
         return `${diffHour} jam yang lalu`;
     }
     
-    // ✅ Cek hari (untuk "Kemarin" atau tanggal lengkap)
-    // Pakai Date object langsung (browser otomatis handle timezone)
-    const nowDate = new Date(now);
+    // ✅ FIXED: Cek hari dengan benar (untuk "Kemarin")
+    // MASALAH: Kalau sekarang jam 17:14 dan post jam 13:06, itu BUKAN kemarin!
+    // Kita harus cek apakah BENAR-BENAR beda hari kalender, bukan cuma 24 jam
+    
+    // Ambil tanggal hari ini di timezone lokal (tanpa waktu)
+    const nowDate = new Date();
+    const nowDay = nowDate.getDate();
+    const nowMonth = nowDate.getMonth();
+    const nowYear = nowDate.getFullYear();
+    
+    // Ambil tanggal post di timezone lokal (tanpa waktu)
     const postDate = new Date(timestamp);
+    const postDay = postDate.getDate();
+    const postMonth = postDate.getMonth();
+    const postYear = postDate.getFullYear();
     
-    // Ambil tanggal saja (tanpa jam) di timezone lokal
-    const nowDateOnly = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
-    const postDateOnly = new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate());
+    // Cek apakah BENAR-BENAR hari yang berbeda
+    const isSameDay = (nowDay === postDay && nowMonth === postMonth && nowYear === postYear);
     
-    const daysDiff = Math.floor((nowDateOnly - postDateOnly) / (1000 * 60 * 60 * 24));
+    // Cek apakah BENAR-BENAR kemarin (beda 1 hari kalender)
+    const yesterdayDate = new Date(nowDate);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const isYesterday = (
+        postDay === yesterdayDate.getDate() && 
+        postMonth === yesterdayDate.getMonth() && 
+        postYear === yesterdayDate.getFullYear()
+    );
     
-    // Jika kemarin (daysDiff = 1)
-    if (daysDiff === 1) {
+    // Jika BENAR-BENAR kemarin (bukan hari ini!)
+    if (isYesterday && !isSameDay) {
         return 'Kemarin';
     }
     
@@ -57,15 +73,16 @@ function timeAgo(timestamp, createdAt) {
     }
     
     // Fallback: format sendiri kalau ga ada createdAt
-    const postDate = new Date(timestamp);
     const options = { 
         day: '2-digit', 
         month: 'short', 
         year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
         timeZone: 'Asia/Jakarta'
     };
     
-    return postDate.toLocaleDateString('id-ID', options);
+    return postDate.toLocaleString('id-ID', options) + ' WIB';
 }
 
 /**
