@@ -7,219 +7,86 @@
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     
     <style>
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
+            background: #0f0f0f;
             color: #e5e5e5; 
-            min-height: 100vh;
         }
         input, textarea { 
             background-color: #1a1a1a !important; 
             border-color: #2a2a2a !important;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         input:focus, textarea:focus { 
             border-color: #444 !important; 
             background-color: #1f1f1f !important;
-            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+            box-shadow: 0 0 0 2px rgba(68, 68, 68, 0.1);
         }
-        .image-preview { 
-            max-width: 100%; 
-            max-height: 160px; 
-            object-fit: cover; 
-            border-radius: 8px; 
-        }
-        
-        header {
-            background: rgba(26, 26, 26, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
-        }
-
-        .logo-img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-        }
-        
-        .title-text {
-            font-size: 1.375rem;
-            line-height: 1.2;
-        }
-
-        #sidebar-right {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #overlay {
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
-        }
-
-        #overlay.show {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-
-        @media (max-width: 767px) {
-            #sidebar-right {
-                transform: translateX(100%);
-            }
-            #sidebar-right.open {
-                transform: translateX(0);
-            }
-            .title-text {
-                font-size: 1.125rem;
-            }
-            .logo-img {
-                width: 40px;
-                height: 40px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            #sidebar-right {
-                transform: translateX(0);
-            }
-        }
-        
-        .login-card {
+        .card { 
+            background: #1a1a1a;
             border: 1px solid #2a2a2a;
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
-        
-        .admin-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-        
         .btn-primary {
             background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         .btn-primary:hover {
             background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
-            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
             transform: translateY(-1px);
         }
-        
         .btn-primary:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        
-        .slug-preview {
-            background: #0f0f0f;
-            border: 1px solid #2a2a2a;
-            transition: all 0.3s ease;
-        }
-        
-        .slug-preview.active {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.05);
-        }
-        
-        .slug-preview.text-green-400 {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.05);
-        }
-        
-        .slug-preview.text-red-400 {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.05);
-        }
-        
-        .slug-preview.text-yellow-400 {
-            border-color: #facc15;
-            background: rgba(250, 204, 21, 0.05);
-        }
-
         .password-toggle {
             background: #1f1f1f;
             border: 1px solid #2a2a2a;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         .password-toggle.active {
             background: rgba(74, 222, 128, 0.1);
             border-color: #4ade80;
+            color: #4ade80;
         }
-
-        label {
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
+        .slug-preview {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            transition: all 0.2s ease;
         }
-
-        input[type="file"] {
-            font-size: 0.75rem;
+        .slug-preview.text-green-400 {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
         }
-        
-        input[type="file"]::file-selector-button {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.025em;
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            color: #000;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .slug-preview.text-red-400 {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
         }
-
-        input[type="file"]::file-selector-button:hover {
-            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        .slug-preview.text-yellow-400 {
+            border-color: #facc15;
+            background: rgba(250, 204, 21, 0.05);
         }
-
-        .password-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
+        .prompt-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            transition: all 0.2s ease;
         }
-
-        .password-input-wrapper input {
-            padding-right: 40px !important;
-            width: 100%;
+        .prompt-card:hover {
+            border-color: #444;
+            background: #1f1f1f;
         }
-
-        .toggle-password-visibility {
-            position: absolute;
-            right: 12px;
-            background: none;
-            border: none;
-            color: #888;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: pulse 1.5s ease-in-out infinite;
         }
-
-        .toggle-password-visibility:hover {
-            color: #e5e5e5;
+        @keyframes pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-
-        .toggle-password-visibility i {
-            font-size: 0.875rem;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -232,415 +99,239 @@
             padding: 1rem;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-
         .modal-overlay.show {
             opacity: 1;
             visibility: visible;
         }
-
         .modal-content {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
+            background: #1a1a1a;
             border: 1px solid #2a2a2a;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-            border-radius: 1rem;
-            max-width: 600px;
+            border-radius: 0.75rem;
+            max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow: hidden;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
         }
-
-        .prompt-item {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            transition: all 0.3s ease;
+        .toggle-password-btn {
+            cursor: pointer;
+            transition: color 0.2s ease;
         }
-
-        .prompt-item:hover {
-            border-color: #444;
-            background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
-            background-size: 200% 100%;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .btn-small {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-small:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-small.edit {
-            background: #3b82f6;
-            border: 1px solid #2563eb;
-            color: white;
-        }
-
-        .btn-small.delete {
-            background: #ef4444;
-            border: 1px solid #dc2626;
-            color: white;
-        }
-
-        .btn-small.edit:hover {
-            background: #2563eb;
-        }
-
-        .btn-small.delete:hover {
-            background: #dc2626;
+        .toggle-password-btn:hover {
+            color: #e5e5e5;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
     
-    <header class="sticky top-0 z-10 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <h1 class="title-text font-bold text-white flex items-center gap-3">
-                    <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
-                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
-                </h1>
-                
-                <button id="sidebarToggleRight" class="text-white">
-                    <i class="material-icons text-2xl">notes</i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow p-4">
-        <div id="loginSection" class="max-w-md mx-auto mt-8">
-            <div class="login-card rounded-xl p-6">
-                <i class="fa-solid fa-lock text-3xl mb-4 block text-center text-gray-400"></i>
-                <h2 class="text-center font-bold mb-6 uppercase tracking-wide text-lg text-gray-300">Restricted Access</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Username</label>
-                        <input type="text" id="user" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Password</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                            <button type="button" id="toggleLoginPassword" class="toggle-password-visibility" title="Show/Hide Password">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button onclick="login()" class="w-full btn-primary text-black font-bold py-3 rounded-lg uppercase tracking-wide text-sm mt-4">Login</button>
+    <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="card rounded-xl p-6 w-full max-w-sm">
+            <i class="fa-solid fa-lock text-2xl mb-3 block text-center text-gray-400"></i>
+            <h2 class="text-center font-bold mb-5 uppercase text-sm text-gray-300">Admin Access</h2>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Username</label>
+                    <input type="text" id="user" class="w-full p-2 rounded-lg border outline-none text-white text-xs">
                 </div>
-            </div>
-        </div>
-
-        <div id="adminSection" class="max-w-4xl mx-auto hidden">
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex gap-4 border-b border-[#2a2a2a]">
-                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
-                    </div>
-                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
-                </div>
-            </div>
-
-            <div id="tab-new" class="tab-content active">
-                <div class="space-y-4 admin-card p-5 rounded-xl">
-                    <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
-                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                        <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Preview URL</label>
-                        <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-gray-500 text-xs font-mono">/prompt/...</div>
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Kategori</label>
-                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Description (Opsional)</label>
-                        <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
-                    </div>
-                    
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-gray-400 uppercase flex items-center gap-1.5">
-                                <i class="fa-solid fa-shield-halved text-xs"></i> Password Protection
-                            </label>
-                            <button 
-                                type="button" 
-                                id="togglePassword" 
-                                onclick="togglePasswordField()"
-                                class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
-                            >
-                                <i class="fa-solid fa-lock"></i> Enable
-                            </button>
-                        </div>
-                        <div id="passwordField" class="hidden">
-                            <div class="password-input-wrapper">
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    placeholder="Enter password" 
-                                    class="w-full p-3 rounded-lg border outline-none text-white text-sm"
-                                    autocomplete="off"
-                                >
-                                <button 
-                                    type="button" 
-                                    id="togglePasswordVisibility" 
-                                    class="toggle-password-visibility" 
-                                    title="Show/Hide Password"
-                                    onclick="togglePasswordVisibilityAdmin()"
-                                >
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                            <p class="text-[10px] text-yellow-500 mt-1 flex items-center gap-1">
-                                <i class="fa-solid fa-exclamation-triangle"></i>
-                                User perlu password untuk akses
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
-                            <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
-                        </label>
-                        <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
-                        
-                        <div id="imagePreviewContainer" class="mt-3 hidden">
-                            <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
-                                <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
-                            </div>
-                            <button onclick="removeImage()" class="mt-2 text-[10px] text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
-                                <i class="fa-solid fa-trash"></i> Hapus
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
-                        <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
-                    </div>
-                    <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
-                        <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
-                    </button>
-                </div>
-            </div>
-
-            <div id="tab-manage" class="tab-content">
-                <div class="admin-card p-5 rounded-xl space-y-4">
-                    <div class="flex gap-2">
-                        <input type="text" id="searchManage" placeholder="Cari prompt..." class="flex-1 p-2.5 rounded-lg border outline-none text-white text-sm">
-                        <button onclick="loadManagePrompts()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition-all" title="Refresh">
-                            <i class="fa-solid fa-rotate-right"></i>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="pass" class="w-full p-2 pr-10 rounded-lg border outline-none text-white text-xs">
+                        <button type="button" id="toggleLoginPassword" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" title="Show/Hide">
+                            <i class="fa-solid fa-eye text-xs"></i>
                         </button>
                     </div>
+                </div>
+                <button onclick="login()" class="w-full btn-primary text-black font-bold py-2 rounded-lg uppercase text-xs mt-3">Login</button>
+            </div>
+        </div>
+    </div>
 
-                    <div id="manageLoading" class="text-center py-8">
-                        <div class="inline-block">
-                            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-gray-400"></i>
-                            <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest font-bold">Loading...</p>
+    <div id="adminSection" class="hidden">
+        <header class="sticky top-0 z-20 bg-[#1a1a1a] border-b border-[#2a2a2a]">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+                <h1 class="text-sm font-bold text-white uppercase tracking-wider">Admin Panel</h1>
+                <button onclick="logout()" class="text-xs text-red-400 hover:text-red-300 font-bold uppercase">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto px-4 py-4 space-y-4">
+            
+            <section class="card rounded-lg p-4">
+                <h2 class="text-xs font-bold text-gray-300 uppercase mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i>New Prompt
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Title</label>
+                        <input type="text" id="judul" placeholder="Prompt title" class="w-full p-2 rounded-lg border outline-none text-white text-xs">
+                        <p class="text-[9px] text-gray-500 mt-1">Auto-generate URL slug</p>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">URL Preview</label>
+                        <div id="slugPreview" class="slug-preview w-full p-2 rounded-lg text-gray-500 text-[10px] font-mono">/prompt/...</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Category</label>
+                            <input type="text" id="kategori" placeholder="Art / Code" class="w-full p-2 rounded-lg border outline-none text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1 flex items-center justify-between">
+                                <span><i class="fa-solid fa-lock text-[9px]"></i> Password</span>
+                                <button type="button" id="togglePassword" onclick="togglePasswordField()" class="password-toggle px-2 py-0.5 rounded text-[9px] font-bold uppercase">
+                                    <i class="fa-solid fa-lock"></i> Off
+                                </button>
+                            </label>
+                            <div id="passwordField" class="hidden relative">
+                                <input type="password" id="password" placeholder="Password" class="w-full p-2 pr-8 rounded-lg border outline-none text-white text-xs" autocomplete="off">
+                                <button type="button" onclick="togglePasswordVisibilityAdmin()" class="toggle-password-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <i id="passwordIcon" class="fa-solid fa-eye text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="manageContent" class="space-y-3 hidden">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Description (Optional)</label>
+                        <textarea id="description" rows="2" placeholder="Short description..." class="w-full p-2 rounded-lg border outline-none text-white resize-none text-xs"></textarea>
                     </div>
-                </div>
-            </div>
-        </div>
-    </main>
 
-    <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8" style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(10px);">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
-            © 2026 Prompt Hub
-        </p>
-    </footer>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1 mb-1">
+                            <i class="fa-solid fa-image"></i> Image (Optional)
+                        </label>
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-2 rounded-lg border outline-none text-white bg-[#1a1a1a] text-[10px]">
+                        <div id="imagePreviewContainer" class="mt-2 hidden">
+                            <img id="imagePreview" class="w-full h-32 object-cover rounded-lg border border-[#2a2a2a]" alt="Preview">
+                            <button onclick="removeImage()" class="mt-1 text-[9px] text-red-400 hover:text-red-300 font-bold">
+                                <i class="fa-solid fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Prompt Content</label>
+                        <textarea id="isi" rows="5" placeholder="Paste prompt here..." class="w-full p-2 rounded-lg border outline-none text-white resize-none text-xs"></textarea>
+                    </div>
+                    
+                    <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-2 rounded-lg uppercase text-xs">
+                        <i class="fa-solid fa-upload mr-1"></i>Upload
+                    </button>
+                </div>
+            </section>
+
+            <section class="card rounded-lg p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xs font-bold text-gray-300 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-list"></i>Manage Prompts
+                    </h2>
+                    <button onclick="loadManagePrompts()" class="text-xs text-blue-400 hover:text-blue-300 font-bold">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+
+                <input type="text" id="searchManage" placeholder="Search..." class="w-full p-2 rounded-lg border outline-none text-white text-xs mb-3">
+
+                <div id="manageLoading" class="text-center py-6">
+                    <i class="fa-solid fa-circle-notch fa-spin text-xl text-gray-400"></i>
+                    <p class="text-[9px] text-gray-500 mt-2 uppercase font-bold">Loading...</p>
+                </div>
+
+                <div id="manageContent" class="space-y-2 hidden"></div>
+            </section>
+
+        </main>
+    </div>
 
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
+            <div class="p-4 border-b border-[#2a2a2a] flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white uppercase">Edit Prompt</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
 
-            <form id="editForm" class="space-y-3 flex-1 overflow-y-auto pr-2">
+            <form id="editForm" class="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
                 <input type="hidden" id="editSlug">
 
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Judul</label>
-                    <input type="text" id="editJudul" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Title</label>
+                    <input type="text" id="editJudul" class="w-full p-2 rounded-lg border outline-none text-white text-xs" required>
                 </div>
 
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Kategori</label>
-                    <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Category</label>
+                    <input type="text" id="editKategori" class="w-full p-2 rounded-lg border outline-none text-white text-xs" required>
                 </div>
 
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Description</label>
-                    <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Description</label>
+                    <textarea id="editDescription" rows="2" class="w-full p-2 rounded-lg border outline-none text-white resize-none text-xs"></textarea>
                 </div>
 
                 <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5">
-                            <i class="fa-solid fa-shield-halved"></i> Password
-                        </label>
-                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()" class="password-toggle px-2 py-1 rounded text-[10px] font-bold uppercase">
-                            <i class="fa-solid fa-lock"></i> Enable
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1 flex items-center justify-between">
+                        <span><i class="fa-solid fa-lock"></i> Password</span>
+                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()" class="password-toggle px-2 py-0.5 rounded text-[9px] font-bold uppercase">
+                            <i class="fa-solid fa-lock"></i> Off
+                        </button>
+                    </label>
+                    <div id="editPasswordField" class="hidden relative">
+                        <input type="password" id="editPassword" placeholder="Leave empty to remove" class="w-full p-2 pr-8 rounded-lg border outline-none text-white text-xs" autocomplete="off">
+                        <button type="button" onclick="toggleEditPasswordVisibility()" class="toggle-password-btn absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i id="editPasswordIcon" class="fa-solid fa-eye text-xs"></i>
                         </button>
                     </div>
-                    <div id="editPasswordField" class="hidden">
-                        <div class="password-input-wrapper">
-                            <input type="password" id="editPassword" placeholder="Leave empty to remove protection" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" autocomplete="off">
-                            <button type="button" onclick="toggleEditPasswordVisibility()" class="toggle-password-visibility">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <div>
-                    <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5 mb-1">
-                        <i class="fa-solid fa-image"></i> Image
-                    </label>
-                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2.5 rounded-lg border outline-none text-white bg-[#1a1a1a] text-xs">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Image</label>
+                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2 rounded-lg border outline-none text-white bg-[#1a1a1a] text-[10px]">
                     <div id="editImagePreviewContainer" class="mt-2 hidden">
-                        <img id="editImagePreview" class="image-preview mx-auto" alt="Preview">
-                        <button type="button" onclick="removeEditImage()" class="mt-1 text-[10px] text-red-400 hover:text-red-300">Remove</button>
+                        <img id="editImagePreview" class="w-full h-32 object-cover rounded-lg border border-[#2a2a2a]" alt="Preview">
+                        <button type="button" onclick="removeEditImage()" class="mt-1 text-[9px] text-red-400 hover:text-red-300 font-bold">Remove</button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Isi Prompt</label>
-                    <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Content</label>
+                    <textarea id="editIsi" rows="5" class="w-full p-2 rounded-lg border outline-none text-white resize-none text-xs" required></textarea>
                 </div>
 
-                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
-                    <i class="fa-solid fa-save mr-2"></i>Save Changes
+                <button type="submit" class="w-full btn-primary text-black font-bold py-2 rounded-lg uppercase text-xs sticky bottom-0">
+                    <i class="fa-solid fa-save mr-1"></i>Save
                 </button>
             </form>
         </div>
     </div>
 
     <div id="deleteModal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 400px;">
-            <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3 block text-center"></i>
-            <h3 class="text-lg font-bold text-white uppercase mb-2 text-center">Confirm Delete</h3>
-            <p id="deleteConfirmText" class="text-sm text-gray-300 text-center mb-4"></p>
-            <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Cancel</button>
-                <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Delete</button>
+        <div class="modal-content max-w-sm">
+            <div class="p-4 text-center">
+                <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
+                <h3 class="text-sm font-bold text-white uppercase mb-2">Confirm Delete</h3>
+                <p id="deleteConfirmText" class="text-xs text-gray-300 mb-4"></p>
+                <div class="flex gap-2">
+                    <button onclick="closeDeleteModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">Cancel</button>
+                    <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">Delete</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
-        
-        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
-                <i class="material-icons text-2xl">close</i>
-            </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-5 pb-7">
-
-            <nav>
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
-                <div class="space-y-1 pl-2">
-                    <a href="/" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Home</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
-                    <a href="/request" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Request Prompt</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
-                </div>
-            </nav>
-
-            <nav class="mt-8">
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
-                <div class="space-y-1 pl-2">
-                    <a href="/admin" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm bg-[#1f1f1f] text-white border border-[#2a2a2a] rounded-xl">
-                        <span>Admin</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
-                </div>
-            </nav>
-
-        </div>
-
-        <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
-            <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
-            <div class="space-y-1">
-                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center py-1 px-4 text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    <span class="material-icons text-sm mr-3">arrow_outward</span>
-                    <span>Support Us</span>
-                </a>
-            </div>
-        </div>
-
-    </aside>
-
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     
     <script>
-        const sidebarToggleRight = document.getElementById('sidebarToggleRight');
-        const sidebarCloseRight = document.getElementById('sidebarCloseRight');
-        const sidebarRight = document.getElementById('sidebar-right');
-        const overlay = document.getElementById('overlay');
-
-        function openSidebarRight() {
-            sidebarRight.classList.add('open');
-            overlay.classList.add('show');
-            overlay.classList.remove('opacity-0', 'invisible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebarRight() {
-            sidebarRight.classList.remove('open');
-            overlay.classList.remove('show');
-            overlay.classList.add('opacity-0', 'invisible');
-            document.body.style.overflow = '';
-        }
-
-        sidebarToggleRight.onclick = openSidebarRight;
-        sidebarCloseRight.onclick = closeSidebarRight;
-        overlay.onclick = closeSidebarRight;
-
         const notyf = new Notyf({
             duration: 3000,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
+            position: { x: 'right', y: 'top' },
             ripple: true,
             dismissible: true
         });
@@ -653,24 +344,6 @@
         let slugExists = false;
         let allPrompts = [];
         let promptToDelete = null;
-
-        function togglePasswordVisibilityAdmin() {
-            const passwordInput = document.getElementById('password');
-            const toggleBtn = document.getElementById('togglePasswordVisibility');
-            const icon = toggleBtn.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                toggleBtn.setAttribute('title', 'Hide Password');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-                toggleBtn.setAttribute('title', 'Show Password');
-            }
-        }
 
         document.getElementById('toggleLoginPassword').addEventListener('click', function(e) {
             e.preventDefault();
@@ -688,6 +361,21 @@
             }
         });
 
+        function togglePasswordVisibilityAdmin() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         function togglePasswordField() {
             passwordEnabled = !passwordEnabled;
             const passwordField = document.getElementById('passwordField');
@@ -696,13 +384,11 @@
             if (passwordEnabled) {
                 passwordField.classList.remove('hidden');
                 toggleBtn.classList.add('active');
-                toggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                toggleBtn.style.color = '#4ade80';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> On';
             } else {
                 passwordField.classList.add('hidden');
                 toggleBtn.classList.remove('active');
-                toggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                toggleBtn.style.color = '';
+                toggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Off';
                 document.getElementById('password').value = '';
             }
         }
@@ -740,7 +426,7 @@
             if (slug) {
                 preview.innerText = `/prompt/${slug}`;
                 preview.classList.remove('text-gray-500', 'text-red-400', 'text-green-400');
-                preview.classList.add('text-yellow-400', 'active');
+                preview.classList.add('text-yellow-400');
                 
                 clearTimeout(slugCheckTimeout);
                 
@@ -749,7 +435,7 @@
                 }, 500);
             } else {
                 preview.innerText = '/prompt/...';
-                preview.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400', 'active');
+                preview.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400');
                 preview.classList.add('text-gray-500');
                 slugExists = false;
             }
@@ -774,12 +460,12 @@
                     slugExists = true;
                     preview.classList.remove('text-yellow-400', 'text-green-400');
                     preview.classList.add('text-red-400');
-                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Sudah dipakai oleh "${result.existingData.judul}")</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug} <span class="text-[9px]">(Taken)</span>`;
                 } else {
                     slugExists = false;
                     preview.classList.remove('text-yellow-400', 'text-red-400');
                     preview.classList.add('text-green-400');
-                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Tersedia)</span>`;
+                    preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug} <span class="text-[9px]">(Available)</span>`;
                 }
             } catch (error) {
                 console.error('Error checking slug:', error);
@@ -811,7 +497,7 @@
             const userVal = document.getElementById('user').value;
             const btn = event.target;
             const originalText = btn.innerText;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Verifying...';
             btn.disabled = true;
             
             try {
@@ -827,10 +513,10 @@
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminName', userVal);
-                    notyf.success('Login berhasil!');
+                    notyf.success('Login success!');
                     showAdmin();
                 } else { 
-                    notyf.error('Kredensial salah!');
+                    notyf.error('Invalid credentials!');
                 }
             } catch (e) {
                 notyf.error('Server error!');
@@ -843,27 +529,7 @@
         function showAdmin() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
-        }
-
-        function switchAdminTab(tab) {
-            const tabNew = document.getElementById('tab-new');
-            const tabManage = document.getElementById('tab-manage');
-            const btnNew = document.getElementById('tabNewPrompt');
-            const btnManage = document.getElementById('tabManagePrompt');
-
-            if (tab === 'new') {
-                tabNew.classList.add('active');
-                tabManage.classList.remove('active');
-                btnNew.style.borderBottom = '3px solid #e5e5e5';
-                btnManage.style.borderBottom = '3px solid transparent';
-            } else {
-                tabNew.classList.remove('active');
-                tabManage.classList.add('active');
-                btnNew.style.borderBottom = '3px solid transparent';
-                btnManage.style.borderBottom = '3px solid #e5e5e5';
-                
-                loadManagePrompts();
-            }
+            loadManagePrompts();
         }
 
         async function loadManagePrompts() {
@@ -875,7 +541,7 @@
                 const result = await response.json();
 
                 if (!result.success) {
-                    notyf.error('Gagal load prompts');
+                    notyf.error('Failed to load');
                     return;
                 }
 
@@ -883,8 +549,14 @@
                 renderManagePrompts();
             } catch (error) {
                 console.error('Error loading prompts:', error);
-                notyf.error('Error loading prompts');
+                notyf.error('Error loading');
             }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
         }
 
         function renderManagePrompts() {
@@ -898,32 +570,35 @@
             const manageLoading = document.getElementById('manageLoading');
 
             if (filtered.length === 0) {
-                manageContent.innerHTML = '<p class="text-center text-gray-500 text-sm font-bold uppercase py-8">No prompts found</p>';
+                manageContent.innerHTML = '<p class="text-center text-gray-500 text-xs font-bold uppercase py-6">No prompts</p>';
                 manageContent.classList.remove('hidden');
                 manageLoading.classList.add('hidden');
                 return;
             }
 
             manageContent.innerHTML = filtered.map(prompt => `
-                <div class="prompt-item rounded-lg p-3">
+                <div class="prompt-card rounded-lg p-3">
                     <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="font-bold text-white text-sm">${prompt.judul}</h4>
-                            <p class="text-xs text-gray-400">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-bold text-white text-xs">${prompt.judul}</h4>
+                                ${prompt.isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-[9px]"></i>' : ''}
+                            </div>
+                            <p class="text-[10px] text-gray-400">${prompt.kategori}</p>
                         </div>
-                        <span class="text-[10px] text-gray-500">${prompt.createdAt}</span>
+                        <span class="text-[9px] text-gray-500">${prompt.createdAt}</span>
                     </div>
-                    <div class="flex gap-1.5 mb-2 text-xs">
-                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
+                    <div class="flex items-center gap-3 text-[10px] mb-2">
+                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${formatNumber(prompt.analytics.views)}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${formatNumber(prompt.analytics.copies)}</span>
+                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${formatNumber(prompt.analytics.downloads)}</span>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg">
-                            <i class="fa-solid fa-pencil mr-1"></i>Edit
+                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-1 text-[10px] font-bold uppercase">
+                            <i class="fa-solid fa-pencil"></i> Edit
                         </button>
-                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg">
-                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-1 text-[10px] font-bold uppercase">
+                            <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </div>
                 </div>
@@ -952,14 +627,12 @@
             if (editPasswordEnabled) {
                 editPasswordField.classList.remove('hidden');
                 editToggleBtn.classList.add('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                editToggleBtn.style.color = '#4ade80';
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> On';
                 document.getElementById('editPassword').value = prompt.password;
             } else {
                 editPasswordField.classList.add('hidden');
                 editToggleBtn.classList.remove('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                editToggleBtn.style.color = '';
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Off';
                 document.getElementById('editPassword').value = '';
             }
 
@@ -971,7 +644,6 @@
             }
 
             document.getElementById('editImageFile').value = '';
-
             document.getElementById('editModal').classList.add('show');
         }
 
@@ -987,20 +659,18 @@
             if (editPasswordEnabled) {
                 editPasswordField.classList.remove('hidden');
                 editToggleBtn.classList.add('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                editToggleBtn.style.color = '#4ade80';
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> On';
             } else {
                 editPasswordField.classList.add('hidden');
                 editToggleBtn.classList.remove('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                editToggleBtn.style.color = '';
+                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Off';
                 document.getElementById('editPassword').value = '';
             }
         }
 
         function toggleEditPasswordVisibility() {
             const passwordInput = document.getElementById('editPassword');
-            const icon = event.target.closest('button').querySelector('i');
+            const icon = document.getElementById('editPasswordIcon');
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -1037,7 +707,7 @@
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Saving...';
             btn.disabled = true;
 
             try {
@@ -1045,8 +715,6 @@
 
                 const editImageFile = document.getElementById('editImageFile').files[0];
                 if (editImageFile) {
-                    console.log('📤 Uploading image...');
-                    
                     const formData = new FormData();
                     formData.append('file', editImageFile);
 
@@ -1059,8 +727,7 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
+                        throw new Error('Upload failed: ' + textResponse.substring(0, 100));
                     }
 
                     const uploadData = await uploadRes.json();
@@ -1096,21 +763,20 @@
                 const editContentType = response.headers.get('content-type');
                 if (!editContentType || !editContentType.includes('application/json')) {
                     const textResponse = await response.text();
-                    console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                    throw new Error('Save gagal: ' + textResponse.substring(0, 100));
+                    throw new Error('Save failed: ' + textResponse.substring(0, 100));
                 }
 
                 const result = await response.json();
 
                 if (result.success) {
-                    notyf.success('Prompt updated!');
+                    notyf.success('Updated!');
                     closeEditModal();
                     loadManagePrompts();
                 } else {
-                    notyf.error(result.message || 'Failed to update');
+                    notyf.error(result.message || 'Failed');
                 }
             } catch (error) {
-                console.error('❌ Error:', error);
+                console.error('Error:', error);
                 notyf.error(error.message);
             } finally {
                 btn.innerHTML = originalText;
@@ -1124,9 +790,8 @@
 
             promptToDelete = slug;
             document.getElementById('deleteConfirmText').innerHTML = `
-                Are you sure want to delete:<br>
-                <strong>${prompt.judul}</strong><br>
-                <span class="text-xs text-gray-400">(${prompt.kategori})</span>
+                Delete <strong>${prompt.judul}</strong>?<br>
+                <span class="text-[10px] text-gray-400">(${prompt.kategori})</span>
             `;
             document.getElementById('deleteModal').classList.add('show');
         }
@@ -1142,7 +807,7 @@
             const btn = event.target;
             const originalText = btn.innerHTML;
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Deleting...';
             btn.disabled = true;
 
             try {
@@ -1158,15 +823,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    notyf.success('Prompt deleted!');
+                    notyf.success('Deleted!');
                     closeDeleteModal();
                     loadManagePrompts();
                 } else {
-                    notyf.error(result.message || 'Failed to delete');
+                    notyf.error(result.message || 'Failed');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                notyf.error('Error deleting prompt');
+                notyf.error('Error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1181,16 +846,16 @@
             const slug = generateSlug(judul);
             
             if (!slug || !judul || !document.getElementById('isi').value) {
-                notyf.error('Isi field wajib (judul, kategori, isi)!');
+                notyf.error('Fill required fields!');
                 return;
             }
             
             if (slugExists) {
-                notyf.error('Slug sudah dipakai! Ubah judul.');
+                notyf.error('Slug taken!');
                 return;
             }
             
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Processing...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Processing...';
             btn.disabled = true;
 
             try {
@@ -1198,8 +863,6 @@
 
                 const imageFile = document.getElementById('imageFile').files[0];
                 if (imageFile) {
-                    console.log('📤 Uploading image...', imageFile.name);
-                    
                     const formData = new FormData();
                     formData.append('file', imageFile);
 
@@ -1214,25 +877,22 @@
                     const contentType = uploadRes.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
+                        throw new Error('Upload failed: ' + textResponse.substring(0, 100));
                     }
 
                     const uploadData = await uploadRes.json();
-                    console.log('✅ Upload response:', uploadData);
                     
                     if (!uploadData.success) {
-                        throw new Error(uploadData.message || 'Gagal upload gambar');
+                        throw new Error(uploadData.message || 'Image upload failed');
                     }
 
                     imageUrl = uploadData.imageUrl;
-                    console.log('🖼️ Image URL:', imageUrl);
                 }
 
                 const password = passwordEnabled ? document.getElementById('password').value : '';
 
                 if (passwordEnabled && (!password || password.trim() === '')) {
-                    notyf.error('Password kosong!');
+                    notyf.error('Password empty!');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
@@ -1249,8 +909,6 @@
                     password: password
                 };
 
-                console.log('💾 Saving prompt...', body);
-
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
                     headers: { 
@@ -1261,15 +919,14 @@
                 });
                 
                 if (res.ok) { 
-                    notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : ''));
+                    notyf.success('Uploaded!' + (passwordEnabled ? ' 🔒' : ''));
                     setTimeout(() => location.reload(), 1500);
                 } else {
                     const errorText = await res.text();
-                    console.error('❌ Save error:', errorText);
-                    notyf.error('Gagal menyimpan: ' + errorText.substring(0, 100));
+                    notyf.error('Failed: ' + errorText.substring(0, 50));
                 }
             } catch (e) {
-                console.error('💥 Error:', e);
+                console.error('Error:', e);
                 notyf.error('Error: ' + e.message);
             } finally {
                 btn.innerHTML = originalText;
