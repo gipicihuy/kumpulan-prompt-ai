@@ -620,7 +620,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
-                        <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
+                        <span class="time-ago text-white text-[11px]" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">Loading...</span>
                     </div>
                 </div>
                 
@@ -699,6 +699,9 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    
+    <!-- ✅ Timeago.js - Hybrid display (dinamis untuk baru, static untuk lama) -->
+    <script src="/js/timeago.js"></script>
     
     <script>
         const promptData = ${JSON.stringify({
