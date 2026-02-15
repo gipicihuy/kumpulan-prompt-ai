@@ -620,7 +620,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
-                        <span class="time-ago text-white text-[11px] font-mono font-bold uppercase tracking-wide" data-timestamp="${promptData.timestamp || 0}">Loading...</span>
+                        <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
                     </div>
                 </div>
                 
@@ -699,9 +699,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
-    <!-- ✅ Timeago Script - LOAD DULU SEBELUM SCRIPT LAIN -->
-    <script src="/js/timeago.js"></script>
     
     <script>
         const promptData = ${JSON.stringify({
