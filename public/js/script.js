@@ -280,11 +280,12 @@ function renderPrompts(data) {
             </div>
         `;
         
+        // ✅ FIX: JANGAN panggil timeAgo() langsung - biarkan updateAllTimeAgo() yang handle!
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
                 <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
-                <span class="time-ago text-[10px] text-white font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}">${timeAgo(item.timestamp)}</span>
+                <span class="time-ago text-[10px] text-white font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}" data-created-at="${item.createdAt || '-'}">Loading...</span>
             </div>
             <div class="flex justify-between items-center mb-1">
                 <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors flex items-center">
@@ -297,6 +298,7 @@ function renderPrompts(data) {
         </a>
     `}).join('');
     
+    // ✅ PANGGIL updateAllTimeAgo() setelah render selesai!
     updateAllTimeAgo();
 }
 
