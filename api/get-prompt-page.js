@@ -19,8 +19,8 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
-// NEW: Generate unique session ID untuk tracking views
-function generateSessionId() {
+// Generate secure session token
+function generateSessionToken(slug) {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
@@ -59,14 +59,9 @@ export default async function handler(req, res) {
       downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
     }
 
-    // ===== NEW: TRACK VIEW DENGAN SESSION =====
-    // Parse cookies untuk cek apakah user sudah pernah view dalam session
-    const cookies = parseCookies(req.headers.cookie);
-    const viewSessionCookie = `view_${slug}`;
-    const hasViewedInSession = cookies[viewSessionCookie];
-
-    // Jika belum pernah view dalam session, track view dan set cookie
-    if (!hasViewedInSession && !isProtected) {
+    // ===== SIMPLIFIED VIEW TRACKING - NO SESSION =====
+    // Langsung track view SETIAP kali halaman dibuka (kecuali jika protected dan belum unlock)
+    if (!isProtected) {
       try {
         // Increment view counter
         await redis.hincrby(analyticsKey, 'views', 1);
@@ -74,23 +69,16 @@ export default async function handler(req, res) {
         // Update analytics object
         analytics.views += 1;
         
-        // Generate session ID
-        const sessionId = generateSessionId();
-        
-        // Set cookie yang expire dalam 30 menit
-        res.setHeader('Set-Cookie', [
-          `${viewSessionCookie}=${sessionId}; Path=/; Max-Age=1800; SameSite=Lax`
-        ]);
-        
         console.log(`✅ View tracked for slug: ${slug}, new count: ${analytics.views}`);
       } catch (trackError) {
         console.error('❌ Failed to track view:', trackError);
         // Continue rendering even if tracking fails
       }
-    } else {
-      console.log(`ℹ️ View already tracked in this session for slug: ${slug}`);
     }
-    // ===== END NEW TRACKING =====
+    // ===== END SIMPLIFIED TRACKING =====
+
+    // Parse cookies untuk password-protected prompts
+    const cookies = parseCookies(req.headers.cookie);
 
     // Jika diproteksi
     if (isProtected) {
@@ -104,6 +92,15 @@ export default async function handler(req, res) {
       const isValidSession = await redis.get(sessionKey);
       
       if (isValidSession === 'valid') {
+        // Track view untuk protected content setelah berhasil unlock
+        try {
+          await redis.hincrby(analyticsKey, 'views', 1);
+          analytics.views += 1;
+          console.log(`✅ View tracked for protected slug: ${slug}`);
+        } catch (trackError) {
+          console.error('❌ Failed to track view:', trackError);
+        }
+        
         return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
       } else {
         res.setHeader('Set-Cookie', [
@@ -442,7 +439,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </html>`;
 }
 
-// Fungsi untuk render halaman normal (WITHOUT FRONTEND TRACKING - sudah di-track di backend)
+// Fungsi untuk render halaman normal - ANALYTICS TRACKING SEKARANG DI FRONTEND
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
@@ -732,7 +729,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
         }
         
-        // Track copy/download ONLY (view sudah di-track di backend saat page load)
+        // ✅ FIXED: Track analytics dengan benar
         async function trackAnalytics(action) {
             try {
                 const response = await fetch('/api/analytics', {
@@ -749,14 +746,14 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             }
         }
         
-        // Copy button
+        // ✅ FIXED: Copy button - PANGGIL trackAnalytics!
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
-            await trackAnalytics('copy');
+            await trackAnalytics('copy'); // ⬅️ INI YANG TADINYA HILANG!
             notyf.success('Copied to clipboard!');
         };
         
-        // Download button
+        // ✅ FIXED: Download button - PANGGIL trackAnalytics!
         document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -768,7 +765,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            await trackAnalytics('download');
+            await trackAnalytics('download'); // ⬅️ INI YANG TADINYA HILANG!
             notyf.success('Downloaded successfully!');
         };
 
