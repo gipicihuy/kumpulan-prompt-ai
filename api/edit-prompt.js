@@ -38,12 +38,15 @@ export default async function handler(req, res) {
       minute: '2-digit'
     })
 
+    // ✅ FIX: Clean old createdAt dari "(edited)" jika ada - PREVENT DUPLICATE
+    const cleanCreatedAt = oldData.createdAt.replace(/ \(edited\)$/, '').trim()
+
     const promptData = {
       kategori: kategori || oldData.kategori,
       judul: judul,
       isi: isi,
       uploadedBy: oldData.uploadedBy || 'Admin',
-      createdAt: oldData.createdAt + ' (edited)', // Mark as edited
+      createdAt: cleanCreatedAt + ' (edited)', // Tambahkan "(edited)" HANYA SEKALI
       timestamp: parseInt(oldData.timestamp) || now.getTime(), // Keep original timestamp
       updatedAt: updatedAt + ' WIB' // Track last edit time
     }
