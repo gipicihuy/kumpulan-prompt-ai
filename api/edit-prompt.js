@@ -38,7 +38,26 @@ export default async function handler(req, res) {
       minute: '2-digit'
     })
 
-    // ✅ FIX: Clean old createdAt dari "(edited)" jika ada - PREVENT DUPLICATE
+    // ✅ Cek apakah ada perubahan pada data penting
+    const oldDescription = oldData.description || ''
+    const newDescription = description || ''
+    const oldImageUrl = oldData.imageUrl || ''
+    const newImageUrl = imageUrl || oldData.imageUrl || ''
+    const oldPassword = oldData.password || ''
+    const newPassword = password?.trim() || ''
+    const oldIsProtected = oldData.isProtected === 'true' || oldData.isProtected === true
+    const newIsProtected = password && password.trim() !== ''
+
+    const hasChanges = 
+      oldData.judul !== judul ||
+      oldData.kategori !== (kategori || oldData.kategori) ||
+      oldData.isi !== isi ||
+      oldDescription !== newDescription ||
+      oldImageUrl !== newImageUrl ||
+      oldPassword !== newPassword ||
+      oldIsProtected !== newIsProtected
+
+    // ✅ Clean old createdAt dari "(edited)" jika ada
     const cleanCreatedAt = oldData.createdAt.replace(/ \(edited\)$/, '').trim()
 
     const promptData = {
@@ -46,9 +65,10 @@ export default async function handler(req, res) {
       judul: judul,
       isi: isi,
       uploadedBy: oldData.uploadedBy || 'Admin',
-      createdAt: cleanCreatedAt + ' (edited)', // Tambahkan "(edited)" HANYA SEKALI
+      // ✅ HANYA tambahkan "(edited)" jika ADA PERUBAHAN
+      createdAt: hasChanges ? cleanCreatedAt + ' (edited)' : oldData.createdAt,
       timestamp: parseInt(oldData.timestamp) || now.getTime(), // Keep original timestamp
-      updatedAt: updatedAt + ' WIB' // Track last edit time
+      updatedAt: hasChanges ? updatedAt + ' WIB' : oldData.updatedAt // Only update if changed
     }
 
     // Optional fields
@@ -79,8 +99,9 @@ export default async function handler(req, res) {
 
     res.status(200).json({ 
       success: true,
-      message: 'Prompt berhasil diupdate!',
-      slug: slug
+      message: hasChanges ? 'Prompt berhasil diupdate!' : 'No changes detected',
+      slug: slug,
+      hasChanges: hasChanges
     })
   } catch (error) {
     console.error('❌ Error in edit-prompt:', error)
