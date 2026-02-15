@@ -15,7 +15,15 @@ export default async function handler(req, res) {
 
   // Verifikasi Turnstile token dengan Cloudflare
   try {
-    const TURNSTILE_SECRET_KEY = '0x4AAAAAACdLXaXw93jS4JeYU_G_tDIm1BA'
+    const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY
+    
+    if (!TURNSTILE_SECRET_KEY) {
+      console.error('❌ Missing TURNSTILE_SECRET_KEY in environment variables')
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Server configuration error' 
+      })
+    }
     
     const verifyResponse = await fetch(
       'https://challenges.cloudflare.com/turnstile/v0/siteverify',
