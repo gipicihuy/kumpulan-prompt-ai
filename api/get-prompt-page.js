@@ -759,7 +759,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = \`\${promptData.judul.replace(/[^a-zA-Z0-9]/g, '_')}.txt\`;
+            a.download = promptData.judul.replace(/[^a-zA-Z0-9]/g, '_') + '.txt';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
