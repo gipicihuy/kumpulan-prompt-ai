@@ -38,25 +38,28 @@ export default async function handler(req, res) {
       minute: '2-digit'
     })
 
-    // ✅ Cek apakah ada perubahan pada data penting
-    const oldDescription = oldData.description || ''
-    const newDescription = description || ''
-    const oldImageUrl = oldData.imageUrl || ''
-    // ✅ FIX: Jika imageUrl kosong dari frontend, artinya keep old image
-    const newImageUrl = (imageUrl && imageUrl.trim() !== '') ? imageUrl : (oldData.imageUrl || '')
-    const oldPassword = oldData.password || ''
-    const newPassword = password?.trim() || ''
+    // ✅ Normalisasi data untuk perbandingan yang akurat
+    const oldDescription = (oldData.description || '').trim()
+    const newDescription = (description || '').trim()
+    
+    const oldImageUrl = (oldData.imageUrl || '').trim()
+    // Jika imageUrl dari frontend kosong, gunakan old image
+    const newImageUrl = (imageUrl && imageUrl.trim() !== '') ? imageUrl.trim() : oldImageUrl
+    
+    const oldPassword = (oldData.password || '').trim()
+    const newPassword = (password || '').trim()
+    
     const oldIsProtected = oldData.isProtected === 'true' || oldData.isProtected === true
-    const newIsProtected = password && password.trim() !== ''
+    const newIsProtected = newPassword !== ''
 
     // Debug log
     console.log('🔍 Checking changes:')
     console.log('Judul:', oldData.judul, '→', judul, '=', oldData.judul === judul)
     console.log('Kategori:', oldData.kategori, '→', kategori, '=', oldData.kategori === kategori)
-    console.log('Isi length:', oldData.isi?.length, '→', isi?.length, '=', oldData.isi === isi)
-    console.log('Description:', oldDescription, '→', newDescription, '=', oldDescription === newDescription)
-    console.log('ImageUrl:', oldImageUrl, '→', newImageUrl, '=', oldImageUrl === newImageUrl)
-    console.log('Password:', oldPassword, '→', newPassword, '=', oldPassword === newPassword)
+    console.log('Isi:', oldData.isi === isi ? 'SAME' : 'CHANGED')
+    console.log('Description:', `"${oldDescription}"`, '→', `"${newDescription}"`, '=', oldDescription === newDescription)
+    console.log('ImageUrl:', `"${oldImageUrl}"`, '→', `"${newImageUrl}"`, '=', oldImageUrl === newImageUrl)
+    console.log('Password:', `"${oldPassword}"`, '→', `"${newPassword}"`, '=', oldPassword === newPassword)
     console.log('IsProtected:', oldIsProtected, '→', newIsProtected, '=', oldIsProtected === newIsProtected)
 
     const hasChanges = 
@@ -85,25 +88,15 @@ export default async function handler(req, res) {
     }
 
     // Optional fields - Always set to maintain consistency
-    promptData.description = description && description.trim() !== '' ? description : ''
-    
-    if (imageUrl && imageUrl.trim() !== '') {
-      promptData.imageUrl = imageUrl
-    } else if (oldData.imageUrl) {
-      promptData.imageUrl = oldData.imageUrl // Keep old image if no new one
-    } else {
-      promptData.imageUrl = ''
-    }
+    promptData.description = newDescription
+    promptData.imageUrl = newImageUrl
 
     // Password handling
-    if (password && password.trim() !== '') {
-      promptData.password = password.trim()
+    if (newPassword !== '') {
+      promptData.password = newPassword
       promptData.isProtected = true
-    } else if (oldData.isProtected === 'true' || oldData.isProtected === true) {
-      // Jika dulu protected tapi sekarang password di-kosongkan
-      promptData.password = ''
-      promptData.isProtected = false
     } else {
+      promptData.password = ''
       promptData.isProtected = false
     }
 
