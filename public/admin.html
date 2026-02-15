@@ -79,6 +79,12 @@
                 width: 40px;
                 height: 40px;
             }
+            /* Hide logout text on mobile, show icon only */
+            .logout-section {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.25rem;
+            }
         }
 
         @media (min-width: 768px) {
@@ -366,7 +372,13 @@
                         <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
                         <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
                     </div>
-                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+                    <div class="logout-section flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400 uppercase tracking-wide">Logged in as</p>
+                            <p id="loggedInUser" class="text-sm font-bold text-white"></p>
+                        </div>
+                        <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+                    </div>
                 </div>
             </div>
 
@@ -855,6 +867,10 @@
         function showAdmin() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
+            
+            // Display logged in username
+            const adminName = localStorage.getItem('adminName') || 'Admin';
+            document.getElementById('loggedInUser').textContent = '@' + adminName;
         }
 
         function switchAdminTab(tab) {
@@ -916,16 +932,23 @@
                 return;
             }
 
-            manageContent.innerHTML = filtered.map(prompt => `
+            manageContent.innerHTML = filtered.map(prompt => {
+                const isEdited = prompt.createdAt.includes('(edited)');
+                const editedBadge = isEdited 
+                    ? '<span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-[9px] font-bold rounded uppercase border border-blue-500/30">Edited</span>' 
+                    : '';
+                
+                return `
                 <div class="prompt-item rounded-lg p-2.5 flex items-center justify-between gap-3">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <h4 class="font-bold text-white text-sm truncate">${prompt.judul}</h4>
+                            ${editedBadge}
                             ${prompt.isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs flex-shrink-0" title="Protected"></i>' : ''}
                         </div>
                         <div class="flex items-center gap-3 text-xs">
                             <span class="text-gray-400 truncate">${prompt.kategori}</span>
-                            <span class="text-gray-500 text-[10px] flex-shrink-0">${prompt.createdAt}</span>
+                            <span class="text-gray-500 text-[10px] flex-shrink-0">${prompt.createdAt.replace(' (edited)', '')}</span>
                         </div>
                         <div class="flex items-center gap-3 mt-1 text-xs">
                             <span class="text-gray-400 flex items-center gap-1">
@@ -948,7 +971,7 @@
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             manageContent.classList.remove('hidden');
             manageLoading.classList.add('hidden');
