@@ -1173,6 +1173,7 @@
             }
         }
 
+        // ✅ FIX: FUNCTION SAVE() DENGAN CLIENT TIMESTAMP!
         async function save() {
             const btn = event.target;
             const originalText = btn.innerHTML;
@@ -1238,6 +1239,10 @@
                     return;
                 }
 
+                // ✅ FIX: BIKIN TIMESTAMP DI CLIENT (BROWSER), BUKAN DI SERVER!
+                const clientTimestamp = Date.now(); // Ambil waktu dari browser user
+                console.log('🕐 Client timestamp:', clientTimestamp, new Date(clientTimestamp).toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'}));
+
                 const body = {
                     slug: slug,
                     judul: judul,
@@ -1246,7 +1251,8 @@
                     isi: document.getElementById('isi').value,
                     adminName: localStorage.getItem('adminName'),
                     imageUrl: imageUrl,
-                    password: password
+                    password: password,
+                    clientTimestamp: clientTimestamp // ⬅️ KIRIM TIMESTAMP DARI CLIENT!
                 };
 
                 console.log('💾 Saving prompt...', body);
