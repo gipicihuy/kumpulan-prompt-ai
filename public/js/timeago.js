@@ -66,23 +66,29 @@ function timeAgo(timestamp, createdAt) {
         return 'Kemarin';
     }
     
-    // ✅ Tampilkan tanggal DARI DATABASE (> 1 hari yang lalu)
-    // Kalau ada createdAt dari database, pakai itu (format lengkap dengan jam)
+    // ✅ Tampilkan tanggal TANPA JAM (> 1 hari yang lalu) untuk tampilan yang lebih ringkas
+    // Kalau ada createdAt dari database, parse dan extract hanya tanggal (tanpa jam)
     if (createdAt && createdAt !== '-') {
-        return createdAt;
+        // Extract tanggal saja (hilangkan jam)
+        // Format dari database: "12 Feb 2026, 15:13 WIB" atau "12 Feb 2026, 15:13 WIB (edited)"
+        // Ambil bagian sebelum koma (tanggal saja)
+        const datePart = createdAt.split(',')[0].trim();
+        
+        // Cek apakah ada suffix "(edited)"
+        const editedMatch = createdAt.match(/\(edited\)$/);
+        
+        return editedMatch ? `${datePart} (edited)` : datePart;
     }
     
-    // Fallback: format sendiri kalau ga ada createdAt
+    // Fallback: format sendiri kalau ga ada createdAt (tanpa jam)
     const options = { 
         day: '2-digit', 
         month: 'short', 
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
         timeZone: 'Asia/Jakarta'
     };
     
-    return postDate.toLocaleString('id-ID', options) + ' WIB';
+    return postDate.toLocaleString('id-ID', options);
 }
 
 /**
