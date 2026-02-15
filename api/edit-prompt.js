@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    // Update data - KEEP original timestamp, update createdAt untuk "edited" info
+    // Update data - KEEP original timestamp
     const now = new Date()
     const updatedAt = now.toLocaleString('id-ID', { 
       timeZone: 'Asia/Jakarta',
@@ -38,12 +38,20 @@ export default async function handler(req, res) {
       minute: '2-digit'
     })
 
-    // ✅ Normalisasi data untuk perbandingan yang akurat
+    // ✅ FIX: Normalisasi semua data dengan konsisten
+    const oldJudul = (oldData.judul || '').trim()
+    const newJudul = (judul || '').trim()
+    
+    const oldKategori = (oldData.kategori || '').trim()
+    const newKategori = (kategori || '').trim()
+    
+    const oldIsi = (oldData.isi || '').trim()
+    const newIsi = (isi || '').trim()
+    
     const oldDescription = (oldData.description || '').trim()
     const newDescription = (description || '').trim()
     
     const oldImageUrl = (oldData.imageUrl || '').trim()
-    // Jika imageUrl dari frontend kosong, gunakan old image
     const newImageUrl = (imageUrl && imageUrl.trim() !== '') ? imageUrl.trim() : oldImageUrl
     
     const oldPassword = (oldData.password || '').trim()
@@ -52,42 +60,42 @@ export default async function handler(req, res) {
     const oldIsProtected = oldData.isProtected === 'true' || oldData.isProtected === true
     const newIsProtected = newPassword !== ''
 
-    // Debug log
-    console.log('🔍 Checking changes:')
-    console.log('Judul:', oldData.judul, '→', judul, '=', oldData.judul === judul)
-    console.log('Kategori:', oldData.kategori, '→', kategori, '=', oldData.kategori === kategori)
-    console.log('Isi:', oldData.isi === isi ? 'SAME' : 'CHANGED')
-    console.log('Description:', `"${oldDescription}"`, '→', `"${newDescription}"`, '=', oldDescription === newDescription)
-    console.log('ImageUrl:', `"${oldImageUrl}"`, '→', `"${newImageUrl}"`, '=', oldImageUrl === newImageUrl)
-    console.log('Password:', `"${oldPassword}"`, '→', `"${newPassword}"`, '=', oldPassword === newPassword)
-    console.log('IsProtected:', oldIsProtected, '→', newIsProtected, '=', oldIsProtected === newIsProtected)
-
+    // ✅ FIX: Pengecekan perubahan yang AKURAT
     const hasChanges = 
-      oldData.judul !== judul ||
-      oldData.kategori !== kategori ||
-      oldData.isi !== isi ||
+      oldJudul !== newJudul ||
+      oldKategori !== newKategori ||
+      oldIsi !== newIsi ||
       oldDescription !== newDescription ||
       oldImageUrl !== newImageUrl ||
       oldPassword !== newPassword ||
       oldIsProtected !== newIsProtected
 
-    console.log('✅ Has changes:', hasChanges)
+    console.log('🔍 Edit Check:', {
+      hasChanges,
+      judul: oldJudul === newJudul ? 'SAME' : 'CHANGED',
+      kategori: oldKategori === newKategori ? 'SAME' : 'CHANGED',
+      isi: oldIsi === newIsi ? 'SAME' : 'CHANGED',
+      description: oldDescription === newDescription ? 'SAME' : 'CHANGED',
+      imageUrl: oldImageUrl === newImageUrl ? 'SAME' : 'CHANGED',
+      password: oldPassword === newPassword ? 'SAME' : 'CHANGED',
+      isProtected: oldIsProtected === newIsProtected ? 'SAME' : 'CHANGED'
+    })
 
     // ✅ Clean old createdAt dari "(edited)" jika ada
-    const cleanCreatedAt = oldData.createdAt.replace(/ \(edited\)$/, '').trim()
+    const baseCreatedAt = oldData.createdAt.replace(/ \(edited\)$/i, '').trim()
 
     const promptData = {
-      kategori: kategori || oldData.kategori,
-      judul: judul,
-      isi: isi,
+      kategori: newKategori,
+      judul: newJudul,
+      isi: newIsi,
       uploadedBy: oldData.uploadedBy || 'Admin',
       // ✅ HANYA tambahkan "(edited)" jika ADA PERUBAHAN
-      createdAt: hasChanges ? cleanCreatedAt + ' (edited)' : oldData.createdAt,
-      timestamp: parseInt(oldData.timestamp) || now.getTime(), // Keep original timestamp
-      updatedAt: hasChanges ? updatedAt + ' WIB' : oldData.updatedAt // Only update if changed
+      createdAt: hasChanges ? baseCreatedAt + ' (edited)' : oldData.createdAt,
+      timestamp: parseInt(oldData.timestamp) || now.getTime(),
+      updatedAt: hasChanges ? updatedAt + ' WIB' : (oldData.updatedAt || '')
     }
 
-    // Optional fields - Always set to maintain consistency
+    // Optional fields dengan normalisasi
     promptData.description = newDescription
     promptData.imageUrl = newImageUrl
 
@@ -103,14 +111,16 @@ export default async function handler(req, res) {
     // Save to Redis
     await redis.hset(`prompt:${slug}`, promptData)
 
+    const message = hasChanges ? 'Prompt berhasil diupdate!' : 'No changes detected'
+    
     res.status(200).json({ 
       success: true,
-      message: hasChanges ? 'Prompt berhasil diupdate!' : 'No changes detected',
+      message: message,
       slug: slug,
       hasChanges: hasChanges
     })
   } catch (error) {
     console.error('❌ Error in edit-prompt:', error)
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server: ' + error.message })
   }
 }
