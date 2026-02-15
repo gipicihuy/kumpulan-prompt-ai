@@ -14,7 +14,12 @@ export default async function handler(req, res) {
   }
 
   const { slug, kategori, judul, description, isi, adminName, imageUrl, password } = req.body
-  const now = new Date()
+  
+  // ✅ FIX: Gunakan Date.now() langsung untuk timestamp yang AKURAT
+  const timestamp = Date.now() // UTC timestamp standar dalam milliseconds
+  
+  // Buat createdAt string untuk display (WIB)
+  const now = new Date(timestamp)
   const createdAt = now.toLocaleString('id-ID', { 
     timeZone: 'Asia/Jakarta',
     day: '2-digit',
@@ -23,7 +28,6 @@ export default async function handler(req, res) {
     hour: '2-digit',
     minute: '2-digit'
   })
-  const timestamp = now.getTime() // UTC timestamp standar (JANGAN ditambah offset!)
 
   // Data yang akan disimpan
   const promptData = { 
@@ -32,7 +36,7 @@ export default async function handler(req, res) {
     isi, 
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB',
-    timestamp: timestamp // Timestamp UTC untuk sorting
+    timestamp: timestamp // ✅ Timestamp UTC untuk sorting dan timeAgo calculation
   }
 
   // Tambahkan description jika ada
@@ -52,6 +56,8 @@ export default async function handler(req, res) {
   } else {
     promptData.isProtected = false
   }
+
+  console.log(`✅ Creating prompt with timestamp: ${timestamp} (${createdAt} WIB)`);
 
   await redis.hset(`prompt:${slug}`, promptData)
 
