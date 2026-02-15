@@ -6,13 +6,17 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
-  const { slug } = req.query || req.body;
+  // ✅ FIX: Ambil slug dari query (GET) atau body (POST) dengan benar
+  const slug = req.method === 'GET' ? req.query.slug : req.body?.slug;
 
   if (!slug) {
+    console.error('❌ Slug tidak ditemukan!', { method: req.method, query: req.query, body: req.body });
     return res.status(400).json({ success: false, message: 'Slug diperlukan' })
   }
 
   const analyticsKey = `analytics:${slug}`
+  
+  console.log(`📊 Analytics request: ${req.method} ${slug}`);
 
   try {
     // GET request - fetch analytics
@@ -34,12 +38,14 @@ export default async function handler(req, res) {
       const { action } = req.body
 
       if (!action) {
+        console.error('❌ Action tidak ditemukan!', req.body);
         return res.status(400).json({ success: false, message: 'Action diperlukan' })
       }
 
       // Validasi action
       const validActions = ['view', 'copy', 'download']
       if (!validActions.includes(action)) {
+        console.error('❌ Action tidak valid:', action);
         return res.status(400).json({ success: false, message: 'Action tidak valid' })
       }
 
@@ -57,11 +63,19 @@ export default async function handler(req, res) {
           break
       }
 
+      console.log(`✅ Tracking ${action} for ${slug}`);
+
       // Increment field di Redis hash
       await redis.hincrby(analyticsKey, fieldToIncrement, 1)
 
       // Get updated analytics
       const analytics = await redis.hgetall(analyticsKey)
+
+      console.log(`📈 Updated analytics for ${slug}:`, {
+        views: parseInt(analytics?.views) || 0,
+        copies: parseInt(analytics?.copies) || 0,
+        downloads: parseInt(analytics?.downloads) || 0
+      });
 
       return res.status(200).json({ 
         success: true,
@@ -75,7 +89,7 @@ export default async function handler(req, res) {
 
     return res.status(405).json({ success: false, message: 'Method not allowed' })
   } catch (error) {
-    console.error('Error in analytics:', error)
-    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
+    console.error('❌ Error in analytics:', error)
+    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server', error: error.message })
   }
 }
