@@ -13,11 +13,60 @@ let allPrompts = [];
 let selectedCategory = 'all';
 let currentSort = 'newest';
 
-// ✅ Helper function untuk Title Case
+// ✅ Helper function untuk Title Case dengan special cases
 function toTitleCase(str) {
-    return str.split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+    // Special cases - brand names & acronyms yang harus exact styling
+    const specialCases = {
+        'chatgpt': 'ChatGPT',
+        'openai': 'OpenAI',
+        'ai': 'AI',
+        'api': 'API',
+        'ui': 'UI',
+        'ux': 'UX',
+        'seo': 'SEO',
+        'html': 'HTML',
+        'css': 'CSS',
+        'javascript': 'JavaScript',
+        'nodejs': 'Node.js',
+        'reactjs': 'React.js',
+        'vuejs': 'Vue.js',
+        'ios': 'iOS',
+        'macos': 'macOS',
+        'iphone': 'iPhone',
+        'ipad': 'iPad',
+        'youtube': 'YouTube',
+        'tiktok': 'TikTok',
+        'linkedin': 'LinkedIn',
+        'github': 'GitHub',
+        'wordpress': 'WordPress',
+        'midjourney': 'Midjourney',
+        'dalle': 'DALL-E',
+        'gpt': 'GPT',
+        'llm': 'LLM',
+        'nft': 'NFT',
+        'pdf': 'PDF',
+        'json': 'JSON',
+        'xml': 'XML',
+        'sql': 'SQL',
+        'php': 'PHP',
+        'csharp': 'C#',
+        'cplusplus': 'C++',
+        'vscode': 'VSCode',
+        'figma': 'Figma',
+        'photoshop': 'Photoshop',
+        'excel': 'Excel',
+        'powerpoint': 'PowerPoint'
+    };
+    
+    return str.split(' ').map(word => {
+        const lowerWord = word.toLowerCase();
+        // Cek apakah word ada di special cases
+        if (specialCases[lowerWord]) {
+            return specialCases[lowerWord];
+        }
+        // Default: capitalize first letter
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
 }
 
 async function fetchPrompts() {
