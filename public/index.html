@@ -76,12 +76,39 @@
             transform: translateY(-1px);
         }
         
-        /* Category filter buttons - UPDATED FOR GRID */
+        /* Category Dropdown Toggle */
+        .category-toggle-btn {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .category-toggle-btn:hover {
+            background: #1f1f1f;
+            border-color: #444;
+        }
+        .category-toggle-btn.open {
+            border-color: #444;
+            background: #1f1f1f;
+        }
+        
+        /* Category Pills Container - HORIZONTAL SCROLL */
+        .category-pills-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .category-pills-container.show {
+            max-height: 200px; /* Adjust as needed */
+        }
+        
+        /* Category filter buttons */
         .category-btn {
             background: #1a1a1a;
             border: 1px solid #2a2a2a;
             transition: all 0.3s ease;
             color: #888;
+            flex-shrink: 0;
         }
         .category-btn:hover {
             background: #1f1f1f;
@@ -171,6 +198,15 @@
             color: #000;
         }
         
+        /* Hide scrollbar tapi tetap bisa scroll */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
         /* Footer styling */
         footer {
             background: rgba(26, 26, 26, 0.95);
@@ -230,11 +266,6 @@
                 width: 40px;
                 height: 40px;
             }
-            
-            /* Mobile: 2 columns instead of 4 */
-            #categoryFilter {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
         }
 
         @media (min-width: 768px) {
@@ -258,6 +289,7 @@
                     <i class="material-icons text-2xl">notes</i>
                 </button>
             </div>
+            
             <div class="relative mb-3 flex gap-2">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
@@ -297,8 +329,20 @@
                 </div>
             </div>
             
-            <!-- Category Filter Grid: 4 columns vertical (2 on mobile) -->
-            <div id="categoryFilter" class="grid grid-cols-4 gap-2"></div>
+            <!-- Category Toggle Button -->
+            <button id="categoryToggleBtn" class="category-toggle-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-filter text-[10px]"></i>
+                    <span>Filter Kategori</span>
+                    <span id="selectedCategoryLabel" class="text-yellow-500">ALL</span>
+                </div>
+                <i id="categoryToggleIcon" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+            </button>
+            
+            <!-- Category Pills - Collapsible Horizontal Scroll -->
+            <div id="categoryPillsContainer" class="category-pills-container">
+                <div id="categoryFilter" class="flex gap-2 overflow-x-auto py-2 scrollbar-hide"></div>
+            </div>
         </div>
     </header>
 
@@ -433,6 +477,17 @@
         sidebarToggleRight.onclick = openSidebarRight;
         sidebarCloseRight.onclick = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
+        
+        // Category Toggle
+        const categoryToggleBtn = document.getElementById('categoryToggleBtn');
+        const categoryPillsContainer = document.getElementById('categoryPillsContainer');
+        const categoryToggleIcon = document.getElementById('categoryToggleIcon');
+        
+        categoryToggleBtn.addEventListener('click', () => {
+            categoryPillsContainer.classList.toggle('show');
+            categoryToggleIcon.classList.toggle('rotate-180');
+            categoryToggleBtn.classList.toggle('open');
+        });
     </script>
 </body>
 </html>
