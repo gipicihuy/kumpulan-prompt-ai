@@ -27,11 +27,15 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
+    // ✅ FIX: NORMALIZE KATEGORI - FORCE LOWERCASE!
+    const normalizedKategori = (kategori || oldData.kategori || 'Lainnya').trim().toLowerCase();
+    console.log('🏷️ Edit kategori:', kategori, '→ Normalized:', normalizedKategori);
+
     // CEK APAKAH ADA PERUBAHAN
     const hasChanges = (
       judul !== oldData.judul ||
       isi !== oldData.isi ||
-      (kategori || oldData.kategori) !== oldData.kategori ||
+      normalizedKategori !== (oldData.kategori || '').toLowerCase() || // ⬅️ COMPARE LOWERCASE
       (description || '') !== (oldData.description || '') ||
       (imageUrl || '') !== (oldData.imageUrl || '') ||
       (password || '') !== (oldData.password || '')
@@ -54,7 +58,7 @@ export default async function handler(req, res) {
     originalCreatedAt = originalCreatedAt.replace(/\s*\(edited\)$/g, '').trim()
 
     const promptData = {
-      kategori: kategori || oldData.kategori,
+      kategori: normalizedKategori, // ⬅️ SIMPAN DALAM LOWERCASE!
       judul: judul,
       isi: isi,
       uploadedBy: oldData.uploadedBy || 'Admin',
