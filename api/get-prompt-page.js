@@ -616,7 +616,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                                    </div>`
                             }
                         </div>
-                        <span class="font-semibold text-white">Prompt by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
+                        <span class="font-semibold text-white">Uploaded by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
