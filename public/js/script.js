@@ -1,4 +1,4 @@
-// Initialize Notyf dengan konfigurasi minimal - gunakan default Notyf styling
+// Initialize Notyf
 const notyf = new Notyf({
     duration: 2500,
     position: {
@@ -71,15 +71,16 @@ async function fetchPrompts() {
 }
 
 function renderCategories() {
-    const filterContainer = document.getElementById('categoryFilter');
+    const categoryMenu = document.getElementById('categoryMenu');
     
     if (allPrompts.length === 0) {
-        filterContainer.innerHTML = `
-            <button class="category-btn active whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase">
-                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL (0)
-            </button>
+        categoryMenu.innerHTML = `
+            <div class="dropdown-option active">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                <span class="text-sm font-semibold">ALL (0)</span>
+            </div>
         `;
-        updateSelectedLabel('ALL');
+        updateCategoryLabel('ALL', 0);
         return;
     }
     
@@ -99,44 +100,59 @@ function renderCategories() {
     const categories = ['all', ...Object.keys(categoriesMap)];
     const totalCount = allPrompts.length;
     
-    filterContainer.innerHTML = categories.map(cat => {
+    categoryMenu.innerHTML = categories.map(cat => {
         const displayText = cat === 'all' ? 'ALL' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
+        
         return `
-        <button onclick="setCategory('${cat}')" 
-            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start"
-            style="${isActive ? 'color: #000 !important;' : ''}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText} (${count})
-        </button>
+        <div class="dropdown-option ${isActive ? 'active' : ''}" data-category="${cat}">
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} text-sm"></i>
+            <span class="text-sm font-semibold">${displayText}</span>
+            <span class="text-xs opacity-70 ml-auto">(${count})</span>
+        </div>
     `}).join('');
     
-    // Update label di toggle button
+    // Add click handlers
+    categoryMenu.querySelectorAll('.dropdown-option').forEach(option => {
+        option.addEventListener('click', () => {
+            const cat = option.dataset.category;
+            setCategory(cat);
+        });
+    });
+    
+    // Update label
     const activeCategory = categories.find(c => c === selectedCategory);
     const displayName = activeCategory === 'all' ? 'ALL' : categoriesMap[selectedCategory];
-    updateSelectedLabel(displayName || 'ALL');
+    const count = activeCategory === 'all' ? totalCount : categoryCounts[selectedCategory];
+    updateCategoryLabel(displayName || 'ALL', count);
 }
 
-function updateSelectedLabel(categoryName) {
-    const label = document.getElementById('selectedCategoryLabel');
+function updateCategoryLabel(categoryName, count) {
+    const label = document.getElementById('categoryLabel');
     if (label) {
-        label.textContent = categoryName;
+        label.innerHTML = `${categoryName} <span class="text-[10px] opacity-70">(${count})</span>`;
     }
 }
 
 function setCategory(cat) {
     selectedCategory = cat;
+    
+    // Update active state
+    const categoryMenu = document.getElementById('categoryMenu');
+    categoryMenu.querySelectorAll('.dropdown-option').forEach(option => {
+        if (option.dataset.category === cat) {
+            option.classList.add('active');
+        } else {
+            option.classList.remove('active');
+        }
+    });
+    
     renderCategories();
     applyFilters();
     
-    // Auto-close category pills setelah select (opsional - bisa dihapus jika mau tetap terbuka)
-    const container = document.getElementById('categoryPillsContainer');
-    const icon = document.getElementById('categoryToggleIcon');
-    const btn = document.getElementById('categoryToggleBtn');
-    
-    container.classList.remove('show');
-    icon.classList.remove('rotate-180');
-    btn.classList.remove('open');
+    // Close dropdown
+    closeCategoryDropdown();
 }
 
 function applyFilters() {
@@ -283,22 +299,71 @@ function renderPrompts(data) {
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
+// Category Dropdown
+const categoryBtn = document.getElementById('categoryBtn');
+const categoryMenu = document.getElementById('categoryMenu');
+const categoryChevron = document.getElementById('categoryChevron');
+
+categoryBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = categoryMenu.classList.contains('show');
+    
+    // Close all dropdowns first
+    closeAllDropdowns();
+    
+    if (!isOpen) {
+        categoryMenu.classList.add('show');
+        categoryBtn.classList.add('open');
+        categoryChevron.style.transform = 'rotate(180deg)';
+    }
+});
+
+function closeCategoryDropdown() {
+    categoryMenu.classList.remove('show');
+    categoryBtn.classList.remove('open');
+    categoryChevron.style.transform = 'rotate(0deg)';
+}
+
+// Sort Dropdown
 const sortBtn = document.getElementById('sortBtn');
 const sortMenu = document.getElementById('sortMenu');
-const sortOptions = document.querySelectorAll('.sort-option');
+const sortOptions = document.querySelectorAll('#sortMenu .dropdown-option');
 const sortLabel = document.getElementById('sortLabel');
 const sortIcon = document.getElementById('sortIcon');
+const sortChevron = document.getElementById('sortChevron');
 
 sortBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    sortMenu.classList.toggle('show');
-    sortBtn.classList.toggle('open');
+    const isOpen = sortMenu.classList.contains('show');
+    
+    // Close all dropdowns first
+    closeAllDropdowns();
+    
+    if (!isOpen) {
+        sortMenu.classList.add('show');
+        sortBtn.classList.add('open');
+        sortChevron.style.transform = 'rotate(180deg)';
+    }
 });
 
+function closeSortDropdown() {
+    sortMenu.classList.remove('show');
+    sortBtn.classList.remove('open');
+    sortChevron.style.transform = 'rotate(0deg)';
+}
+
+function closeAllDropdowns() {
+    closeCategoryDropdown();
+    closeSortDropdown();
+}
+
+// Close dropdowns when clicking outside
 document.addEventListener('click', (e) => {
+    if (!categoryBtn.contains(e.target) && !categoryMenu.contains(e.target)) {
+        closeCategoryDropdown();
+    }
     if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) {
-        sortMenu.classList.remove('show');
-        sortBtn.classList.remove('open');
+        closeSortDropdown();
     }
 });
 
@@ -318,8 +383,7 @@ sortOptions.forEach(option => {
         currentSort = sortType;
         applyFilters();
         
-        sortMenu.classList.remove('show');
-        sortBtn.classList.remove('open');
+        closeSortDropdown();
     });
 });
 
