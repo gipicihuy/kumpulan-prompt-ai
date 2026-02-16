@@ -75,8 +75,8 @@ function renderCategories() {
     
     if (allPrompts.length === 0) {
         filterContainer.innerHTML = `
-            <button class="category-btn active whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start">
-                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL (0)
+            <button class="category-btn active px-3 py-2 rounded-lg text-[10px] font-bold uppercase">
+                <i class="fa-solid fa-layer-group mr-1 text-[9px]"></i>ALL (0)
             </button>
         `;
         return;
@@ -100,68 +100,22 @@ function renderCategories() {
     const categories = ['all', ...Object.keys(categoriesMap)];
     const totalCount = allPrompts.length;
     
+    // ✅ GRID LAYOUT - Bukan lagi horizontal scroll
     filterContainer.innerHTML = categories.map(cat => {
         const displayText = cat === 'all' ? 'ALL' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
+        
         return `
         <button onclick="setCategory('${cat}')" 
-            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start"
-            style="${isActive ? 'color: #000 !important;' : ''}">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText} (${count})
+            class="category-btn ${isActive ? 'active' : ''} px-3 py-2 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap"
+            style="${isActive ? 'color: #000 !important;' : ''}"
+            title="${displayText} (${count} prompts)">
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[9px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>
+            <span class="block truncate">${displayText}</span>
+            <span class="text-[9px] opacity-70">(${count})</span>
         </button>
     `}).join('');
-    
-    setupScrollIndicators();
-    
-    setTimeout(() => {
-        const activeBtn = filterContainer.querySelector('.category-btn.active');
-        if (activeBtn) {
-            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-    }, 100);
-}
-
-function setupScrollIndicators() {
-    const filterContainer = document.getElementById('categoryFilter');
-    const leftIndicator = document.getElementById('scrollLeftIndicator');
-    const rightIndicator = document.getElementById('scrollRightIndicator');
-    const leftBtn = document.getElementById('scrollLeftBtn');
-    const rightBtn = document.getElementById('scrollRightBtn');
-    
-    function updateIndicators() {
-        const scrollLeft = filterContainer.scrollLeft;
-        const scrollWidth = filterContainer.scrollWidth;
-        const clientWidth = filterContainer.clientWidth;
-        
-        if (scrollLeft > 10) {
-            leftIndicator.classList.remove('hidden');
-            leftBtn.classList.remove('hidden');
-        } else {
-            leftIndicator.classList.add('hidden');
-            leftBtn.classList.add('hidden');
-        }
-        
-        if (scrollLeft + clientWidth < scrollWidth - 10) {
-            rightIndicator.classList.remove('hidden');
-            rightBtn.classList.remove('hidden');
-        } else {
-            rightIndicator.classList.add('hidden');
-            rightBtn.classList.add('hidden');
-        }
-    }
-    
-    leftBtn.addEventListener('click', () => {
-        filterContainer.scrollBy({ left: -200, behavior: 'smooth' });
-    });
-    
-    rightBtn.addEventListener('click', () => {
-        filterContainer.scrollBy({ left: 200, behavior: 'smooth' });
-    });
-    
-    setTimeout(updateIndicators, 200);
-    filterContainer.addEventListener('scroll', updateIndicators);
-    window.addEventListener('resize', updateIndicators);
 }
 
 function setCategory(cat) {
