@@ -76,61 +76,12 @@
             transform: translateY(-1px);
         }
         
-        /* Category Dropdown Toggle */
-        .category-toggle-btn {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .category-toggle-btn:hover {
-            background: #1f1f1f;
-            border-color: #444;
-        }
-        .category-toggle-btn.open {
-            border-color: #444;
-            background: #1f1f1f;
-        }
-        
-        /* Category Pills Container - HORIZONTAL SCROLL */
-        .category-pills-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        .category-pills-container.show {
-            max-height: 200px; /* Adjust as needed */
-        }
-        
-        /* Category filter buttons */
-        .category-btn {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            transition: all 0.3s ease;
-            color: #888;
-            flex-shrink: 0;
-        }
-        .category-btn:hover {
-            background: #1f1f1f;
-            border-color: #444;
-            color: #aaa;
-        }
-        .category-btn.active {
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            border-color: #e5e5e5;
-            box-shadow: 0 2px 8px rgba(229, 229, 229, 0.2);
-            color: #000 !important;
-        }
-        .category-btn.active i {
-            color: #000 !important;
-        }
-        
-        /* Sort Dropdown */
-        .sort-dropdown {
+        /* Category & Sort Dropdown - UNIFIED STYLE */
+        .dropdown {
             position: relative;
         }
         
-        .sort-btn {
+        .dropdown-btn {
             background: #1a1a1a;
             border: 1px solid #2a2a2a;
             transition: all 0.3s ease;
@@ -138,40 +89,60 @@
             user-select: none;
         }
         
-        .sort-btn:hover {
+        .dropdown-btn:hover {
             background: #1f1f1f;
             border-color: #444;
         }
         
-        .sort-btn.open {
+        .dropdown-btn.open {
             border-color: #444;
             background: #1f1f1f;
         }
         
-        .sort-menu {
+        .dropdown-menu {
             position: absolute;
             top: calc(100% + 0.5rem);
+            left: 0;
             right: 0;
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
             border-radius: 0.75rem;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
             z-index: 50;
-            min-width: 180px;
-            overflow: hidden;
+            max-height: 300px;
+            overflow-y: auto;
             opacity: 0;
             transform: translateY(-10px);
             pointer-events: none;
             transition: all 0.2s ease;
         }
         
-        .sort-menu.show {
+        .dropdown-menu.show {
             opacity: 1;
             transform: translateY(0);
             pointer-events: auto;
         }
         
-        .sort-option {
+        /* Custom scrollbar untuk dropdown */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .dropdown-option {
             padding: 0.75rem 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -181,30 +152,21 @@
             gap: 0.75rem;
         }
         
-        .sort-option:last-child {
+        .dropdown-option:last-child {
             border-bottom: none;
         }
         
-        .sort-option:hover {
+        .dropdown-option:hover {
             background: #252525;
         }
         
-        .sort-option.active {
+        .dropdown-option.active {
             background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
             color: #000;
         }
         
-        .sort-option.active i {
+        .dropdown-option.active i {
             color: #000;
-        }
-        
-        /* Hide scrollbar tapi tetap bisa scroll */
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
         }
         
         /* Footer styling */
@@ -290,58 +252,61 @@
                 </button>
             </div>
             
-            <div class="relative mb-3 flex gap-2">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                    <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
+            <div class="relative mb-3">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
+            </div>
+            
+            <!-- Category & Sort Dropdowns - SIDE BY SIDE -->
+            <div class="flex gap-2">
+                <!-- Category Dropdown -->
+                <div class="dropdown flex-1">
+                    <button id="categoryBtn" class="dropdown-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-[10px]"></i>
+                            <span id="categoryLabel">ALL</span>
+                        </div>
+                        <i id="categoryChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    
+                    <div id="categoryMenu" class="dropdown-menu">
+                        <!-- Kategori akan di-render di sini -->
+                    </div>
                 </div>
                 
                 <!-- Sort Dropdown -->
-                <div class="sort-dropdown">
-                    <button id="sortBtn" class="sort-btn px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 whitespace-nowrap flex items-center gap-2">
-                        <i id="sortIcon" class="fa-solid fa-fire text-yellow-500"></i>
-                        <span id="sortLabel">Terbaru</span>
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                <div class="dropdown flex-1">
+                    <button id="sortBtn" class="dropdown-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i id="sortIcon" class="fa-solid fa-fire text-yellow-500 text-[10px]"></i>
+                            <span id="sortLabel">Terbaru</span>
+                        </div>
+                        <i id="sortChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     
-                    <div id="sortMenu" class="sort-menu">
-                        <div class="sort-option active" data-sort="newest">
+                    <div id="sortMenu" class="dropdown-menu">
+                        <div class="dropdown-option active" data-sort="newest">
                             <i class="fa-solid fa-fire text-yellow-500 text-sm"></i>
                             <span class="text-sm font-semibold">Terbaru</span>
                         </div>
-                        <div class="sort-option" data-sort="trending">
+                        <div class="dropdown-option" data-sort="trending">
                             <i class="fa-solid fa-chart-line text-orange-500 text-sm"></i>
                             <span class="text-sm font-semibold">Trending</span>
                         </div>
-                        <div class="sort-option" data-sort="popular">
+                        <div class="dropdown-option" data-sort="popular">
                             <i class="fa-solid fa-trophy text-yellow-600 text-sm"></i>
                             <span class="text-sm font-semibold">Paling Populer</span>
                         </div>
-                        <div class="sort-option" data-sort="a-z">
+                        <div class="dropdown-option" data-sort="a-z">
                             <i class="fa-solid fa-arrow-down-a-z text-blue-500 text-sm"></i>
                             <span class="text-sm font-semibold">A-Z</span>
                         </div>
-                        <div class="sort-option" data-sort="z-a">
+                        <div class="dropdown-option" data-sort="z-a">
                             <i class="fa-solid fa-arrow-up-z-a text-blue-500 text-sm"></i>
                             <span class="text-sm font-semibold">Z-A</span>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Category Toggle Button -->
-            <button id="categoryToggleBtn" class="category-toggle-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-filter text-[10px]"></i>
-                    <span>Filter Kategori</span>
-                    <span id="selectedCategoryLabel" class="text-yellow-500">ALL</span>
-                </div>
-                <i id="categoryToggleIcon" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
-            </button>
-            
-            <!-- Category Pills - Collapsible Horizontal Scroll -->
-            <div id="categoryPillsContainer" class="category-pills-container">
-                <div id="categoryFilter" class="flex gap-2 overflow-x-auto py-2 scrollbar-hide"></div>
             </div>
         </div>
     </header>
@@ -477,17 +442,6 @@
         sidebarToggleRight.onclick = openSidebarRight;
         sidebarCloseRight.onclick = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
-        
-        // Category Toggle
-        const categoryToggleBtn = document.getElementById('categoryToggleBtn');
-        const categoryPillsContainer = document.getElementById('categoryPillsContainer');
-        const categoryToggleIcon = document.getElementById('categoryToggleIcon');
-        
-        categoryToggleBtn.addEventListener('click', () => {
-            categoryPillsContainer.classList.toggle('show');
-            categoryToggleIcon.classList.toggle('rotate-180');
-            categoryToggleBtn.classList.toggle('open');
-        });
     </script>
 </body>
 </html>
