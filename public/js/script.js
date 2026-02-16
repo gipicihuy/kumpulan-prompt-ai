@@ -13,6 +13,13 @@ let allPrompts = [];
 let selectedCategory = 'all';
 let currentSort = 'newest';
 
+// ✅ Helper function untuk Title Case (capitalize first letter of each word)
+function toTitleCase(str) {
+    return str.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+}
+
 async function fetchPrompts() {
     try {
         console.log('🔄 Fetching prompts from API...');
@@ -75,13 +82,16 @@ function renderCategories() {
         return;
     }
     
-    const categoriesMap = {};
+    const categoriesMap = {}; // key: lowercase, value: display name (Title Case)
     const categoryCounts = {};
     
     allPrompts.forEach(item => {
-        const key = item.kategori.toLowerCase();
+        // ✅ FIX: FORCE LOWERCASE untuk grouping - "Combined", "combined", "COMBINED" → semua jadi "combined"
+        const key = item.kategori.toLowerCase().trim();
+        
         if (!categoriesMap[key]) {
-            categoriesMap[key] = item.kategori;
+            // Simpan display name dalam Title Case untuk tampilan cantik
+            categoriesMap[key] = toTitleCase(item.kategori);
             categoryCounts[key] = 0;
         }
         categoryCounts[key]++;
@@ -163,8 +173,9 @@ function setCategory(cat) {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allPrompts.filter(item => {
+        // ✅ FIX: CASE-INSENSITIVE COMPARISON - "Combined" === "combined" === "COMBINED"
         const matchesCat = selectedCategory === 'all' || 
-                          item.kategori.toLowerCase() === selectedCategory.toLowerCase();
+                          item.kategori.toLowerCase().trim() === selectedCategory.toLowerCase().trim();
         const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || 
                             item.isi.toLowerCase().includes(searchTerm);
         return matchesCat && matchesSearch;
@@ -256,6 +267,9 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
+        // ✅ Display kategori dalam Title Case (cantik!)
+        const displayKategori = toTitleCase(item.kategori);
+        
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
         const analyticsHtml = `
             <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
@@ -284,7 +298,7 @@ function renderPrompts(data) {
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
-                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${item.kategori}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${displayKategori}</span>
                 <span class="time-ago text-[10px] text-white font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}" data-created-at="${item.createdAt || '-'}">Loading...</span>
             </div>
             <div class="flex justify-between items-center mb-1">
