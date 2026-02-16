@@ -34,9 +34,13 @@ export default async function handler(req, res) {
 
   console.log('📅 Created at (WIB):', createdAt);
 
+  // ✅ FIX: NORMALIZE KATEGORI - FORCE LOWERCASE!
+  const normalizedKategori = (kategori || 'Lainnya').trim().toLowerCase();
+  console.log('🏷️ Original kategori:', kategori, '→ Normalized:', normalizedKategori);
+
   // Data yang akan disimpan
   const promptData = { 
-    kategori, 
+    kategori: normalizedKategori, // ⬅️ SIMPAN DALAM LOWERCASE!
     judul, 
     isi, 
     uploadedBy: adminName || 'Admin',
