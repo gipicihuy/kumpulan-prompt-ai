@@ -5,15 +5,15 @@ const notyf = new Notyf({
         x: 'right',
         y: 'top',
     },
-    ripple: true, // Enable ripple effect
-    dismissible: true // Allow user to dismiss notifications
+    ripple: true,
+    dismissible: true
 });
 
 let allPrompts = [];
 let selectedCategory = 'all';
 let currentSort = 'newest';
 
-// ✅ Helper function untuk Title Case (capitalize first letter of each word)
+// ✅ Helper function untuk Title Case
 function toTitleCase(str) {
     return str.split(' ').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -75,22 +75,21 @@ function renderCategories() {
     
     if (allPrompts.length === 0) {
         filterContainer.innerHTML = `
-            <button class="category-btn active px-3 py-2 rounded-lg text-[10px] font-bold uppercase">
-                <i class="fa-solid fa-layer-group mr-1 text-[9px]"></i>ALL (0)
+            <button class="category-btn active whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase">
+                <i class="fa-solid fa-layer-group mr-1.5 text-[10px]"></i>ALL (0)
             </button>
         `;
+        updateSelectedLabel('ALL');
         return;
     }
     
-    const categoriesMap = {}; // key: lowercase, value: display name (Title Case)
+    const categoriesMap = {};
     const categoryCounts = {};
     
     allPrompts.forEach(item => {
-        // ✅ FIX: FORCE LOWERCASE untuk grouping - "Combined", "combined", "COMBINED" → semua jadi "combined"
         const key = item.kategori.toLowerCase().trim();
         
         if (!categoriesMap[key]) {
-            // Simpan display name dalam Title Case untuk tampilan cantik
             categoriesMap[key] = toTitleCase(item.kategori);
             categoryCounts[key] = 0;
         }
@@ -100,34 +99,49 @@ function renderCategories() {
     const categories = ['all', ...Object.keys(categoriesMap)];
     const totalCount = allPrompts.length;
     
-    // ✅ GRID LAYOUT - Bukan lagi horizontal scroll
     filterContainer.innerHTML = categories.map(cat => {
         const displayText = cat === 'all' ? 'ALL' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
-        
         return `
         <button onclick="setCategory('${cat}')" 
-            class="category-btn ${isActive ? 'active' : ''} px-3 py-2 rounded-lg text-[10px] font-bold uppercase whitespace-nowrap"
-            style="${isActive ? 'color: #000 !important;' : ''}"
-            title="${displayText} (${count} prompts)">
-            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1 text-[9px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>
-            <span class="block truncate">${displayText}</span>
-            <span class="text-[9px] opacity-70">(${count})</span>
+            class="category-btn ${isActive ? 'active' : ''} whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold uppercase snap-start"
+            style="${isActive ? 'color: #000 !important;' : ''}">
+            <i class="fa-solid ${cat === 'all' ? 'fa-layer-group' : 'fa-tag'} mr-1.5 text-[10px]" style="${isActive ? 'color: #000 !important;' : ''}"></i>${displayText} (${count})
         </button>
     `}).join('');
+    
+    // Update label di toggle button
+    const activeCategory = categories.find(c => c === selectedCategory);
+    const displayName = activeCategory === 'all' ? 'ALL' : categoriesMap[selectedCategory];
+    updateSelectedLabel(displayName || 'ALL');
+}
+
+function updateSelectedLabel(categoryName) {
+    const label = document.getElementById('selectedCategoryLabel');
+    if (label) {
+        label.textContent = categoryName;
+    }
 }
 
 function setCategory(cat) {
     selectedCategory = cat;
     renderCategories();
     applyFilters();
+    
+    // Auto-close category pills setelah select (opsional - bisa dihapus jika mau tetap terbuka)
+    const container = document.getElementById('categoryPillsContainer');
+    const icon = document.getElementById('categoryToggleIcon');
+    const btn = document.getElementById('categoryToggleBtn');
+    
+    container.classList.remove('show');
+    icon.classList.remove('rotate-180');
+    btn.classList.remove('open');
 }
 
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allPrompts.filter(item => {
-        // ✅ FIX: CASE-INSENSITIVE COMPARISON - "Combined" === "combined" === "COMBINED"
         const matchesCat = selectedCategory === 'all' || 
                           item.kategori.toLowerCase().trim() === selectedCategory.toLowerCase().trim();
         const matchesSearch = item.judul.toLowerCase().includes(searchTerm) || 
@@ -221,7 +235,6 @@ function renderPrompts(data) {
             ? '🔒 This content is password protected. Click to unlock.'
             : item.isi;
         
-        // ✅ Display kategori dalam Title Case (cantik!)
         const displayKategori = toTitleCase(item.kategori);
         
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
@@ -248,7 +261,6 @@ function renderPrompts(data) {
             </div>
         `;
         
-        // ✅ FIX: JANGAN panggil timeAgo() langsung - biarkan updateAllTimeAgo() yang handle!
         return `
         <a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
@@ -266,7 +278,6 @@ function renderPrompts(data) {
         </a>
     `}).join('');
     
-    // ✅ PANGGIL updateAllTimeAgo() setelah render selesai!
     updateAllTimeAgo();
 }
 
