@@ -4,21 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Prompt</title>
-    
-    <!-- Meta tags untuk preview WhatsApp/Social Media - akan diupdate dinamis -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="Detail Prompt - AI Prompt Hub">
     <meta property="og:description" content="Koleksi prompt AI berkualitas untuk berbagai keperluan">
     <meta property="og:image" content="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <meta name="description" content="Koleksi prompt AI berkualitas untuk berbagai keperluan">
-    
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Detail Prompt - AI Prompt Hub">
     <meta name="twitter:description" content="Koleksi prompt AI berkualitas untuk berbagai keperluan">
     <meta name="twitter:image" content="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
-    
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,106 +27,59 @@
             min-height: 100vh;
         }
         .carbon-dots span { width: 10px; height: 10px; display: inline-block; background: #fff; }
-        
         header {
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
-        
         .code-container {
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
-        
         .code-header {
             background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%);
             border-bottom: 1px solid #2a2a2a;
         }
-        
-        .btn-icon {
-            transition: all 0.3s ease;
-            color: #888;
-        }
-        .btn-icon:hover {
-            color: #e5e5e5;
-            transform: scale(1.05);
-        }
-        
-        .back-btn {
-            transition: all 0.3s ease;
-        }
-        .back-btn:hover {
-            color: #e5e5e5;
-            transform: translateX(-2px);
-        }
-        
+        .btn-icon { transition: all 0.3s ease; color: #888; }
+        .btn-icon:hover { color: #e5e5e5; transform: scale(1.05); }
+        .back-btn { transition: all 0.3s ease; }
+        .back-btn:hover { color: #e5e5e5; transform: translateX(-2px); }
         .image-container {
             border: 1px solid #2a2a2a;
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
-        
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #444;
-        }
-        
-        .profile-pic-placeholder {
-            width: 32px;
-            height: 32px;
-        }
-
-        /* Fullscreen Modal */
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .profile-pic-placeholder { width: 32px; height: 32px; }
         .fullscreen-modal {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: rgba(15, 15, 15, 0.98);
             backdrop-filter: blur(8px);
             z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             padding: 1rem;
         }
-        
-        .fullscreen-image-wrapper {
-            position: relative;
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .fullscreen-modal img {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        
+        .fullscreen-image-wrapper { position: relative; max-width: 100%; max-height: 100%; }
+        .fullscreen-modal img { max-width: 100%; max-height: 100vh; object-fit: contain; border-radius: 8px; }
         .fullscreen-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            position: absolute; top: 1rem; right: 1rem;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease;
         }
-        
-        .fullscreen-close:hover {
-            transform: scale(1.1);
+        .fullscreen-close:hover { transform: scale(1.1); }
+        .fullscreen-close:active { transform: scale(0.95); }
+
+        /* Links in description */
+        .description-link {
+            color: #e5e5e5;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            word-break: break-all;
+            transition: color 0.2s ease;
         }
-        
-        .fullscreen-close:active {
-            transform: scale(0.95);
-        }
+        .description-link:hover { color: #ffffff; }
     </style>
 </head>
 <body>
@@ -161,17 +109,13 @@
                 </div>
             </div>
             
-            <!-- Description Section -->
             <div id="descriptionSection" class="hidden mb-5">
-                <h3 class="text-base font-extrabold text-white mb-2">
-                    Description
-                </h3>
+                <h3 class="text-base font-extrabold text-white mb-2">Description</h3>
                 <hr class="border-0 h-px bg-[#2a2a2a] mb-2">
                 <p id="detDescription" class="text-sm text-gray-300 leading-relaxed mb-3" style="white-space: pre-line;"></p>
                 <hr class="border-0 h-px bg-[#2a2a2a]">
             </div>
 
-            <!-- Image Preview -->
             <div id="imagePreviewSection" class="hidden mb-5">
                 <div class="image-container rounded-lg overflow-hidden relative">
                     <img id="detImage" class="w-full h-auto max-h-64 object-contain" alt="Prompt Preview">
@@ -184,20 +128,12 @@
             <div class="code-container rounded-lg overflow-hidden mb-6">
                 <div class="code-header px-4 py-2.5 flex justify-between items-center relative">
                     <div class="carbon-dots flex gap-1.5">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </div>
-                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
-                        Prompt
-                    </div>
+                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">Prompt</div>
                     <div class="flex gap-3 items-center">
-                        <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                        <button id="downloadBtn" title="Download as .txt" class="btn-icon text-sm">
-                            <i class="fa-solid fa-download"></i>
-                        </button>
+                        <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm"><i class="fa-solid fa-copy"></i></button>
+                        <button id="downloadBtn" title="Download as .txt" class="btn-icon text-sm"><i class="fa-solid fa-download"></i></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto">
@@ -212,7 +148,6 @@
         </div>
     </main>
 
-    <!-- Fullscreen Modal -->
     <div id="fullscreenModal" class="hidden fullscreen-modal" onclick="closeFullscreen(event)">
         <div class="fullscreen-image-wrapper">
             <img id="fullscreenImage" src="" alt="Fullscreen">
@@ -223,69 +158,39 @@
     </div>
 
     <script>
-// Initialize Notyf
 const notyf = new Notyf({
     duration: 2000,
     position: { x: 'center', y: 'top' },
     types: [
-        {
-            type: 'success',
-            background: '#10b981',
-            icon: {
-                className: 'fa-solid fa-check',
-                tagName: 'i',
-                color: 'white'
-            }
-        },
-        {
-            type: 'error',
-            background: '#ef4444',
-            icon: {
-                className: 'fa-solid fa-triangle-exclamation',
-                tagName: 'i',
-                color: 'white'
-            }
-        }
+        { type: 'success', background: '#10b981', icon: { className: 'fa-solid fa-check', tagName: 'i', color: 'white' } },
+        { type: 'error', background: '#ef4444', icon: { className: 'fa-solid fa-triangle-exclamation', tagName: 'i', color: 'white' } }
     ]
 });
 
-// Function untuk update meta tags secara dinamis
+function linkify(text) {
+    const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    return escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
+    });
+}
+
 function updateMetaTags(item) {
-    // Update title
     document.title = `${item.judul} - AI Prompt Hub`;
-    
-    // Buat description dari isi prompt (ambil 150 karakter pertama)
     let metaDescription = item.description && item.description.trim() !== '' 
         ? item.description 
         : item.isi.substring(0, 150) + '...';
-    
-    // Update meta description
-    const descMeta = document.querySelector('meta[name="description"]');
-    if (descMeta) descMeta.setAttribute('content', metaDescription);
-    
-    // Update Open Graph tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', `${item.judul} - AI Prompt Hub`);
-    
-    const ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogDesc) ogDesc.setAttribute('content', metaDescription);
-    
-    // Jika ada gambar, update og:image
+    document.querySelector('meta[name="description"]')?.setAttribute('content', metaDescription);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', `${item.judul} - AI Prompt Hub`);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', metaDescription);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', `${item.judul} - AI Prompt Hub`);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', metaDescription);
     if (item.imageUrl && item.imageUrl.trim() !== '') {
-        const ogImage = document.querySelector('meta[property="og:image"]');
-        if (ogImage) ogImage.setAttribute('content', item.imageUrl);
-    }
-    
-    // Update Twitter Card
-    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
-    if (twitterTitle) twitterTitle.setAttribute('content', `${item.judul} - AI Prompt Hub`);
-    
-    const twitterDesc = document.querySelector('meta[name="twitter:description"]');
-    if (twitterDesc) twitterDesc.setAttribute('content', metaDescription);
-    
-    if (item.imageUrl && item.imageUrl.trim() !== '') {
-        const twitterImage = document.querySelector('meta[name="twitter:image"]');
-        if (twitterImage) twitterImage.setAttribute('content', item.imageUrl);
+        document.querySelector('meta[property="og:image"]')?.setAttribute('content', item.imageUrl);
+        document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', item.imageUrl);
     }
 }
 
@@ -309,12 +214,9 @@ async function loadDetail() {
         }
 
         let item = json.data.find(p => p.id === slug);
-        if (!item) {
-            item = json.data.find(p => p.id.toLowerCase() === slug.toLowerCase());
-        }
+        if (!item) item = json.data.find(p => p.id.toLowerCase() === slug.toLowerCase());
 
         if (item) {
-            // UPDATE META TAGS DULU SEBELUM RENDER
             updateMetaTags(item);
             
             document.getElementById('detJudul').innerText = item.judul;
@@ -323,42 +225,25 @@ async function loadDetail() {
             document.getElementById('detAuthor').innerText = item.uploadedBy;
             document.getElementById('detTime').innerText = item.createdAt;
             
-            // Render profile picture
             const profilePicContainer = document.getElementById('profilePicContainer');
             if (item.profileUrl && item.profileUrl.trim() !== '') {
                 profilePicContainer.innerHTML = `<img src="${item.profileUrl}" class="profile-pic" alt="${item.uploadedBy}">`;
             } else {
-                profilePicContainer.innerHTML = `
-                    <div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]">
-                        <i class="fa-solid fa-user text-sm text-gray-500"></i>
-                    </div>
-                `;
+                profilePicContainer.innerHTML = `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]"><i class="fa-solid fa-user text-sm text-gray-500"></i></div>`;
             }
             
-            // Tampilkan description jika ada
             if (item.description && item.description.trim() !== '') {
-                document.getElementById('detDescription').innerText = item.description;
+                document.getElementById('detDescription').innerHTML = linkify(item.description);
                 document.getElementById('descriptionSection').classList.remove('hidden');
             }
             
-            // Tampilkan gambar jika ada
             if (item.imageUrl && item.imageUrl.trim() !== '') {
                 const imgElement = document.getElementById('detImage');
                 imgElement.src = item.imageUrl;
                 imgElement.alt = item.judul;
-                
-                // Tampilkan section gambar
                 document.getElementById('imagePreviewSection').classList.remove('hidden');
-                
-                // Setup fullscreen button
-                document.getElementById('fullscreenBtn').onclick = function() {
-                    openFullscreen(item.imageUrl);
-                };
-                
-                // Handle error loading gambar
-                imgElement.onerror = function() {
-                    document.getElementById('imagePreviewSection').classList.add('hidden');
-                };
+                document.getElementById('fullscreenBtn').onclick = () => openFullscreen(item.imageUrl);
+                imgElement.onerror = () => document.getElementById('imagePreviewSection').classList.add('hidden');
             }
             
             setupButtons(item);
@@ -388,7 +273,6 @@ function setupButtons(item) {
         navigator.clipboard.writeText(item.isi);
         notyf.success('Copied!');
     };
-    
     document.getElementById('downloadBtn').onclick = () => {
         const blob = new Blob([item.isi], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -399,33 +283,23 @@ function setupButtons(item) {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
         notyf.success('Downloaded!');
     };
 }
 
-// Fullscreen functions
 function openFullscreen(imageUrl) {
-    const modal = document.getElementById('fullscreenModal');
-    const img = document.getElementById('fullscreenImage');
-    img.src = imageUrl;
-    modal.classList.remove('hidden');
+    document.getElementById('fullscreenImage').src = imageUrl;
+    document.getElementById('fullscreenModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
 function closeFullscreen(event) {
     if (event) event.stopPropagation();
-    const modal = document.getElementById('fullscreenModal');
-    modal.classList.add('hidden');
+    document.getElementById('fullscreenModal').classList.add('hidden');
     document.body.style.overflow = '';
 }
 
-// Close on Escape key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeFullscreen();
-    }
-});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFullscreen(); });
 
 loadDetail();
     </script>
