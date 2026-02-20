@@ -69,7 +69,7 @@
             gap: 0.5rem;
         }
 
-        /* Category pills — scrollable, takes remaining space */
+        /* Category scroll wrapper */
         .category-scroll-wrapper {
             position: relative;
             flex: 1;
@@ -107,13 +107,13 @@
         }
         .category-pills::-webkit-scrollbar { display: none; }
 
-        /* Shared pill style */
+        /* ========== CATEGORY PILL ========== */
         .cat-pill {
             flex-shrink: 0;
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
-            padding: 0.32rem 0.75rem;
+            gap: 0.4rem;
+            padding: 0.3rem 0.6rem 0.3rem 0.75rem;
             border-radius: 999px;
             font-size: 0.68rem;
             font-weight: 700;
@@ -127,49 +127,84 @@
             white-space: nowrap;
             user-select: none;
         }
-        .cat-pill:hover { border-color: #555; color: #ccc; background: #1f1f1f; }
+        .cat-pill:hover { border-color: #555; color: #bbb; background: #1f1f1f; }
         .cat-pill.active {
             background: #e5e5e5;
             border-color: #e5e5e5;
-            color: #000;
+            color: #111;
             box-shadow: 0 0 10px rgba(229,229,229,0.12);
         }
-        .cat-pill .count-badge { font-size: 0.58rem; font-weight: 800; opacity: 0.55; }
-        .cat-pill.active .count-badge { opacity: 0.45; }
 
-        /* ========== SORT PILL ========== */
+        /* Count badge — white circle */
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 999px;
+            font-size: 0.55rem;
+            font-weight: 800;
+            line-height: 1;
+            background: rgba(255,255,255,0.15);
+            color: #bbb;
+            transition: all 0.2s ease;
+        }
+        .cat-pill.active .count-badge {
+            background: #111;
+            color: #e5e5e5;
+        }
+
+        /* ========== SORT BUTTON (icon style, distinct) ========== */
         .sort-pill-wrapper {
             position: relative;
             flex-shrink: 0;
         }
-        .sort-pill {
+
+        .sort-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.32rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             cursor: pointer;
             border: 1px solid #2a2a2a;
             background: #141414;
-            color: #777;
+            color: #666;
             transition: all 0.2s ease;
-            white-space: nowrap;
-            user-select: none;
+            position: relative;
         }
-        .sort-pill:hover { border-color: #555; color: #ccc; background: #1f1f1f; }
-        .sort-pill.open { border-color: #555; background: #1f1f1f; color: #ccc; }
-        .sort-chevron { font-size: 0.5rem !important; transition: transform 0.2s ease; opacity: 0.6; }
-        .sort-pill.open .sort-chevron { transform: rotate(180deg); }
+        .sort-btn:hover {
+            border-color: #555;
+            color: #ccc;
+            background: #1f1f1f;
+        }
+        .sort-btn.open {
+            border-color: #888;
+            background: #252525;
+            color: #e5e5e5;
+        }
+        /* active sort indicator dot */
+        .sort-btn .sort-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #e5e5e5;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .sort-btn.has-sort .sort-dot { opacity: 1; }
 
         .sort-dropdown {
             position: absolute;
             top: calc(100% + 0.4rem);
             right: 0;
-            min-width: 155px;
+            min-width: 160px;
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
             border-radius: 0.75rem;
@@ -182,6 +217,7 @@
             overflow: hidden;
         }
         .sort-dropdown.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
         .sort-option {
             padding: 0.6rem 0.9rem;
             cursor: pointer;
@@ -192,12 +228,21 @@
             gap: 0.6rem;
             font-size: 0.75rem;
             font-weight: 600;
-            color: #aaa;
+            color: #888;
         }
         .sort-option:last-child { border-bottom: none; }
         .sort-option:hover { background: #252525; color: #e5e5e5; }
-        .sort-option.active { background: #e5e5e5; color: #000; }
-        .sort-option.active i { color: inherit; }
+        .sort-option.active { color: #fff; }
+        .sort-option.active::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #e5e5e5;
+            flex-shrink: 0;
+            margin-right: -2px;
+        }
 
         footer {
             background: rgba(26, 26, 26, 0.95);
@@ -241,17 +286,18 @@
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
 
-            <!-- Filter Row: Category Pills (scroll) + Sort Pill (fixed right) -->
+            <!-- Filter Row -->
             <div class="filter-row">
+                <!-- Category Pills -->
                 <div class="category-scroll-wrapper at-start" id="pillWrapper">
                     <div class="category-pills" id="categoryPills"></div>
                 </div>
 
+                <!-- Sort Button (icon only, circle) -->
                 <div class="sort-pill-wrapper">
-                    <button class="sort-pill" id="sortPillBtn">
-                        <i id="sortIcon" class="fa-solid fa-fire text-yellow-500" style="font-size:0.6rem;"></i>
-                        <span id="sortLabel">Terbaru</span>
-                        <i class="fa-solid fa-chevron-down sort-chevron"></i>
+                    <button class="sort-btn" id="sortBtn" title="Sort">
+                        <i class="fa-solid fa-arrow-up-wide-short" style="font-size: 0.7rem;"></i>
+                        <span class="sort-dot"></span>
                     </button>
                     <div class="sort-dropdown" id="sortDropdown">
                         <div class="sort-option active" data-sort="newest">
@@ -264,10 +310,10 @@
                             <i class="fa-solid fa-trophy text-yellow-600"></i> Populer
                         </div>
                         <div class="sort-option" data-sort="a-z">
-                            <i class="fa-solid fa-arrow-down-a-z text-blue-500"></i> A–Z
+                            <i class="fa-solid fa-arrow-down-a-z text-blue-400"></i> A–Z
                         </div>
                         <div class="sort-option" data-sort="z-a">
-                            <i class="fa-solid fa-arrow-up-z-a text-blue-500"></i> Z–A
+                            <i class="fa-solid fa-arrow-up-z-a text-blue-400"></i> Z–A
                         </div>
                     </div>
                 </div>
