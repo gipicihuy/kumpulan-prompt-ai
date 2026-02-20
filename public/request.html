@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,139 +8,159 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Notyf CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
-    <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    
+
+    <!-- Theme init: run BEFORE paint -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('prompthub-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
     <style>
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e5e5e5; 
-            min-height: 100vh;
+        :root, [data-theme="dark"] {
+            --bg-base:        #0f0f0f;
+            --bg-surface:     #1a1a1a;
+            --bg-surface2:    #1f1f1f;
+            --bg-surface3:    #252525;
+            --border:         #2a2a2a;
+            --border-hover:   #444;
+            --text-primary:   #e5e5e5;
+            --text-secondary: #9ca3af;
+            --text-muted:     #6b7280;
+            --header-bg:      rgba(26,26,26,0.8);
+            --input-bg:       #1a1a1a;
+            --input-focus:    #1f1f1f;
+            --footer-bg:      rgba(26,26,26,0.95);
+            --sidebar-bg:     #1a1a1a;
+            --overlay-bg:     rgba(0,0,0,0.8);
+            --card-from:      #1a1a1a;
+            --card-to:        #1f1f1f;
         }
-        
-        input, textarea { 
-            background-color: #1a1a1a !important; 
-            border-color: #2a2a2a !important;
+        [data-theme="light"] {
+            --bg-base:        #f4f4f5;
+            --bg-surface:     #ffffff;
+            --bg-surface2:    #f9f9f9;
+            --bg-surface3:    #f0f0f0;
+            --border:         #e4e4e7;
+            --border-hover:   #a1a1aa;
+            --text-primary:   #18181b;
+            --text-secondary: #52525b;
+            --text-muted:     #71717a;
+            --header-bg:      rgba(255,255,255,0.9);
+            --input-bg:       #ffffff;
+            --input-focus:    #f9f9f9;
+            --footer-bg:      rgba(255,255,255,0.95);
+            --sidebar-bg:     #ffffff;
+            --overlay-bg:     rgba(0,0,0,0.5);
+            --card-from:      #ffffff;
+            --card-to:        #f9f9f9;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        input, textarea {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border) !important;
+            color: var(--text-primary) !important;
             transition: all 0.3s ease;
         }
-        
-        input:focus, textarea:focus { 
-            border-color: #444 !important; 
-            background-color: #1f1f1f !important;
-            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+        input:focus, textarea:focus {
+            border-color: var(--border-hover) !important;
+            background-color: var(--input-focus) !important;
+            box-shadow: 0 0 0 3px rgba(128,128,128,0.1);
         }
-        
+        input::placeholder, textarea::placeholder { color: var(--text-muted) !important; }
+
         header {
-            background: rgba(26, 26, 26, 0.8);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
+            border-bottom: 1px solid var(--border);
         }
 
-        .logo-img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-        }
-        
-        .title-text {
-            font-size: 1.375rem;
-            line-height: 1.2;
-        }
+        .logo-img  { width: 48px; height: 48px; object-fit: contain; }
+        .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        #sidebar-right {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #overlay {
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
-        }
-
-        #overlay.show {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
+        #overlay.show  { opacity: 1 !important; visibility: visible !important; }
 
         @media (max-width: 767px) {
-            #sidebar-right {
-                transform: translateX(100%);
-            }
-            #sidebar-right.open {
-                transform: translateX(0);
-            }
-            .title-text {
-                font-size: 1.125rem;
-            }
-            .logo-img {
-                width: 40px;
-                height: 40px;
-            }
+            #sidebar-right { transform: translateX(100%); }
+            #sidebar-right.open { transform: translateX(0); }
+            .title-text { font-size: 1.125rem; }
+            .logo-img   { width: 40px; height: 40px; }
+        }
+        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
+
+        /* Theme toggle button */
+        #themeToggleBtn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface2);
+            color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
+        }
+        #themeToggleBtn:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-surface3); }
+
+        .request-card {
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%);
         }
 
-        @media (min-width: 768px) {
-            #sidebar-right {
-                transform: translateX(0);
-            }
-        }
-        
-        .request-card {
-            border: 1px solid #2a2a2a;
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-        }
-        
         .btn-primary {
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-primary) 100%);
+            color: var(--bg-base);
             transition: all 0.3s ease;
         }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
-            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
+            box-shadow: 0 4px 12px rgba(128,128,128,0.2);
             transform: translateY(-1px);
         }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        label {
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
-        }
+        label { font-size: 0.7rem; letter-spacing: 0.05em; color: var(--text-muted); }
 
         footer {
-            background: rgba(26, 26, 26, 0.95);
+            background: var(--footer-bg);
             backdrop-filter: blur(10px);
-            border-top: 1px solid #2a2a2a;
+            border-top: 1px solid var(--border);
         }
-        
-        /* Turnstile container styling */
-        .turnstile-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem 0;
-        }
+
+        .turnstile-container { display: flex; justify-content: center; align-items: center; padding: 1rem 0; }
+
+        .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    
+
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <h1 class="title-text font-bold text-white flex items-center gap-3">
+                <h1 class="title-text font-bold flex items-center gap-3" style="color: var(--text-primary)">
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
-                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
+                    <span>AI Prompt Hub</span>
                 </h1>
-                
-                <button id="sidebarToggleRight" class="text-white">
-                    <i class="material-icons text-2xl">notes</i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
+                        <i class="fa-solid fa-sun" style="font-size: 0.9rem;"></i>
+                    </button>
+                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                        <i class="material-icons text-2xl">notes</i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -148,245 +168,166 @@
     <main class="flex-grow p-4">
         <div class="max-w-md mx-auto mt-6">
             <div class="request-card rounded-lg p-5">
-                <h2 class="text-center font-bold mb-4 uppercase tracking-wide text-base text-gray-300">Request Prompt</h2>
-
+                <h2 class="text-center font-bold mb-4 uppercase tracking-wide text-base" style="color: var(--text-secondary)">Request Prompt</h2>
                 <form id="requestForm" class="space-y-3">
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Title</label>
-                        <input 
-                            type="text" 
-                            id="judul" 
-                            placeholder="e.g., Logo Generator Prompt" 
-                            required 
-                            class="w-full p-2.5 rounded-lg border outline-none text-white text-sm"
-                        >
+                        <label class="font-bold uppercase block mb-1">Title</label>
+                        <input type="text" id="judul" placeholder="e.g., Logo Generator Prompt" required
+                            class="w-full p-2.5 rounded-lg border outline-none text-sm">
                     </div>
-
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Category</label>
-                        <input 
-                            type="text" 
-                            id="kategori" 
-                            placeholder="e.g., Art, Coding, Writing" 
-                            required 
-                            class="w-full p-2.5 rounded-lg border outline-none text-white text-sm"
-                        >
+                        <label class="font-bold uppercase block mb-1">Category</label>
+                        <input type="text" id="kategori" placeholder="e.g., Art, Coding, Writing" required
+                            class="w-full p-2.5 rounded-lg border outline-none text-sm">
                     </div>
-
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Prompt Content</label>
-                        <textarea 
-                            id="isi" 
-                            rows="6" 
-                            placeholder="Paste your prompt here..." 
-                            required 
-                            class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm"
-                        ></textarea>
+                        <label class="font-bold uppercase block mb-1">Prompt Content</label>
+                        <textarea id="isi" rows="6" placeholder="Paste your prompt here..." required
+                            class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm"></textarea>
                     </div>
-
-                    <!-- Cloudflare Turnstile Widget -->
                     <div class="turnstile-container">
-                        <div 
-                            class="cf-turnstile" 
+                        <div class="cf-turnstile"
                             data-sitekey="0x4AAAAAACdLXddb6q3gXQVR"
-                            data-theme="dark"
-                            data-callback="onTurnstileSuccess"
-                        ></div>
+                            data-theme="auto"
+                            data-callback="onTurnstileSuccess">
+                        </div>
                     </div>
-
-                    <button 
-                        type="submit" 
-                        id="submitBtn"
-                        class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm mt-4"
-                        disabled
-                    >
-                        SUBMIT
-                    </button>
+                    <button type="submit" id="submitBtn"
+                        class="w-full btn-primary font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm mt-4"
+                        disabled>SUBMIT</button>
                 </form>
             </div>
         </div>
     </main>
 
-    <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
-            © 2026 Prompt Hub
-        </p>
+    <footer class="py-4 text-center mt-8">
+        <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
     </footer>
 
-    <!-- Sidebar Right -->
-    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
-        
+    <!-- Sidebar -->
+    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col"
+        style="background: var(--sidebar-bg); border-color: var(--border);">
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
+            <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
                 <i class="material-icons text-2xl">close</i>
             </button>
         </div>
-
         <div class="flex-1 overflow-y-auto px-5 pb-7">
-
             <nav>
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Home</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
-                    <a href="/request" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm bg-[#1f1f1f] text-white border border-[#2a2a2a] rounded-xl">
-                        <span>Request Prompt</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/request" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
-
             <nav class="mt-8">
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/admin" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Admin</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
-
         </div>
-
-        <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
-            <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--border); background: var(--sidebar-bg)">
+            <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
             <div class="space-y-1">
                 <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center py-1 px-4 text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    <span class="material-icons text-sm mr-3">arrow_outward</span>
-                    <span>Support Us</span>
+                   class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
+                    <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
                 </a>
             </div>
         </div>
-
     </aside>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
 
-    <!-- Notyf JS -->
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
     <script>
-        // Sidebar Toggle
+        /* ---- Theme ---- */
+        (function() {
+            var STORAGE_KEY = 'prompthub-theme';
+            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+            function applyTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                var btn = document.getElementById('themeToggleBtn');
+                if (!btn) return;
+                var icon = btn.querySelector('i');
+                if (t === 'light') { icon.className = 'fa-solid fa-moon'; btn.title = 'Switch to Dark Mode'; }
+                else               { icon.className = 'fa-solid fa-sun';  btn.title = 'Switch to Light Mode'; }
+            }
+            window.toggleTheme = function() {
+                var next = getTheme() === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(STORAGE_KEY, next);
+                applyTheme(next);
+            };
+            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+        })();
+
+        /* ---- Sidebar ---- */
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
-        const sidebarCloseRight = document.getElementById('sidebarCloseRight');
+        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
         const overlay = document.getElementById('overlay');
-
-        function openSidebarRight() {
-            sidebarRight.classList.add('open');
-            overlay.classList.add('show');
-            overlay.classList.remove('opacity-0', 'invisible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebarRight() {
-            sidebarRight.classList.remove('open');
-            overlay.classList.remove('show');
-            overlay.classList.add('opacity-0', 'invisible');
-            document.body.style.overflow = '';
-        }
-
+        function openSidebarRight()  { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow='hidden'; }
+        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow=''; }
         sidebarToggleRight.onclick = openSidebarRight;
-        sidebarCloseRight.onclick = closeSidebarRight;
+        sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        // Initialize Notyf
-        const notyf = new Notyf({
-            duration: 3000,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            ripple: true,
-            dismissible: true
-        });
+        /* ---- Notyf ---- */
+        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
-        // Variable untuk menyimpan Turnstile token
+        /* ---- Turnstile ---- */
         let turnstileToken = null;
-
-        // Callback ketika Turnstile berhasil diverifikasi
         window.onTurnstileSuccess = function(token) {
             turnstileToken = token;
             document.getElementById('submitBtn').disabled = false;
-            console.log('✅ Turnstile verified successfully');
         };
 
         document.getElementById('requestForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            // Validasi Turnstile token
-            if (!turnstileToken) {
-                notyf.error('Please complete the verification first');
-                return;
-            }
-            
+            if (!turnstileToken) { notyf.error('Please complete the verification first'); return; }
             const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerHTML;
+            const orig = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Sending...';
             btn.disabled = true;
-
             const data = {
                 judul: document.getElementById('judul').value,
                 kategori: document.getElementById('kategori').value,
                 isi: document.getElementById('isi').value,
-                turnstileToken: turnstileToken // Kirim token ke backend
+                turnstileToken
             };
-
             try {
-                const response = await fetch('/api/request-prompt', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                const res = await fetch('/api/request-prompt', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
                 });
-
-                const result = await response.json();
-
+                const result = await res.json();
                 if (result.success) {
                     notyf.success('Request sent successfully!');
-                    
-                    // Reset form
                     document.getElementById('requestForm').reset();
-                    
-                    // Reset Turnstile
                     turnstileToken = null;
-                    if (window.turnstile) {
-                        window.turnstile.reset();
-                    }
-                    
-                    // Redirect ke home setelah 2 detik
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
+                    if (window.turnstile) window.turnstile.reset();
+                    setTimeout(() => { window.location.href = '/'; }, 2000);
                 } else {
                     notyf.error(result.message || 'Failed to send request');
-                    
-                    // Reset Turnstile jika gagal
                     turnstileToken = null;
-                    if (window.turnstile) {
-                        window.turnstile.reset();
-                    }
+                    if (window.turnstile) window.turnstile.reset();
                     btn.disabled = true;
                 }
-            } catch (error) {
-                console.error('Error:', error);
+            } catch(e) {
                 notyf.error('An error occurred. Please try again.');
-                
-                // Reset Turnstile jika error
                 turnstileToken = null;
-                if (window.turnstile) {
-                    window.turnstile.reset();
-                }
+                if (window.turnstile) window.turnstile.reset();
                 btn.disabled = true;
-            } finally {
-                btn.innerHTML = originalText;
-            }
+            } finally { btn.innerHTML = orig; }
         });
 
-        // Auto focus
         document.getElementById('judul').focus();
     </script>
 </body>

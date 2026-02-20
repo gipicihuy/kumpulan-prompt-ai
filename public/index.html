@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,265 +10,376 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
+    <!-- Theme init: run BEFORE paint to avoid flash -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('prompthub-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
     <style>
+        /* ============================================================
+           CSS VARIABLES — dark (default) & light
+        ============================================================ */
+        :root,
+        [data-theme="dark"] {
+            --bg-base:        #0f0f0f;
+            --bg-surface:     #1a1a1a;
+            --bg-surface2:    #1f1f1f;
+            --bg-surface3:    #252525;
+            --bg-card-from:   #1a1a1a;
+            --bg-card-to:     #1f1f1f;
+            --border:         #2a2a2a;
+            --border-hover:   #444;
+            --text-primary:   #e5e5e5;
+            --text-secondary: #9ca3af;
+            --text-muted:     #6b7280;
+            --text-white:     #ffffff;
+            --header-bg:      rgba(26,26,26,0.8);
+            --input-bg:       #1a1a1a;
+            --input-focus:    #1f1f1f;
+            --pill-bg:        #141414;
+            --pill-text:      #777;
+            --pill-border:    #2a2a2a;
+            --skeleton-from:  #1a1a1a;
+            --skeleton-to:    #252525;
+            --footer-bg:      rgba(26,26,26,0.95);
+            --cat-badge-bg:   #252525;
+            --cat-badge-text: #9ca3af;
+            --cat-badge-bdr:  #333;
+            --shadow-card:    rgba(0,0,0,0.3);
+            --shadow-hover:   rgba(0,0,0,0.5);
+            --sidebar-bg:     #1a1a1a;
+            --sidebar-border: #2a2a2a;
+            --overlay-bg:     rgba(0,0,0,0.8);
+            --dropdown-bg-from: #1a1a1a;
+            --dropdown-bg-to:   #1f1f1f;
+            --sort-opt-hover: #252525;
+            --protected-text: #eab308;
+            --profile-bg:     #252525;
+        }
+
+        [data-theme="light"] {
+            --bg-base:        #f4f4f5;
+            --bg-surface:     #ffffff;
+            --bg-surface2:    #f9f9f9;
+            --bg-surface3:    #f0f0f0;
+            --bg-card-from:   #ffffff;
+            --bg-card-to:     #f9f9f9;
+            --border:         #e4e4e7;
+            --border-hover:   #a1a1aa;
+            --text-primary:   #18181b;
+            --text-secondary: #52525b;
+            --text-muted:     #71717a;
+            --text-white:     #18181b;
+            --header-bg:      rgba(255,255,255,0.9);
+            --input-bg:       #ffffff;
+            --input-focus:    #f9f9f9;
+            --pill-bg:        #f4f4f5;
+            --pill-text:      #52525b;
+            --pill-border:    #d4d4d8;
+            --skeleton-from:  #e4e4e7;
+            --skeleton-to:    #f4f4f5;
+            --footer-bg:      rgba(255,255,255,0.95);
+            --cat-badge-bg:   #f4f4f5;
+            --cat-badge-text: #52525b;
+            --cat-badge-bdr:  #d4d4d8;
+            --shadow-card:    rgba(0,0,0,0.06);
+            --shadow-hover:   rgba(0,0,0,0.12);
+            --sidebar-bg:     #ffffff;
+            --sidebar-border: #e4e4e7;
+            --overlay-bg:     rgba(0,0,0,0.5);
+            --dropdown-bg-from: #ffffff;
+            --dropdown-bg-to:   #f9f9f9;
+            --sort-opt-hover: #f4f4f5;
+            --protected-text: #b45309;
+            --profile-bg:     #e4e4e7;
+        }
+
+        /* ============================================================
+           BASE
+        ============================================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e5e5e5; 
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
+            transition: background 0.25s ease, color 0.25s ease;
         }
-        .loader { border: 2px solid #2a2a2a; border-top: 2px solid #e5e5e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
+
+        /* ============================================================
+           LOADER & SKELETON
+        ============================================================ */
+        .loader { border: 2px solid var(--border); border-top: 2px solid var(--text-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: 1px solid #2a2a2a; 
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-        .card:active { transform: scale(0.98); }
-        .card:hover { 
-            border-color: #444; 
-            background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .skeleton { 
-            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); 
-            background-size: 200% 100%; 
-            animation: pulse 1.5s ease-in-out infinite; 
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--skeleton-from) 25%, var(--skeleton-to) 50%, var(--skeleton-from) 75%);
+            background-size: 200% 100%;
+            animation: pulse 1.5s ease-in-out infinite;
         }
         @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .skeleton-text { height: 10px; border-radius: 4px; }
+        .skeleton-text  { height: 10px; border-radius: 4px; }
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
-        
-        header {
-            background: rgba(26, 26, 26, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
+
+        /* ============================================================
+           CARD
+        ============================================================ */
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--bg-card-from) 0%, var(--bg-card-to) 100%);
+            box-shadow: 0 2px 8px var(--shadow-card);
         }
-        
+        .card:active { transform: scale(0.98); }
+        .card:hover {
+            border-color: var(--border-hover);
+            background: linear-gradient(135deg, var(--bg-surface2) 0%, var(--bg-surface3) 100%);
+            box-shadow: 0 4px 16px var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================
+           HEADER
+        ============================================================ */
+        header {
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.25s ease, border-color 0.25s ease;
+        }
+
+        /* ============================================================
+           INPUTS
+        ============================================================ */
         input[type="text"] {
-            background: #1a1a1a !important;
-            border: 1px solid #2a2a2a !important;
+            background: var(--input-bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-primary) !important;
             transition: all 0.3s ease;
         }
         input[type="text"]:focus {
-            background: #1f1f1f !important;
-            border-color: #444 !important;
-            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+            background: var(--input-focus) !important;
+            border-color: var(--border-hover) !important;
+            box-shadow: 0 0 0 3px rgba(128,128,128,0.1);
         }
+        input[type="text"]::placeholder { color: var(--text-muted); }
 
-        .filter-row {
-            display: flex;
+        /* ============================================================
+           THEME TOGGLE BUTTON
+        ============================================================ */
+        #themeToggleBtn {
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface2);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        #themeToggleBtn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+            background: var(--bg-surface3);
         }
 
-        .category-scroll-wrapper {
-            position: relative;
-            flex: 1;
-            min-width: 0;
-        }
+        /* ============================================================
+           FILTER / CATEGORY PILLS
+        ============================================================ */
+        .filter-row { display: flex; align-items: center; gap: 0.5rem; }
+
+        .category-scroll-wrapper { position: relative; flex: 1; min-width: 0; }
         .category-scroll-wrapper::before,
         .category-scroll-wrapper::after {
             content: '';
-            position: absolute;
-            top: 0; bottom: 0;
-            width: 24px;
-            z-index: 2;
+            position: absolute; top: 0; bottom: 0;
+            width: 24px; z-index: 2;
             pointer-events: none;
             transition: opacity 0.3s;
         }
         .category-scroll-wrapper::before {
             left: 0;
-            background: linear-gradient(to right, rgba(15,15,15,0.95), transparent);
+            background: linear-gradient(to right, var(--bg-base), transparent);
         }
         .category-scroll-wrapper::after {
             right: 0;
-            background: linear-gradient(to left, rgba(15,15,15,0.95), transparent);
+            background: linear-gradient(to left, var(--bg-base), transparent);
         }
         .category-scroll-wrapper.at-start::before { opacity: 0; }
-        .category-scroll-wrapper.at-end::after { opacity: 0; }
+        .category-scroll-wrapper.at-end::after   { opacity: 0; }
 
         .category-pills {
-            display: flex;
-            gap: 0.4rem;
-            overflow-x: auto;
-            scroll-behavior: smooth;
+            display: flex; gap: 0.4rem;
+            overflow-x: auto; scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding: 2px 2px;
+            scrollbar-width: none; padding: 2px 2px;
         }
         .category-pills::-webkit-scrollbar { display: none; }
 
         .cat-pill {
             flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
             padding: 0.4rem 0.75rem 0.4rem 0.9rem;
             border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+            font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.04em; text-transform: uppercase;
             cursor: pointer;
-            border: 1px solid #2a2a2a;
-            background: #141414;
-            color: #777;
+            border: 1px solid var(--pill-border);
+            background: var(--pill-bg);
+            color: var(--pill-text);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            user-select: none;
+            white-space: nowrap; user-select: none;
         }
-        .cat-pill:hover { border-color: #555; color: #bbb; background: #1f1f1f; }
+        .cat-pill:hover { border-color: var(--border-hover); color: var(--text-secondary); background: var(--bg-surface2); }
         .cat-pill.active {
-            background: #e5e5e5;
-            border-color: #e5e5e5;
-            color: #111;
-            box-shadow: 0 0 10px rgba(229,229,229,0.12);
+            background: var(--text-primary);
+            border-color: var(--text-primary);
+            color: var(--bg-base);
+            box-shadow: 0 0 10px rgba(128,128,128,0.15);
         }
 
         .count-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 16px;
-            height: 16px;
-            padding: 0 4px;
-            border-radius: 999px;
-            font-size: 0.55rem;
-            font-weight: 800;
-            line-height: 1;
-            background: rgba(255,255,255,0.15);
-            color: #bbb;
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 16px; height: 16px; padding: 0 4px;
+            border-radius: 999px; font-size: 0.55rem; font-weight: 800; line-height: 1;
+            background: rgba(128,128,128,0.15); color: var(--text-secondary);
             transition: all 0.2s ease;
         }
-        .cat-pill.active .count-badge {
-            background: #111;
-            color: #e5e5e5;
-        }
+        .cat-pill.active .count-badge { background: var(--bg-base); color: var(--text-primary); }
 
-        .sort-pill-wrapper {
-            position: relative;
-            flex-shrink: 0;
-        }
-
+        /* ============================================================
+           SORT DROPDOWN
+        ============================================================ */
+        .sort-pill-wrapper { position: relative; flex-shrink: 0; }
         .sort-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            color: #fff;
-            transition: all 0.2s ease;
-            position: relative;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 8px;
+            cursor: pointer; border: none;
+            background: transparent; color: var(--text-primary);
+            transition: all 0.2s ease; position: relative;
         }
-        .sort-btn:hover { color: #ccc; }
-        .sort-btn.open { color: #aaa; }
+        .sort-btn:hover { color: var(--text-secondary); }
         .sort-indicator {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            line-height: 1;
-            opacity: 1;
-            transition: color 0.2s;
+            position: absolute; top: 2px; right: 2px;
+            line-height: 1; opacity: 1; transition: color 0.2s;
         }
         .sort-indicator.material-icons { font-size: 0.72rem !important; }
         .sort-indicator.fa-solid { font-size: 0.65rem !important; }
 
         .sort-dropdown {
-            position: absolute;
-            top: calc(100% + 0.4rem);
-            right: 0;
+            position: absolute; top: calc(100% + 0.4rem); right: 0;
             min-width: 160px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
+            background: linear-gradient(135deg, var(--dropdown-bg-from) 0%, var(--dropdown-bg-to) 100%);
+            border: 1px solid var(--border);
             border-radius: 0.75rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.7);
-            z-index: 50;
-            opacity: 0;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 50; opacity: 0;
             transform: translateY(-8px) scale(0.97);
             pointer-events: none;
-            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
             overflow: hidden;
         }
         .sort-dropdown.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 
         .sort-option {
-            padding: 0.6rem 0.9rem;
-            cursor: pointer;
+            padding: 0.6rem 0.9rem; cursor: pointer;
             transition: background 0.15s ease;
-            border-bottom: 1px solid #222;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #888;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--text-muted);
         }
         .sort-option:last-child { border-bottom: none; }
-        .sort-option:hover { background: #252525; color: #e5e5e5; }
-        .sort-option.active { color: #fff; }
+        .sort-option:hover { background: var(--sort-opt-hover); color: var(--text-primary); }
+        .sort-option.active { color: var(--text-primary); }
         .sort-option.active::before {
             content: '';
-            display: block;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #e5e5e5;
-            flex-shrink: 0;
-            margin-right: -2px;
+            display: block; width: 4px; height: 4px;
+            border-radius: 50%; background: var(--text-primary);
+            flex-shrink: 0; margin-right: -2px;
         }
 
+        /* ============================================================
+           FOOTER
+        ============================================================ */
         footer {
-            background: rgba(26, 26, 26, 0.95);
+            background: var(--footer-bg);
             backdrop-filter: blur(10px);
-            border-top: 1px solid #2a2a2a;
+            border-top: 1px solid var(--border);
         }
 
-        .logo-img { width: 48px; height: 48px; object-fit: contain; }
+        /* ============================================================
+           LOGO / TITLE
+        ============================================================ */
+        .logo-img  { width: 48px; height: 48px; object-fit: contain; }
         .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        #overlay { transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s; }
-        #overlay.show { opacity: 1 !important; visibility: visible !important; }
+        /* ============================================================
+           SIDEBAR & OVERLAY
+        ============================================================ */
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
+        #overlay.show  { opacity: 1 !important; visibility: visible !important; }
+
+        .sidebar-inner {
+            background: var(--sidebar-bg) !important;
+            border-color: var(--sidebar-border) !important;
+            color: var(--text-primary) !important;
+        }
+        .sidebar-link {
+            color: var(--text-muted);
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
+
+        /* ============================================================
+           SEARCH CLEAR BUTTON
+        ============================================================ */
+        #clearSearch {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            display: none; align-items: center; justify-content: center;
+            border: none; background: none; cursor: pointer;
+            color: var(--text-muted); transition: color 0.2s ease;
+            padding: 0; font-size: 1.1rem; line-height: 1;
+        }
+        #clearSearch:hover { color: var(--text-primary); }
+        #clearSearch.visible { display: flex; }
+
+        /* ============================================================
+           CARD INTERNALS — category badge, protected text
+        ============================================================ */
+        .cat-badge {
+            background: var(--cat-badge-bg);
+            color: var(--cat-badge-text);
+            border: 1px solid var(--cat-badge-bdr);
+        }
+        .protected-text { color: var(--protected-text) !important; }
+        .profile-placeholder { background: var(--profile-bg); }
+
+        /* Time ago color in cards */
+        .time-chip { color: var(--text-primary); }
+
+        /* Card author */
+        .card-author { color: var(--text-secondary); }
 
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
             #sidebar-right.open { transform: translateX(0); }
             .title-text { font-size: 1.125rem; }
-            .logo-img { width: 40px; height: 40px; }
+            .logo-img   { width: 40px; height: 40px; }
         }
         @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
-
-        /* ✅ FIX: Clear search button — no background, bigger icon */
-        #clearSearch {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            background: none;
-            cursor: pointer;
-            color: #666;
-            transition: color 0.2s ease;
-            padding: 0;
-            font-size: 1.1rem;
-            line-height: 1;
-        }
-        #clearSearch:hover { color: #e5e5e5; }
-        #clearSearch.visible { display: flex; }
     </style>
 </head>
 <body>
@@ -276,19 +387,25 @@
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="title-text font-bold text-white flex items-center gap-3">
+                <h1 class="title-text font-bold flex items-center gap-3" style="color: var(--text-primary)">
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
-                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
+                    <span>AI Prompt Hub</span>
                 </h1>
-                <button id="sidebarToggleRight" class="text-white">
-                    <i class="material-icons text-2xl">notes</i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
+                        <i class="fa-solid fa-sun" style="font-size: 0.9rem;"></i>
+                    </button>
+                    <!-- Sidebar Toggle -->
+                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                        <i class="material-icons text-2xl">notes</i>
+                    </button>
+                </div>
             </div>
-            
+
             <div class="relative mb-3">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                <!-- ✅ FIX: pr-10 supaya teks tidak ketutup tombol close -->
-                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-10 py-2.5 rounded-lg outline-none text-sm text-white" autocomplete="off" />
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted)"></i>
+                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-10 py-2.5 rounded-lg outline-none text-sm" autocomplete="off" />
                 <button id="clearSearch" title="Hapus pencarian">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -312,7 +429,7 @@
                             <i class="fa-solid fa-chart-line text-orange-500"></i> Trending
                         </div>
                         <div class="sort-option" data-sort="popular">
-                            <i class="fa-solid fa-trophy text-yellow-600"></i> Populer
+                            <i class="fa-solid fa-trophy" style="color:#ca8a04"></i> Populer
                         </div>
                         <div class="sort-option" data-sort="a-z">
                             <i class="fa-solid fa-arrow-down-a-z text-blue-400"></i> A–Z
@@ -336,7 +453,7 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 90%;"></div>
-                <div class="pt-1.5 border-t border-[#2a2a2a]"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
+                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
             </div>
             <div class="card rounded-lg p-3 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -346,7 +463,7 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 85%;"></div>
-                <div class="pt-1.5 border-t border-[#2a2a2a]"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
+                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
             </div>
             <div class="card rounded-lg p-3 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -356,60 +473,87 @@
                 <div class="skeleton skeleton-title mb-2"></div>
                 <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
                 <div class="skeleton skeleton-text mb-2.5" style="width: 95%;"></div>
-                <div class="pt-1.5 border-t border-[#2a2a2a]"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
+                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
             </div>
         </div>
         <div id="content" class="space-y-4"></div>
     </main>
 
-    <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">© 2026 Prompt Hub</p>
+    <footer class="py-4 text-center mt-8">
+        <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
     </footer>
 
-    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
+    <!-- Sidebar -->
+    <aside id="sidebar-right" class="sidebar-inner fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col" style="background: var(--sidebar-bg); border-color: var(--sidebar-border);">
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
+            <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
                 <i class="material-icons text-2xl">close</i>
             </button>
         </div>
         <div class="flex-1 overflow-y-auto px-5 pb-7">
             <nav>
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm bg-[#1f1f1f] text-white border border-[#2a2a2a] rounded-xl">
+                    <a href="/" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
                         <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
-                    <a href="/request" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
+                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
                         <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
             <nav class="mt-8">
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/admin" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
+                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
                         <span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
         </div>
-        <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
-            <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--sidebar-border); background: var(--sidebar-bg)">
+            <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
             <div class="space-y-1">
                 <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center py-1 px-4 text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                   class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
                     <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
                 </a>
             </div>
         </div>
     </aside>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
 
     <script src="/js/timeago.js"></script>
     <script src="/js/script.js"></script>
     <script>
+        /* ---- Theme ---- */
+        (function() {
+            var STORAGE_KEY = 'prompthub-theme';
+            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+            function applyTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                var btn = document.getElementById('themeToggleBtn');
+                if (!btn) return;
+                var icon = btn.querySelector('i');
+                if (t === 'light') {
+                    icon.className = 'fa-solid fa-moon';
+                    btn.title = 'Switch to Dark Mode';
+                } else {
+                    icon.className = 'fa-solid fa-sun';
+                    btn.title = 'Switch to Light Mode';
+                }
+            }
+            window.toggleTheme = function() {
+                var next = getTheme() === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(STORAGE_KEY, next);
+                applyTheme(next);
+            };
+            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+        })();
+
+        /* ---- Sidebar ---- */
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
         const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
@@ -426,27 +570,20 @@
         sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        // ✅ FIX: Debounce search — tunggu 200ms setelah berhenti ngetik baru filter
+        /* ---- Search with debounce ---- */
         const searchInput = document.getElementById('searchInput');
         const clearSearch = document.getElementById('clearSearch');
         let searchDebounceTimer = null;
-
         searchInput.addEventListener('input', () => {
-            // Update tombol clear langsung (ringan)
             clearSearch.classList.toggle('visible', searchInput.value.length > 0);
-
-            // ✅ Debounce: batalkan timer lama, set timer baru
             clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => {
-                applyFilters(); // baru jalankan filter setelah 200ms idle
-            }, 200);
+            searchDebounceTimer = setTimeout(() => { applyFilters(); }, 200);
         });
-
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
             clearSearch.classList.remove('visible');
             clearTimeout(searchDebounceTimer);
-            applyFilters(); // langsung filter karena kosong (ringan)
+            applyFilters();
             searchInput.focus();
         });
     </script>

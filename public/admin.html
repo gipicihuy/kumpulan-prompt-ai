@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,317 +8,267 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
+
+    <!-- Theme init: run BEFORE paint -->
+    <script>
+        (function() {
+            var t = localStorage.getItem('prompthub-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
     <style>
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e5e5e5; 
-            min-height: 100vh;
+        :root, [data-theme="dark"] {
+            --bg-base:        #0f0f0f;
+            --bg-surface:     #1a1a1a;
+            --bg-surface2:    #1f1f1f;
+            --bg-surface3:    #252525;
+            --border:         #2a2a2a;
+            --border-hover:   #444;
+            --text-primary:   #e5e5e5;
+            --text-secondary: #9ca3af;
+            --text-muted:     #6b7280;
+            --header-bg:      rgba(26,26,26,0.8);
+            --input-bg:       #1a1a1a;
+            --input-focus:    #1f1f1f;
+            --footer-bg:      rgba(26,26,26,0.95);
+            --sidebar-bg:     #1a1a1a;
+            --overlay-bg:     rgba(0,0,0,0.8);
+            --card-from:      #1a1a1a;
+            --card-to:        #1f1f1f;
+            --modal-bg-from:  #1a1a1a;
+            --modal-bg-to:    #1f1f1f;
+            --slug-bg:        #0f0f0f;
+            --prompt-item-from: #1a1a1a;
+            --prompt-item-to:   #1f1f1f;
+            --prompt-item-hover-from: #1f1f1f;
+            --prompt-item-hover-to:   #242424;
+            --shadow:         rgba(0,0,0,0.4);
         }
-        input, textarea { 
-            background-color: #1a1a1a !important; 
-            border-color: #2a2a2a !important;
+        [data-theme="light"] {
+            --bg-base:        #f4f4f5;
+            --bg-surface:     #ffffff;
+            --bg-surface2:    #f9f9f9;
+            --bg-surface3:    #f0f0f0;
+            --border:         #e4e4e7;
+            --border-hover:   #a1a1aa;
+            --text-primary:   #18181b;
+            --text-secondary: #52525b;
+            --text-muted:     #71717a;
+            --header-bg:      rgba(255,255,255,0.9);
+            --input-bg:       #ffffff;
+            --input-focus:    #f9f9f9;
+            --footer-bg:      rgba(255,255,255,0.95);
+            --sidebar-bg:     #ffffff;
+            --overlay-bg:     rgba(0,0,0,0.5);
+            --card-from:      #ffffff;
+            --card-to:        #f9f9f9;
+            --modal-bg-from:  #ffffff;
+            --modal-bg-to:    #f9f9f9;
+            --slug-bg:        #f4f4f5;
+            --prompt-item-from: #ffffff;
+            --prompt-item-to:   #f9f9f9;
+            --prompt-item-hover-from: #f9f9f9;
+            --prompt-item-hover-to:   #f0f0f0;
+            --shadow:         rgba(0,0,0,0.06);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        input, textarea {
+            background-color: var(--input-bg) !important;
+            border-color: var(--border) !important;
+            color: var(--text-primary) !important;
             transition: all 0.3s ease;
         }
-        input:focus, textarea:focus { 
-            border-color: #444 !important; 
-            background-color: #1f1f1f !important;
-            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
+        input:focus, textarea:focus {
+            border-color: var(--border-hover) !important;
+            background-color: var(--input-focus) !important;
+            box-shadow: 0 0 0 3px rgba(128,128,128,0.1);
         }
-        .image-preview { 
-            max-width: 100%; 
-            max-height: 160px; 
-            object-fit: cover; 
-            border-radius: 8px; 
-        }
-        
+        input::placeholder, textarea::placeholder { color: var(--text-muted) !important; }
+
+        .image-preview { max-width: 100%; max-height: 160px; object-fit: cover; border-radius: 8px; }
+
         header {
-            background: rgba(26, 26, 26, 0.8);
+            background: var(--header-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
+            border-bottom: 1px solid var(--border);
         }
 
-        .logo-img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-        }
-        
-        .title-text {
-            font-size: 1.375rem;
-            line-height: 1.2;
-        }
+        .logo-img  { width: 48px; height: 48px; object-fit: contain; }
+        .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        #sidebar-right {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #overlay {
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
-        }
-
-        #overlay.show {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
+        #overlay.show  { opacity: 1 !important; visibility: visible !important; }
 
         @media (max-width: 767px) {
-            #sidebar-right {
-                transform: translateX(100%);
-            }
-            #sidebar-right.open {
-                transform: translateX(0);
-            }
-            .title-text {
-                font-size: 1.125rem;
-            }
-            .logo-img {
-                width: 40px;
-                height: 40px;
-            }
+            #sidebar-right { transform: translateX(100%); }
+            #sidebar-right.open { transform: translateX(0); }
+            .title-text { font-size: 1.125rem; }
+            .logo-img   { width: 40px; height: 40px; }
+        }
+        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
+
+        /* Theme toggle button */
+        #themeToggleBtn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface2);
+            color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
+        }
+        #themeToggleBtn:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-surface3); }
+
+        .login-card {
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%);
+            box-shadow: 0 20px 60px var(--shadow);
         }
 
-        @media (min-width: 768px) {
-            #sidebar-right {
-                transform: translateX(0);
-            }
-        }
-        
-        .login-card {
-            border: 1px solid #2a2a2a;
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-        }
-        
         .admin-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px var(--shadow);
         }
-        
+
         .btn-primary {
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+            background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-primary) 100%);
+            color: var(--bg-base);
             transition: all 0.3s ease;
         }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
-            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
+            box-shadow: 0 4px 12px rgba(128,128,128,0.2);
             transform: translateY(-1px);
         }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
         .slug-preview {
-            background: #0f0f0f;
-            border: 1px solid #2a2a2a;
+            background: var(--slug-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
             transition: all 0.3s ease;
         }
-        
-        .slug-preview.active {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.05);
-        }
-        
-        .slug-preview.text-green-400 {
-            border-color: #4ade80;
-            background: rgba(74, 222, 128, 0.05);
-        }
-        
-        .slug-preview.text-red-400 {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.05);
-        }
-        
-        .slug-preview.text-yellow-400 {
-            border-color: #facc15;
-            background: rgba(250, 204, 21, 0.05);
-        }
+        .slug-preview.text-green-400  { border-color: #4ade80; background: rgba(74,222,128,0.05); }
+        .slug-preview.text-red-400    { border-color: #ef4444; background: rgba(239,68,68,0.05); }
+        .slug-preview.text-yellow-400 { border-color: #facc15; background: rgba(250,204,21,0.05); }
 
         .password-toggle {
-            background: #1f1f1f;
-            border: 1px solid #2a2a2a;
+            background: var(--bg-surface2);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
             transition: all 0.3s ease;
         }
         .password-toggle.active {
-            background: rgba(74, 222, 128, 0.1);
+            background: rgba(74,222,128,0.1);
             border-color: #4ade80;
+            color: #4ade80;
         }
 
-        label {
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
-        }
+        label { font-size: 0.7rem; letter-spacing: 0.05em; color: var(--text-muted); }
 
-        input[type="file"] {
-            font-size: 0.75rem;
-        }
-        
+        input[type="file"] { font-size: 0.75rem; }
         input[type="file"]::file-selector-button {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            font-weight: 600;
+            padding: 0.4rem 0.8rem; font-size: 0.7rem; font-weight: 600;
             letter-spacing: 0.025em;
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            color: #000;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: var(--text-secondary); color: var(--bg-base);
+            border: none; border-radius: 0.5rem; cursor: pointer; transition: all 0.3s ease;
         }
+        input[type="file"]::file-selector-button:hover { background: var(--text-primary); }
 
-        input[type="file"]::file-selector-button:hover {
-            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
-        }
-
-        .password-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .password-input-wrapper input {
-            padding-right: 40px !important;
-            width: 100%;
-        }
-
+        .password-input-wrapper { position: relative; display: flex; align-items: center; }
+        .password-input-wrapper input { padding-right: 40px !important; width: 100%; }
         .toggle-password-visibility {
-            position: absolute;
-            right: 12px;
-            background: none;
-            border: none;
-            color: #888;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
+            position: absolute; right: 12px;
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; transition: color 0.3s ease;
+            padding: 0; display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px;
         }
+        .toggle-password-visibility:hover { color: var(--text-primary); }
+        .toggle-password-visibility i { font-size: 0.875rem; }
 
-        .toggle-password-visibility:hover {
-            color: #e5e5e5;
-        }
-
-        .toggle-password-visibility i {
-            font-size: 0.875rem;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 15, 15, 0.95);
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem; opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
+        .modal-overlay.show { opacity: 1; visibility: visible; }
         .modal-content {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-            border-radius: 1rem;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            overflow: hidden;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
+            background: linear-gradient(135deg, var(--modal-bg-from) 0%, var(--modal-bg-to) 100%);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px var(--shadow);
+            border-radius: 1rem; max-width: 600px; width: 100%;
+            max-height: 90vh; overflow: hidden; padding: 2rem;
+            display: flex; flex-direction: column;
         }
 
         .prompt-item {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
+            background: linear-gradient(135deg, var(--prompt-item-from) 0%, var(--prompt-item-to) 100%);
+            border: 1px solid var(--border);
             transition: all 0.3s ease;
         }
-
         .prompt-item:hover {
-            border-color: #444;
-            background: linear-gradient(135deg, #1f1f1f 0%, #242424 100%);
+            border-color: var(--border-hover);
+            background: linear-gradient(135deg, var(--prompt-item-hover-from) 0%, var(--prompt-item-hover-to) 100%);
         }
 
         .skeleton {
-            background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+            background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-surface3) 50%, var(--bg-surface) 75%);
             background-size: 200% 100%;
             animation: pulse 1.5s ease-in-out infinite;
         }
-        @keyframes pulse {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        .btn-small {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.7rem;
-            transition: all 0.3s ease;
-        }
+        .btn-small { padding: 0.4rem 0.8rem; font-size: 0.7rem; transition: all 0.3s ease; }
+        .btn-small:hover { transform: translateY(-1px); }
+        .btn-small.edit   { background: #3b82f6; border: 1px solid #2563eb; color: white; }
+        .btn-small.delete { background: #ef4444; border: 1px solid #dc2626; color: white; }
+        .btn-small.edit:hover   { background: #2563eb; }
+        .btn-small.delete:hover { background: #dc2626; }
 
-        .btn-small:hover {
-            transform: translateY(-1px);
-        }
+        .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
 
-        .btn-small.edit {
-            background: #3b82f6;
-            border: 1px solid #2563eb;
-            color: white;
-        }
-
-        .btn-small.delete {
-            background: #ef4444;
-            border: 1px solid #dc2626;
-            color: white;
-        }
-
-        .btn-small.edit:hover {
-            background: #2563eb;
-        }
-
-        .btn-small.delete:hover {
-            background: #dc2626;
-        }
+        /* Tab active indicator */
+        .tab-btn-active { border-bottom: 3px solid var(--text-primary) !important; color: var(--text-primary) !important; }
+        .tab-btn-inactive { border-bottom: 3px solid transparent !important; color: var(--text-muted) !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    
+
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <h1 class="title-text font-bold text-white flex items-center gap-3">
+                <h1 class="title-text font-bold flex items-center gap-3" style="color: var(--text-primary)">
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
-                    <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
+                    <span>AI Prompt Hub</span>
                 </h1>
-                
-                <button id="sidebarToggleRight" class="text-white">
-                    <i class="material-icons text-2xl">notes</i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
+                        <i class="fa-solid fa-sun" style="font-size: 0.9rem;"></i>
+                    </button>
+                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                        <i class="material-icons text-2xl">notes</i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -326,23 +276,23 @@
     <main class="flex-grow p-4">
         <div id="loginSection" class="max-w-md mx-auto mt-8">
             <div class="login-card rounded-xl p-6">
-                <i class="fa-solid fa-lock text-3xl mb-4 block text-center text-gray-400"></i>
-                <h2 class="text-center font-bold mb-6 uppercase tracking-wide text-lg text-gray-300">Restricted Access</h2>
+                <i class="fa-solid fa-lock text-3xl mb-4 block text-center" style="color: var(--text-muted)"></i>
+                <h2 class="text-center font-bold mb-6 uppercase tracking-wide text-lg" style="color: var(--text-secondary)">Restricted Access</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Username</label>
-                        <input type="text" id="user" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                        <label class="uppercase block mb-1.5">Username</label>
+                        <input type="text" id="user" class="w-full p-3 rounded-lg border outline-none text-sm">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1.5">Password</label>
+                        <label class="uppercase block mb-1.5">Password</label>
                         <div class="password-input-wrapper">
-                            <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                            <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-sm">
                             <button type="button" id="toggleLoginPassword" class="toggle-password-visibility" title="Show/Hide Password">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </div>
-                    <button onclick="login()" class="w-full btn-primary text-black font-bold py-3 rounded-lg uppercase tracking-wide text-sm mt-4">Login</button>
+                    <button onclick="login()" class="w-full btn-primary font-bold py-3 rounded-lg uppercase tracking-wide text-sm mt-4">Login</button>
                 </div>
             </div>
         </div>
@@ -350,67 +300,53 @@
         <div id="adminSection" class="max-w-4xl mx-auto hidden">
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <div class="flex gap-4 border-b border-[#2a2a2a]">
-                        <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-gray-400 pl-3 text-gray-200 pb-3" style="border-bottom: 3px solid #e5e5e5;">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 text-gray-500 pb-3 hover:text-gray-300 transition-colors" style="border-bottom: 3px solid transparent;">Manage</button>
+                    <div class="flex gap-4" style="border-bottom: 1px solid var(--border)">
+                        <button onclick="switchAdminTab('new')" id="tabNewPrompt"
+                            class="text-sm font-bold uppercase tracking-tight border-l-4 pl-3 pb-3 tab-btn-active"
+                            style="border-left-color: var(--text-secondary)">New Prompt</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt"
+                            class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 pb-3 tab-btn-inactive hover:text-gray-300 transition-colors">Manage</button>
                     </div>
                     <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
                 </div>
             </div>
 
+            <!-- New Prompt Tab -->
             <div id="tab-new" class="tab-content active">
                 <div class="space-y-4 admin-card p-5 rounded-xl">
                     <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Judul Prompt</label>
-                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
-                        <p class="text-[10px] text-gray-500 mt-1">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
+                        <label class="uppercase block mb-1.5">Judul Prompt</label>
+                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-sm">
+                        <p class="text-[10px] mt-1" style="color: var(--text-muted)">URL slug akan otomatis generate (huruf depan otomatis kapital)</p>
                     </div>
-
                     <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Preview URL</label>
-                        <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-gray-500 text-xs font-mono">/prompt/...</div>
+                        <label class="uppercase block mb-1.5">Preview URL</label>
+                        <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-xs font-mono">/prompt/...</div>
                     </div>
-
                     <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Kategori</label>
-                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-white text-sm">
+                        <label class="uppercase block mb-1.5">Kategori</label>
+                        <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-sm">
                     </div>
-
                     <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Description (Opsional)</label>
-                        <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                        <label class="uppercase block mb-1.5">Description (Opsional)</label>
+                        <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
                     </div>
-                    
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-gray-400 uppercase flex items-center gap-1.5">
+                            <label class="uppercase flex items-center gap-1.5">
                                 <i class="fa-solid fa-shield-halved text-xs"></i> Password Protection
                             </label>
-                            <button 
-                                type="button" 
-                                id="togglePassword" 
-                                onclick="togglePasswordField()"
-                                class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
-                            >
+                            <button type="button" id="togglePassword" onclick="togglePasswordField()"
+                                class="password-toggle px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all">
                                 <i class="fa-solid fa-lock"></i> Enable
                             </button>
                         </div>
                         <div id="passwordField" class="hidden">
                             <div class="password-input-wrapper">
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    placeholder="Enter password" 
-                                    class="w-full p-3 rounded-lg border outline-none text-white text-sm"
-                                    autocomplete="off"
-                                >
-                                <button 
-                                    type="button" 
-                                    id="togglePasswordVisibility" 
-                                    class="toggle-password-visibility" 
-                                    title="Show/Hide Password"
-                                    onclick="togglePasswordVisibilityAdmin()"
-                                >
+                                <input type="password" id="password" placeholder="Enter password"
+                                    class="w-full p-3 rounded-lg border outline-none text-sm" autocomplete="off">
+                                <button type="button" id="togglePasswordVisibility" class="toggle-password-visibility"
+                                    title="Show/Hide Password" onclick="togglePasswordVisibilityAdmin()">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -420,15 +356,13 @@
                             </p>
                         </div>
                     </div>
-
                     <div>
-                        <label class="text-gray-400 uppercase flex items-center gap-1.5 mb-1.5">
+                        <label class="uppercase flex items-center gap-1.5 mb-1.5">
                             <i class="fa-solid fa-image text-xs"></i> Preview Image (Opsional)
                         </label>
-                        <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none text-white bg-[#1a1a1a]">
-                        
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none">
                         <div id="imagePreviewContainer" class="mt-3 hidden">
-                            <div class="border border-[#2a2a2a] rounded-lg p-2 bg-[#0f0f0f]">
+                            <div class="rounded-lg p-2" style="border: 1px solid var(--border); background: var(--slug-bg)">
                                 <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
                             </div>
                             <button onclick="removeImage()" class="mt-2 text-[10px] text-red-400 hover:text-red-300 hover:underline font-bold transition-colors">
@@ -436,215 +370,196 @@
                             </button>
                         </div>
                     </div>
-
                     <div>
-                        <label class="text-gray-400 uppercase block mb-1.5">Isi Prompt</label>
-                        <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                        <label class="uppercase block mb-1.5">Isi Prompt</label>
+                        <textarea id="isi" rows="7" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
                     </div>
-                    <button onclick="save()" id="uploadBtn" class="w-full btn-primary text-black font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
+                    <button onclick="save()" id="uploadBtn" class="w-full btn-primary font-bold py-3.5 rounded-lg uppercase tracking-wide text-sm">
                         <i class="fa-solid fa-upload mr-1.5"></i>Upload Prompt
                     </button>
                 </div>
             </div>
 
+            <!-- Manage Tab -->
             <div id="tab-manage" class="tab-content">
                 <div class="admin-card p-5 rounded-xl space-y-4">
                     <div class="flex gap-2">
-                        <input type="text" id="searchManage" placeholder="Cari prompt..." class="flex-1 p-2.5 rounded-lg border outline-none text-white text-sm">
+                        <input type="text" id="searchManage" placeholder="Cari prompt..." class="flex-1 p-2.5 rounded-lg border outline-none text-sm">
                         <button onclick="loadManagePrompts()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition-all" title="Refresh">
                             <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
-
                     <div id="manageLoading" class="text-center py-8">
                         <div class="inline-block">
-                            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-gray-400"></i>
-                            <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest font-bold">Loading...</p>
+                            <i class="fa-solid fa-circle-notch fa-spin text-2xl" style="color: var(--text-muted)"></i>
+                            <p class="text-xs mt-2 uppercase tracking-widest font-bold" style="color: var(--text-muted)">Loading...</p>
                         </div>
                     </div>
-
-                    <div id="manageContent" class="space-y-3 hidden">
-                    </div>
+                    <div id="manageContent" class="space-y-3 hidden"></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8" style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(10px);">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
-            © 2026 Prompt Hub
-        </p>
+    <footer class="py-4 text-center mt-8" style="border-top: 1px solid var(--border); background: var(--footer-bg)">
+        <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
     </footer>
 
+    <!-- Edit Modal -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h3 class="text-xl font-bold text-white uppercase tracking-tight">Edit Prompt</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white text-xl">
+                <h3 class="text-xl font-bold uppercase tracking-tight" style="color: var(--text-primary)">Edit Prompt</h3>
+                <button onclick="closeEditModal()" class="text-xl" style="color: var(--text-muted)">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
-
             <form id="editForm" class="space-y-3 flex-1 overflow-y-auto pr-2">
                 <input type="hidden" id="editSlug">
-
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Judul</label>
-                    <input type="text" id="editJudul" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                    <label class="uppercase block mb-1">Judul</label>
+                    <input type="text" id="editJudul" class="w-full p-2.5 rounded-lg border outline-none text-sm" required>
                 </div>
-
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Kategori</label>
-                    <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" required>
+                    <label class="uppercase block mb-1">Kategori</label>
+                    <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-sm" required>
                 </div>
-
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Description</label>
-                    <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm"></textarea>
+                    <label class="uppercase block mb-1">Description</label>
+                    <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm"></textarea>
                 </div>
-
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5">
+                        <label class="uppercase text-xs flex items-center gap-1.5">
                             <i class="fa-solid fa-shield-halved"></i> Password
                         </label>
-                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()" class="password-toggle px-2 py-1 rounded text-[10px] font-bold uppercase">
+                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()"
+                            class="password-toggle px-2 py-1 rounded text-[10px] font-bold uppercase">
                             <i class="fa-solid fa-lock"></i> Enable
                         </button>
                     </div>
                     <div id="editPasswordField" class="hidden">
                         <div class="password-input-wrapper">
-                            <input type="password" id="editPassword" placeholder="Leave empty to remove protection" class="w-full p-2.5 rounded-lg border outline-none text-white text-sm" autocomplete="off">
+                            <input type="password" id="editPassword" placeholder="Leave empty to remove protection"
+                                class="w-full p-2.5 rounded-lg border outline-none text-sm" autocomplete="off">
                             <button type="button" onclick="toggleEditPasswordVisibility()" class="toggle-password-visibility">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-
                 <div>
-                    <label class="text-gray-400 uppercase text-xs flex items-center gap-1.5 mb-1">
+                    <label class="uppercase text-xs flex items-center gap-1.5 mb-1">
                         <i class="fa-solid fa-image"></i> Image
                     </label>
-                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2.5 rounded-lg border outline-none text-white bg-[#1a1a1a] text-xs">
+                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2.5 rounded-lg border outline-none text-xs">
                     <div id="editImagePreviewContainer" class="mt-2 hidden">
                         <img id="editImagePreview" class="image-preview mx-auto" alt="Preview">
                         <button type="button" onclick="removeEditImage()" class="mt-1 text-[10px] text-red-400 hover:text-red-300">Remove</button>
                     </div>
                 </div>
-
                 <div>
-                    <label class="text-gray-400 uppercase block mb-1">Isi Prompt</label>
-                    <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none text-white resize-none text-sm" required></textarea>
+                    <label class="uppercase block mb-1">Isi Prompt</label>
+                    <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm" required></textarea>
                 </div>
-
-                <button type="submit" class="w-full btn-primary text-black font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
+                <button type="submit" class="w-full btn-primary font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
                     <i class="fa-solid fa-save mr-2"></i>Save Changes
                 </button>
             </form>
         </div>
     </div>
 
+    <!-- Delete Modal -->
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3 block text-center"></i>
-            <h3 class="text-lg font-bold text-white uppercase mb-2 text-center">Confirm Delete</h3>
-            <p id="deleteConfirmText" class="text-sm text-gray-300 text-center mb-4"></p>
+            <h3 class="text-lg font-bold uppercase mb-2 text-center" style="color: var(--text-primary)">Confirm Delete</h3>
+            <p id="deleteConfirmText" class="text-sm text-center mb-4" style="color: var(--text-secondary)"></p>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Cancel</button>
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all" style="background: var(--bg-surface3); color: var(--text-secondary); border: 1px solid var(--border)">Cancel</button>
                 <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Delete</button>
             </div>
         </div>
     </div>
 
-    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
-        
+    <!-- Sidebar -->
+    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col"
+        style="background: var(--sidebar-bg); border-color: var(--border);">
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
+            <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
                 <i class="material-icons text-2xl">close</i>
             </button>
         </div>
-
         <div class="flex-1 overflow-y-auto px-5 pb-7">
-
             <nav>
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Home</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
-                    <a href="/request" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm text-gray-400 hover:bg-[#1f1f1f] rounded-xl transition-colors">
-                        <span>Request Prompt</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
-
             <nav class="mt-8">
-                <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/admin" class="flex items-center justify-between py-1 pl-4 pr-3 text-sm bg-[#1f1f1f] text-white border border-[#2a2a2a] rounded-xl">
-                        <span>Admin</span>
-                        <i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    <a href="/admin" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                 </div>
             </nav>
-
         </div>
-
-        <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
-            <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--border); background: var(--sidebar-bg)">
+            <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
             <div class="space-y-1">
                 <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center py-1 px-4 text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    <span class="material-icons text-sm mr-3">arrow_outward</span>
-                    <span>Support Us</span>
+                   class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
+                    <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
                 </a>
             </div>
         </div>
-
     </aside>
 
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
     <script>
+        /* ---- Theme ---- */
+        (function() {
+            var STORAGE_KEY = 'prompthub-theme';
+            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+            function applyTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                var btn = document.getElementById('themeToggleBtn');
+                if (!btn) return;
+                var icon = btn.querySelector('i');
+                if (t === 'light') { icon.className = 'fa-solid fa-moon'; btn.title = 'Switch to Dark Mode'; }
+                else               { icon.className = 'fa-solid fa-sun';  btn.title = 'Switch to Light Mode'; }
+            }
+            window.toggleTheme = function() {
+                var next = getTheme() === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(STORAGE_KEY, next);
+                applyTheme(next);
+            };
+            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+        })();
+
+        /* ---- Sidebar ---- */
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
-        const sidebarCloseRight = document.getElementById('sidebarCloseRight');
+        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
         const overlay = document.getElementById('overlay');
-
-        function openSidebarRight() {
-            sidebarRight.classList.add('open');
-            overlay.classList.add('show');
-            overlay.classList.remove('opacity-0', 'invisible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebarRight() {
-            sidebarRight.classList.remove('open');
-            overlay.classList.remove('show');
-            overlay.classList.add('opacity-0', 'invisible');
-            document.body.style.overflow = '';
-        }
-
+        function openSidebarRight()  { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow='hidden'; }
+        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow=''; }
         sidebarToggleRight.onclick = openSidebarRight;
-        sidebarCloseRight.onclick = closeSidebarRight;
+        sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        const notyf = new Notyf({
-            duration: 3000,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            ripple: true,
-            dismissible: true
-        });
-
+        /* ---- Admin Logic ---- */
+        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
 
@@ -655,137 +570,84 @@
         let promptToDelete = null;
 
         function togglePasswordVisibilityAdmin() {
-            const passwordInput = document.getElementById('password');
-            const toggleBtn = document.getElementById('togglePasswordVisibility');
-            const icon = toggleBtn.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                toggleBtn.setAttribute('title', 'Hide Password');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-                toggleBtn.setAttribute('title', 'Show Password');
-            }
+            const pi = document.getElementById('password');
+            const icon = document.getElementById('togglePasswordVisibility').querySelector('i');
+            if (pi.type === 'password') { pi.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye'; }
         }
 
         document.getElementById('toggleLoginPassword').addEventListener('click', function(e) {
             e.preventDefault();
-            const passwordInput = document.getElementById('pass');
+            const pi = document.getElementById('pass');
             const icon = this.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            if (pi.type === 'password') { pi.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye'; }
         });
 
         function togglePasswordField() {
             passwordEnabled = !passwordEnabled;
-            const passwordField = document.getElementById('passwordField');
-            const toggleBtn = document.getElementById('togglePassword');
-            
+            const pf  = document.getElementById('passwordField');
+            const btn = document.getElementById('togglePassword');
             if (passwordEnabled) {
-                passwordField.classList.remove('hidden');
-                toggleBtn.classList.add('active');
-                toggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                toggleBtn.style.color = '#4ade80';
+                pf.classList.remove('hidden');
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
             } else {
-                passwordField.classList.add('hidden');
-                toggleBtn.classList.remove('active');
-                toggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                toggleBtn.style.color = '';
+                pf.classList.add('hidden');
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
                 document.getElementById('password').value = '';
             }
         }
 
         function capitalizeWords(text) {
-            return text
-                .toLowerCase()
-                .split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ')
-                .split('-')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join('-');
+            return text.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                       .split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
         }
 
         function generateSlug(text) {
-            return text
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '');
+            return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
         }
 
         let slugCheckTimeout;
-        
         document.getElementById('judul').addEventListener('input', function(e) {
             const capitalizedText = capitalizeWords(e.target.value);
-            if (capitalizedText !== e.target.value) {
-                e.target.value = capitalizedText;
-            }
-
+            if (capitalizedText !== e.target.value) e.target.value = capitalizedText;
             const slug = generateSlug(e.target.value);
             const preview = document.getElementById('slugPreview');
-            
             if (slug) {
                 preview.innerText = `/prompt/${slug}`;
-                preview.classList.remove('text-gray-500', 'text-red-400', 'text-green-400');
-                preview.classList.add('text-yellow-400', 'active');
-                
+                preview.className = 'slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-yellow-400';
                 clearTimeout(slugCheckTimeout);
-                
-                slugCheckTimeout = setTimeout(async () => {
-                    await checkSlugDuplicate(slug);
-                }, 500);
+                slugCheckTimeout = setTimeout(() => checkSlugDuplicate(slug), 500);
             } else {
                 preview.innerText = '/prompt/...';
-                preview.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400', 'active');
-                preview.classList.add('text-gray-500');
+                preview.className = 'slug-preview w-full p-2.5 rounded-lg text-xs font-mono';
                 slugExists = false;
             }
         });
-        
+
         async function checkSlugDuplicate(slug) {
             const preview = document.getElementById('slugPreview');
-            
             try {
-                const response = await fetch('/api/check-slug', {
+                const res = await fetch('/api/check-slug', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('adminToken')
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
                     body: JSON.stringify({ slug })
                 });
-                
-                const result = await response.json();
-                
+                const result = await res.json();
                 if (result.success && result.exists) {
                     slugExists = true;
-                    preview.classList.remove('text-yellow-400', 'text-green-400');
-                    preview.classList.add('text-red-400');
+                    preview.className = 'slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-red-400';
                     preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Sudah dipakai oleh "${result.existingData.judul}")</span>`;
                 } else {
                     slugExists = false;
-                    preview.classList.remove('text-yellow-400', 'text-red-400');
-                    preview.classList.add('text-green-400');
+                    preview.className = 'slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-green-400';
                     preview.innerHTML = `<i class="fa-solid fa-check mr-1"></i>/prompt/${slug}<span class="text-[10px]"> (Tersedia)</span>`;
                 }
-            } catch (error) {
-                console.error('Error checking slug:', error);
+            } catch(e) {
                 slugExists = false;
-                preview.classList.remove('text-yellow-400', 'text-red-400');
-                preview.classList.add('text-green-400');
+                preview.className = 'slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-green-400';
                 preview.innerText = `/prompt/${slug}`;
             }
         }
@@ -797,7 +659,7 @@
                 reader.onload = function(e) {
                     document.getElementById('imagePreview').src = e.target.result;
                     document.getElementById('imagePreviewContainer').classList.remove('hidden');
-                }
+                };
                 reader.readAsDataURL(file);
             }
         });
@@ -813,15 +675,10 @@
             const originalText = btn.innerText;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';
             btn.disabled = true;
-            
             try {
                 const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        username: userVal, 
-                        password: document.getElementById('pass').value 
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: userVal, password: document.getElementById('pass').value })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -829,15 +686,9 @@
                     localStorage.setItem('adminName', userVal);
                     notyf.success('Login berhasil!');
                     showAdmin();
-                } else { 
-                    notyf.error('Kredensial salah!');
-                }
-            } catch (e) {
-                notyf.error('Server error!');
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
+                } else { notyf.error('Kredensial salah!'); }
+            } catch(e) { notyf.error('Server error!'); }
+            finally { btn.innerText = originalText; btn.disabled = false; }
         }
 
         function showAdmin() {
@@ -846,91 +697,64 @@
         }
 
         function switchAdminTab(tab) {
-            const tabNew = document.getElementById('tab-new');
+            const tabNew    = document.getElementById('tab-new');
             const tabManage = document.getElementById('tab-manage');
-            const btnNew = document.getElementById('tabNewPrompt');
+            const btnNew    = document.getElementById('tabNewPrompt');
             const btnManage = document.getElementById('tabManagePrompt');
-
             if (tab === 'new') {
-                tabNew.classList.add('active');
-                tabManage.classList.remove('active');
-                btnNew.style.borderBottom = '3px solid #e5e5e5';
-                btnManage.style.borderBottom = '3px solid transparent';
+                tabNew.classList.add('active'); tabManage.classList.remove('active');
+                btnNew.className = btnNew.className.replace('tab-btn-inactive','') + ' tab-btn-active';
+                btnManage.className = btnManage.className.replace('tab-btn-active','') + ' tab-btn-inactive';
             } else {
-                tabNew.classList.remove('active');
-                tabManage.classList.add('active');
-                btnNew.style.borderBottom = '3px solid transparent';
-                btnManage.style.borderBottom = '3px solid #e5e5e5';
-                
+                tabNew.classList.remove('active'); tabManage.classList.add('active');
+                btnManage.className = btnManage.className.replace('tab-btn-inactive','') + ' tab-btn-active';
+                btnNew.className = btnNew.className.replace('tab-btn-active','') + ' tab-btn-inactive';
                 loadManagePrompts();
             }
         }
 
         async function loadManagePrompts() {
             try {
-                const response = await fetch('/api/get-all-prompts', {
-                    headers: { 'Authorization': localStorage.getItem('adminToken') }
-                });
-
-                const result = await response.json();
-
-                if (!result.success) {
-                    notyf.error('Gagal load prompts');
-                    return;
-                }
-
+                const res = await fetch('/api/get-all-prompts', { headers: { 'Authorization': localStorage.getItem('adminToken') } });
+                const result = await res.json();
+                if (!result.success) { notyf.error('Gagal load prompts'); return; }
                 allPrompts = result.data;
                 renderManagePrompts();
-            } catch (error) {
-                console.error('Error loading prompts:', error);
-                notyf.error('Error loading prompts');
-            }
+            } catch(e) { notyf.error('Error loading prompts'); }
         }
 
         function renderManagePrompts() {
             const searchTerm = document.getElementById('searchManage').value.toLowerCase();
-            const filtered = allPrompts.filter(p => 
-                p.judul.toLowerCase().includes(searchTerm) ||
-                p.kategori.toLowerCase().includes(searchTerm)
+            const filtered = allPrompts.filter(p =>
+                p.judul.toLowerCase().includes(searchTerm) || p.kategori.toLowerCase().includes(searchTerm)
             );
-
             const manageContent = document.getElementById('manageContent');
             const manageLoading = document.getElementById('manageLoading');
-
             if (filtered.length === 0) {
-                manageContent.innerHTML = '<p class="text-center text-gray-500 text-sm font-bold uppercase py-8">No prompts found</p>';
-                manageContent.classList.remove('hidden');
-                manageLoading.classList.add('hidden');
-                return;
+                manageContent.innerHTML = `<p class="text-center text-sm font-bold uppercase py-8" style="color:var(--text-muted)">No prompts found</p>`;
+                manageContent.classList.remove('hidden'); manageLoading.classList.add('hidden'); return;
             }
-
             manageContent.innerHTML = filtered.map(prompt => `
                 <div class="prompt-item rounded-lg p-3">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <h4 class="font-bold text-white text-sm">${prompt.judul}</h4>
-                            <p class="text-xs text-gray-400">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
+                            <h4 class="font-bold text-sm" style="color:var(--text-primary)">${prompt.judul}</h4>
+                            <p class="text-xs" style="color:var(--text-muted)">${prompt.kategori}${prompt.isProtected ? ' 🔒' : ''}</p>
                         </div>
-                        <span class="text-[10px] text-gray-500">${prompt.createdAt}</span>
+                        <span class="text-[10px]" style="color:var(--text-muted)">${prompt.createdAt}</span>
                     </div>
-                    <div class="flex gap-1.5 mb-2 text-xs">
-                        <span class="text-gray-400"><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
-                        <span class="text-gray-400"><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
+                    <div class="flex gap-1.5 mb-2 text-xs" style="color:var(--text-muted)">
+                        <span><i class="fa-solid fa-eye"></i> ${prompt.analytics.views}</span>
+                        <span><i class="fa-solid fa-copy"></i> ${prompt.analytics.copies}</span>
+                        <span><i class="fa-solid fa-download"></i> ${prompt.analytics.downloads}</span>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg">
-                            <i class="fa-solid fa-pencil mr-1"></i>Edit
-                        </button>
-                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg">
-                            <i class="fa-solid fa-trash mr-1"></i>Delete
-                        </button>
+                        <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg"><i class="fa-solid fa-pencil mr-1"></i>Edit</button>
+                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                     </div>
                 </div>
             `).join('');
-
-            manageContent.classList.remove('hidden');
-            manageLoading.classList.add('hidden');
+            manageContent.classList.remove('hidden'); manageLoading.classList.add('hidden');
         }
 
         document.getElementById('searchManage').addEventListener('input', renderManagePrompts);
@@ -938,79 +762,54 @@
         function openEditModal(slug) {
             const prompt = allPrompts.find(p => p.slug === slug);
             if (!prompt) return;
-
             document.getElementById('editSlug').value = slug;
             document.getElementById('editJudul').value = prompt.judul;
             document.getElementById('editKategori').value = prompt.kategori;
             document.getElementById('editDescription').value = prompt.description;
             document.getElementById('editIsi').value = prompt.isi;
-
             editPasswordEnabled = prompt.isProtected;
-            const editPasswordField = document.getElementById('editPasswordField');
-            const editToggleBtn = document.getElementById('editTogglePassword');
-
+            const epf = document.getElementById('editPasswordField');
+            const etb = document.getElementById('editTogglePassword');
             if (editPasswordEnabled) {
-                editPasswordField.classList.remove('hidden');
-                editToggleBtn.classList.add('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                editToggleBtn.style.color = '#4ade80';
+                epf.classList.remove('hidden'); etb.classList.add('active');
+                etb.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled'; etb.style.color = '#4ade80';
                 document.getElementById('editPassword').value = prompt.password;
             } else {
-                editPasswordField.classList.add('hidden');
-                editToggleBtn.classList.remove('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                editToggleBtn.style.color = '';
+                epf.classList.add('hidden'); etb.classList.remove('active');
+                etb.innerHTML = '<i class="fa-solid fa-lock"></i> Enable'; etb.style.color = '';
                 document.getElementById('editPassword').value = '';
             }
-
             if (prompt.imageUrl) {
                 document.getElementById('editImagePreview').src = prompt.imageUrl;
                 document.getElementById('editImagePreviewContainer').classList.remove('hidden');
             } else {
                 document.getElementById('editImagePreviewContainer').classList.add('hidden');
             }
-
             document.getElementById('editImageFile').value = '';
-
             document.getElementById('editModal').classList.add('show');
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
-        }
+        function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
 
         function toggleEditPasswordField() {
             editPasswordEnabled = !editPasswordEnabled;
-            const editPasswordField = document.getElementById('editPasswordField');
-            const editToggleBtn = document.getElementById('editTogglePassword');
-
+            const epf = document.getElementById('editPasswordField');
+            const etb = document.getElementById('editTogglePassword');
             if (editPasswordEnabled) {
-                editPasswordField.classList.remove('hidden');
-                editToggleBtn.classList.add('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
-                editToggleBtn.style.color = '#4ade80';
+                epf.classList.remove('hidden'); etb.classList.add('active');
+                etb.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled'; etb.style.color = '#4ade80';
             } else {
-                editPasswordField.classList.add('hidden');
-                editToggleBtn.classList.remove('active');
-                editToggleBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
-                editToggleBtn.style.color = '';
+                epf.classList.add('hidden'); etb.classList.remove('active');
+                etb.innerHTML = '<i class="fa-solid fa-lock"></i> Enable'; etb.style.color = '';
                 document.getElementById('editPassword').value = '';
             }
         }
 
         function toggleEditPasswordVisibility() {
-            const passwordInput = document.getElementById('editPassword');
+            const pi   = document.getElementById('editPassword');
             const icon = event.target.closest('button').querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            if (pi.type === 'password') { pi.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye'; }
         }
 
         function removeEditImage() {
@@ -1021,272 +820,132 @@
         document.getElementById('editImageFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+                const r = new FileReader();
+                r.onload = function(e) {
                     document.getElementById('editImagePreview').src = e.target.result;
                     document.getElementById('editImagePreviewContainer').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
+                };
+                r.readAsDataURL(file);
             }
         });
 
         document.getElementById('editForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const slug = document.getElementById('editSlug').value;
-            const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...';
-            btn.disabled = true;
-
+            const btn  = this.querySelector('button[type="submit"]');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...'; btn.disabled = true;
             try {
                 let imageUrl = '';
-
-                const editImageFile = document.getElementById('editImageFile').files[0];
-                if (editImageFile) {
-                    console.log('📤 Uploading image...');
-                    
-                    const formData = new FormData();
-                    formData.append('file', editImageFile);
-
-                    const uploadRes = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Authorization': localStorage.getItem('adminToken') },
-                        body: formData
-                    });
-
-                    const contentType = uploadRes.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
-                    }
-
-                    const uploadData = await uploadRes.json();
-                    
-                    if (!uploadData.success) {
-                        throw new Error(uploadData.message || 'Image upload failed');
-                    }
-                    imageUrl = uploadData.imageUrl;
+                const ef = document.getElementById('editImageFile').files[0];
+                if (ef) {
+                    const fd = new FormData(); fd.append('file', ef);
+                    const ur = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': localStorage.getItem('adminToken') }, body: fd });
+                    const ct = ur.headers.get('content-type');
+                    if (!ct || !ct.includes('application/json')) throw new Error('Upload failed: ' + (await ur.text()).substring(0,100));
+                    const ud = await ur.json();
+                    if (!ud.success) throw new Error(ud.message || 'Image upload failed');
+                    imageUrl = ud.imageUrl;
                 } else {
                     const prompt = allPrompts.find(p => p.slug === slug);
                     imageUrl = prompt?.imageUrl || '';
                 }
-
                 const editData = {
-                    slug: slug,
-                    judul: document.getElementById('editJudul').value,
+                    slug, judul: document.getElementById('editJudul').value,
                     kategori: document.getElementById('editKategori').value,
                     description: document.getElementById('editDescription').value,
                     isi: document.getElementById('editIsi').value,
-                    imageUrl: imageUrl,
+                    imageUrl,
                     password: editPasswordEnabled ? document.getElementById('editPassword').value : ''
                 };
-
-                const response = await fetch('/api/edit-prompt', {
+                const res = await fetch('/api/edit-prompt', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('adminToken')
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
                     body: JSON.stringify(editData)
                 });
-
-                const editContentType = response.headers.get('content-type');
-                if (!editContentType || !editContentType.includes('application/json')) {
-                    const textResponse = await response.text();
-                    console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                    throw new Error('Save gagal: ' + textResponse.substring(0, 100));
-                }
-
-                const result = await response.json();
-
-                if (result.success) {
-                    notyf.success('Prompt updated!');
-                    closeEditModal();
-                    loadManagePrompts();
-                } else {
-                    notyf.error(result.message || 'Failed to update');
-                }
-            } catch (error) {
-                console.error('❌ Error:', error);
-                notyf.error(error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                const result = await res.json();
+                if (result.success) { notyf.success('Prompt updated!'); closeEditModal(); loadManagePrompts(); }
+                else notyf.error(result.message || 'Failed to update');
+            } catch(e) { notyf.error(e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         });
 
         function openDeleteModal(slug) {
             const prompt = allPrompts.find(p => p.slug === slug);
             if (!prompt) return;
-
             promptToDelete = slug;
-            document.getElementById('deleteConfirmText').innerHTML = `
-                Are you sure want to delete:<br>
-                <strong>${prompt.judul}</strong><br>
-                <span class="text-xs text-gray-400">(${prompt.kategori})</span>
-            `;
+            document.getElementById('deleteConfirmText').innerHTML = `Are you sure want to delete:<br><strong>${prompt.judul}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">(${prompt.kategori})</span>`;
             document.getElementById('deleteModal').classList.add('show');
         }
 
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('show');
-            promptToDelete = null;
-        }
+        function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); promptToDelete = null; }
 
         async function confirmDelete() {
             if (!promptToDelete) return;
-
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...';
-            btn.disabled = true;
-
+            const btn  = event.target;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...'; btn.disabled = true;
             try {
-                const response = await fetch('/api/delete-prompt', {
+                const res = await fetch('/api/delete-prompt', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('adminToken')
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
                     body: JSON.stringify({ slug: promptToDelete })
                 });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    notyf.success('Prompt deleted!');
-                    closeDeleteModal();
-                    loadManagePrompts();
-                } else {
-                    notyf.error(result.message || 'Failed to delete');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                notyf.error('Error deleting prompt');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                const result = await res.json();
+                if (result.success) { notyf.success('Prompt deleted!'); closeDeleteModal(); loadManagePrompts(); }
+                else notyf.error(result.message || 'Failed to delete');
+            } catch(e) { notyf.error('Error deleting prompt'); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         }
 
-        // ✅ FIX: FUNCTION SAVE() DENGAN CLIENT TIMESTAMP!
         async function save() {
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            
+            const btn  = event.target;
+            const orig = btn.innerHTML;
             const judul = document.getElementById('judul').value;
-            const slug = generateSlug(judul);
-            
+            const slug  = generateSlug(judul);
             if (!slug || !judul || !document.getElementById('isi').value) {
-                notyf.error('Isi field wajib (judul, kategori, isi)!');
-                return;
+                notyf.error('Isi field wajib (judul, kategori, isi)!'); return;
             }
-            
-            if (slugExists) {
-                notyf.error('Slug sudah dipakai! Ubah judul.');
-                return;
-            }
-            
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Processing...';
-            btn.disabled = true;
-
+            if (slugExists) { notyf.error('Slug sudah dipakai! Ubah judul.'); return; }
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Processing...'; btn.disabled = true;
             try {
                 let imageUrl = '';
-
-                const imageFile = document.getElementById('imageFile').files[0];
-                if (imageFile) {
-                    console.log('📤 Uploading image...', imageFile.name);
-                    
-                    const formData = new FormData();
-                    formData.append('file', imageFile);
-
-                    const uploadRes = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': localStorage.getItem('adminToken')
-                        },
-                        body: formData
-                    });
-
-                    const contentType = uploadRes.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const textResponse = await uploadRes.text();
-                        console.error('❌ Response bukan JSON:', textResponse.substring(0, 200));
-                        throw new Error('Upload gagal: ' + textResponse.substring(0, 100));
-                    }
-
-                    const uploadData = await uploadRes.json();
-                    console.log('✅ Upload response:', uploadData);
-                    
-                    if (!uploadData.success) {
-                        throw new Error(uploadData.message || 'Gagal upload gambar');
-                    }
-
-                    imageUrl = uploadData.imageUrl;
-                    console.log('🖼️ Image URL:', imageUrl);
+                const imgFile = document.getElementById('imageFile').files[0];
+                if (imgFile) {
+                    const fd = new FormData(); fd.append('file', imgFile);
+                    const ur = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': localStorage.getItem('adminToken') }, body: fd });
+                    const ct = ur.headers.get('content-type');
+                    if (!ct || !ct.includes('application/json')) throw new Error('Upload gagal: ' + (await ur.text()).substring(0,100));
+                    const ud = await ur.json();
+                    if (!ud.success) throw new Error(ud.message || 'Gagal upload gambar');
+                    imageUrl = ud.imageUrl;
                 }
-
                 const password = passwordEnabled ? document.getElementById('password').value : '';
-
                 if (passwordEnabled && (!password || password.trim() === '')) {
-                    notyf.error('Password kosong!');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    return;
+                    notyf.error('Password kosong!'); btn.innerHTML = orig; btn.disabled = false; return;
                 }
-
-                // ✅ FIX: BIKIN TIMESTAMP DI CLIENT (BROWSER), BUKAN DI SERVER!
-                const clientTimestamp = Date.now(); // Ambil waktu dari browser user
-                console.log('🕐 Client timestamp:', clientTimestamp, new Date(clientTimestamp).toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'}));
-
+                const clientTimestamp = Date.now();
                 const body = {
-                    slug: slug,
-                    judul: judul,
+                    slug, judul,
                     kategori: document.getElementById('kategori').value,
                     description: document.getElementById('description').value,
                     isi: document.getElementById('isi').value,
                     adminName: localStorage.getItem('adminName'),
-                    imageUrl: imageUrl,
-                    password: password,
-                    clientTimestamp: clientTimestamp // ⬅️ KIRIM TIMESTAMP DARI CLIENT!
+                    imageUrl, password, clientTimestamp
                 };
-
-                console.log('💾 Saving prompt...', body);
-
                 const res = await fetch('/api/add-prompt', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('adminToken')
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
                     body: JSON.stringify(body)
                 });
-                
-                if (res.ok) { 
-                    notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : ''));
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    const errorText = await res.text();
-                    console.error('❌ Save error:', errorText);
-                    notyf.error('Gagal menyimpan: ' + errorText.substring(0, 100));
-                }
-            } catch (e) {
-                console.error('💥 Error:', e);
-                notyf.error('Error: ' + e.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                if (res.ok) { notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : '')); setTimeout(() => location.reload(), 1500); }
+                else notyf.error('Gagal menyimpan: ' + (await res.text()).substring(0,100));
+            } catch(e) { notyf.error('Error: ' + e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         }
 
-        function logout() { 
-            localStorage.removeItem('adminToken'); 
-            localStorage.removeItem('adminName');
-            location.reload(); 
+        function logout() {
+            localStorage.removeItem('adminToken'); localStorage.removeItem('adminName'); location.reload();
         }
     </script>
 </body>
