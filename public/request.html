@@ -156,7 +156,7 @@
                 </h1>
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
-                        <i class="material-icons text-2xl">light_mode</i>
+                        <i class="fa-solid fa-sun text-2xl"></i>
                     </button>
                     <button id="sidebarToggleRight" style="color: var(--text-primary)">
                         <i class="material-icons text-2xl">notes</i>
@@ -259,8 +259,8 @@
                 var btn = document.getElementById('themeToggleBtn');
                 if (!btn) return;
                 var icon = btn.querySelector('i');
-                if (t === 'light') { icon.textContent = 'dark_mode'; btn.title = 'Switch to Dark Mode'; }
-                else               { icon.textContent = 'light_mode'; btn.title = 'Switch to Light Mode'; }
+                if (t === 'light') { icon.className = 'fa-solid fa-moon text-2xl'; btn.title = 'Switch to Dark Mode'; }
+                else               { icon.className = 'fa-solid fa-sun text-2xl';  btn.title = 'Switch to Light Mode'; }
             }
             window.toggleTheme = function() {
                 var next = getTheme() === 'dark' ? 'light' : 'dark';
