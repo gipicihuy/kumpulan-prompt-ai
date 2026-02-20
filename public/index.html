@@ -20,9 +20,6 @@
     </script>
 
     <style>
-        /* ============================================================
-           CSS VARIABLES — dark (default) & light
-        ============================================================ */
         :root,
         [data-theme="dark"] {
             --bg-base:        #0f0f0f;
@@ -98,9 +95,6 @@
             --profile-bg:     #e4e4e7;
         }
 
-        /* ============================================================
-           BASE
-        ============================================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -110,9 +104,6 @@
             transition: background 0.25s ease, color 0.25s ease;
         }
 
-        /* ============================================================
-           LOADER & SKELETON
-        ============================================================ */
         .loader { border: 2px solid var(--border); border-top: 2px solid var(--text-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -126,9 +117,6 @@
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
 
-        /* ============================================================
-           CARD
-        ============================================================ */
         .card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid var(--border);
@@ -143,9 +131,6 @@
             transform: translateY(-2px);
         }
 
-        /* ============================================================
-           HEADER
-        ============================================================ */
         header {
             background: var(--header-bg);
             backdrop-filter: blur(10px);
@@ -153,9 +138,6 @@
             transition: background 0.25s ease, border-color 0.25s ease;
         }
 
-        /* ============================================================
-           INPUTS
-        ============================================================ */
         input[type="text"] {
             background: var(--input-bg) !important;
             border: 1px solid var(--border) !important;
@@ -169,9 +151,6 @@
         }
         input[type="text"]::placeholder { color: var(--text-muted); }
 
-        /* ============================================================
-           THEME TOGGLE BUTTON
-        ============================================================ */
         #themeToggleBtn {
             background: none;
             border: none;
@@ -183,9 +162,6 @@
             justify-content: center;
         }
 
-        /* ============================================================
-           FILTER / CATEGORY PILLS
-        ============================================================ */
         .filter-row { display: flex; align-items: center; gap: 0.5rem; }
 
         .category-scroll-wrapper { position: relative; flex: 1; min-width: 0; }
@@ -247,9 +223,6 @@
         }
         .cat-pill.active .count-badge { background: var(--bg-base); color: var(--text-primary); }
 
-        /* ============================================================
-           SORT DROPDOWN
-        ============================================================ */
         .sort-pill-wrapper { position: relative; flex-shrink: 0; }
         .sort-btn {
             display: inline-flex; align-items: center; justify-content: center;
@@ -299,24 +272,15 @@
             flex-shrink: 0; margin-right: -2px;
         }
 
-        /* ============================================================
-           FOOTER
-        ============================================================ */
         footer {
             background: var(--footer-bg);
             backdrop-filter: blur(10px);
             border-top: 1px solid var(--border);
         }
 
-        /* ============================================================
-           LOGO / TITLE
-        ============================================================ */
         .logo-img  { width: 48px; height: 48px; object-fit: contain; }
         .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        /* ============================================================
-           SIDEBAR & OVERLAY
-        ============================================================ */
         #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
         #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
         #overlay.show  { opacity: 1 !important; visibility: visible !important; }
@@ -333,9 +297,6 @@
         .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
 
-        /* ============================================================
-           SEARCH CLEAR BUTTON
-        ============================================================ */
         #clearSearch {
             position: absolute; right: 10px; top: 50%;
             transform: translateY(-50%);
@@ -347,9 +308,6 @@
         #clearSearch:hover { color: var(--text-primary); }
         #clearSearch.visible { display: flex; }
 
-        /* ============================================================
-           CARD INTERNALS — category badge, protected text
-        ============================================================ */
         .cat-badge {
             background: var(--cat-badge-bg);
             color: var(--cat-badge-text);
@@ -357,11 +315,7 @@
         }
         .protected-text { color: var(--protected-text) !important; }
         .profile-placeholder { background: var(--profile-bg); }
-
-        /* Time ago color in cards */
         .time-chip { color: var(--text-primary); }
-
-        /* Card author */
         .card-author { color: var(--text-secondary); }
 
         @media (max-width: 767px) {
@@ -385,7 +339,7 @@
                 <div class="flex items-center gap-2">
                     <!-- Theme Toggle -->
                     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
-                        <i class="fa-solid fa-sun text-2xl"></i>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m8-10h2M2 12h2m15.364-6.364l1.414-1.414M4.222 4.222l-1.414 1.414m15.364 15.364l1.414-1.414M4.222 19.778l-1.414-1.414M12 16a4 4 0 100-8 4 4 0 000 8z" /></svg>
                     </button>
                     <!-- Sidebar Toggle -->
                     <button id="sidebarToggleRight" style="color: var(--text-primary)">
@@ -527,9 +481,13 @@
                 document.documentElement.setAttribute('data-theme', t);
                 var btn = document.getElementById('themeToggleBtn');
                 if (!btn) return;
-                var icon = btn.querySelector('i');
-                if (t === 'light') { icon.className = 'fa-solid fa-moon text-2xl'; btn.title = 'Switch to Dark Mode'; }
-                else               { icon.className = 'fa-solid fa-sun text-2xl';  btn.title = 'Switch to Light Mode'; }
+                if (t === 'light') {
+                    btn.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
+                    btn.title = 'Switch to Dark Mode';
+                } else {
+                    btn.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m8-10h2M2 12h2m15.364-6.364l1.414-1.414M4.222 4.222l-1.414 1.414m15.364 15.364l1.414-1.414M4.222 19.778l-1.414-1.414M12 16a4 4 0 100-8 4 4 0 000 8z" /></svg>';
+                    btn.title = 'Switch to Light Mode';
+                }
             }
             window.toggleTheme = function() {
                 var next = getTheme() === 'dark' ? 'light' : 'dark';

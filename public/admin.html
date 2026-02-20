@@ -119,7 +119,6 @@
         }
         @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
 
-        /* Theme toggle button */
         #themeToggleBtn {
             background: none;
             border: none;
@@ -248,7 +247,6 @@
         .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
 
-        /* Tab active indicator */
         .tab-btn-active { border-bottom: 3px solid var(--text-primary) !important; color: var(--text-primary) !important; }
         .tab-btn-inactive { border-bottom: 3px solid transparent !important; color: var(--text-muted) !important; }
     </style>
@@ -264,7 +262,7 @@
                 </h1>
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
-                        <i class="fa-solid fa-sun text-2xl"></i>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m8-10h2M2 12h2m15.364-6.364l1.414-1.414M4.222 4.222l-1.414 1.414m15.364 15.364l1.414-1.414M4.222 19.778l-1.414-1.414M12 16a4 4 0 100-8 4 4 0 000 8z" /></svg>
                     </button>
                     <button id="sidebarToggleRight" style="color: var(--text-primary)">
                         <i class="material-icons text-2xl">notes</i>
@@ -536,9 +534,13 @@
                 document.documentElement.setAttribute('data-theme', t);
                 var btn = document.getElementById('themeToggleBtn');
                 if (!btn) return;
-                var icon = btn.querySelector('i');
-                if (t === 'light') { icon.className = 'fa-solid fa-moon text-2xl'; btn.title = 'Switch to Dark Mode'; }
-                else               { icon.className = 'fa-solid fa-sun text-2xl';  btn.title = 'Switch to Light Mode'; }
+                if (t === 'light') {
+                    btn.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
+                    btn.title = 'Switch to Dark Mode';
+                } else {
+                    btn.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2m0 16v2m8-10h2M2 12h2m15.364-6.364l1.414-1.414M4.222 4.222l-1.414 1.414m15.364 15.364l1.414-1.414M4.222 19.778l-1.414-1.414M12 16a4 4 0 100-8 4 4 0 000 8z" /></svg>';
+                    btn.title = 'Switch to Light Mode';
+                }
             }
             window.toggleTheme = function() {
                 var next = getTheme() === 'dark' ? 'light' : 'dark';
