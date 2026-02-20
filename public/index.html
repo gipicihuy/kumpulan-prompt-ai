@@ -110,9 +110,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.3rem 0.6rem 0.3rem 0.75rem;
+            padding: 0.4rem 0.75rem 0.4rem 0.9rem;
             border-radius: 999px;
-            font-size: 0.68rem;
+            font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.04em;
             text-transform: uppercase;
@@ -165,21 +165,17 @@
             height: 40px;
             border-radius: 8px;
             cursor: pointer;
-            border: 1px solid #3a3a3a;
-            background: #252525;
+            border: none;
+            background: transparent;
             color: #fff;
             transition: all 0.2s ease;
             position: relative;
         }
         .sort-btn:hover {
-            border-color: #666;
-            color: #fff;
-            background: #2f2f2f;
+            color: #ccc;
         }
         .sort-btn.open {
-            border-color: #888;
-            background: #333;
-            color: #e5e5e5;
+            color: #aaa;
         }
         .sort-btn .sort-dot {
             position: absolute;
@@ -286,7 +282,7 @@
 
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
-                        <i class="fa-solid fa-arrow-up-wide-short" style="font-size: 0.7rem;"></i>
+                        <i class="material-icons" style="font-size: 1.6rem;">filter_list</i>
                         <span class="sort-dot"></span>
                     </button>
                     <div class="sort-dropdown" id="sortDropdown">
