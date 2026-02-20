@@ -249,25 +249,31 @@
         }
         @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
 
-        /* Clear search button — no background */
+        /* ✅ FIX: Clear search button — diperbesar */
         #clearSearch {
             position: absolute;
-            right: 10px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             display: none;
             align-items: center;
             justify-content: center;
             border: none;
-            background: none;
+            background: rgba(80, 80, 80, 0.4);
             cursor: pointer;
-            color: #555;
-            transition: color 0.2s ease;
+            color: #ccc;
+            transition: all 0.2s ease;
             padding: 0;
-            font-size: 0.8rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.85rem; /* ✅ lebih besar dari 0.8rem */
             line-height: 1;
         }
-        #clearSearch:hover { color: #ccc; }
+        #clearSearch:hover {
+            background: rgba(120, 120, 120, 0.5);
+            color: #fff;
+        }
         #clearSearch.visible { display: flex; }
     </style>
 </head>
@@ -287,7 +293,8 @@
             
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-9 py-2.5 rounded-lg outline-none text-sm text-white" />
+                <!-- ✅ FIX: pr-10 supaya teks tidak ketutup tombol close -->
+                <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-10 py-2.5 rounded-lg outline-none text-sm text-white" autocomplete="off" />
                 <button id="clearSearch" title="Hapus pencarian">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -425,16 +432,27 @@
         sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        // Clear search button
+        // ✅ FIX: Debounce search — tunggu 200ms setelah berhenti ngetik baru filter
         const searchInput = document.getElementById('searchInput');
         const clearSearch = document.getElementById('clearSearch');
+        let searchDebounceTimer = null;
+
         searchInput.addEventListener('input', () => {
+            // Update tombol clear langsung (ringan)
             clearSearch.classList.toggle('visible', searchInput.value.length > 0);
+
+            // ✅ Debounce: batalkan timer lama, set timer baru
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                applyFilters(); // baru jalankan filter setelah 200ms idle
+            }, 200);
         });
+
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
             clearSearch.classList.remove('visible');
-            searchInput.dispatchEvent(new Event('input'));
+            clearTimeout(searchDebounceTimer);
+            applyFilters(); // langsung filter karena kosong (ringan)
             searchInput.focus();
         });
     </script>
