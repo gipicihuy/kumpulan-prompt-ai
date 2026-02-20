@@ -123,12 +123,28 @@ document.addEventListener('click', (e) => {
     }
 });
 
+const sortIndicatorIcons = {
+    newest:   '',
+    trending: 'trending_up',
+    popular:  'emoji_events',
+    'a-z':    'arrow_downward',
+    'z-a':    'arrow_upward',
+};
+
 sortOptions.forEach(option => {
     option.addEventListener('click', () => {
         sortOptions.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         currentSort = option.dataset.sort;
-        sortBtn.classList.toggle('has-sort', currentSort !== 'newest');
+
+        const isNonDefault = currentSort !== 'newest';
+        sortBtn.classList.toggle('has-sort', isNonDefault);
+
+        const indicator = document.getElementById('sortIndicator');
+        if (indicator) {
+            indicator.textContent = sortIndicatorIcons[currentSort] || '';
+        }
+
         sortDropdown.classList.remove('show');
         sortBtn.classList.remove('open');
         applyFilters();
