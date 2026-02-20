@@ -35,7 +35,6 @@
             transform: translateY(-2px);
         }
         
-        /* Skeleton Loading */
         .skeleton { 
             background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); 
             background-size: 200% 100%; 
@@ -46,14 +45,12 @@
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
         
-        /* Header dengan efek glassmorphism */
         header {
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
         
-        /* Input dengan style lebih modern */
         input[type="text"] {
             background: #1a1a1a !important;
             border: 1px solid #2a2a2a !important;
@@ -65,7 +62,6 @@
             box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
         }
         
-        /* Button styling */
         .btn-primary {
             background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
             transition: all 0.3s ease;
@@ -75,11 +71,85 @@
             box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
             transform: translateY(-1px);
         }
-        
-        /* Category & Sort Dropdown - UNIFIED STYLE */
-        .dropdown {
+
+        /* ========== CATEGORY PILLS ========== */
+        .category-scroll-wrapper {
             position: relative;
         }
+
+        /* fade hint kiri & kanan */
+        .category-scroll-wrapper::before,
+        .category-scroll-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 32px;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .category-scroll-wrapper::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(15,15,15,0.9), transparent);
+        }
+        .category-scroll-wrapper::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(15,15,15,0.9), transparent);
+        }
+        .category-scroll-wrapper.at-start::before { opacity: 0; }
+        .category-scroll-wrapper.at-end::after   { opacity: 0; }
+
+        .category-pills {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 2px 4px;
+        }
+        .category-pills::-webkit-scrollbar { display: none; }
+
+        .cat-pill {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid #2a2a2a;
+            background: #141414;
+            color: #888;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            user-select: none;
+        }
+        .cat-pill:hover {
+            border-color: #555;
+            color: #ccc;
+            background: #1f1f1f;
+        }
+        .cat-pill.active {
+            background: #e5e5e5;
+            border-color: #e5e5e5;
+            color: #000;
+            box-shadow: 0 0 12px rgba(229,229,229,0.15);
+        }
+        .cat-pill .count-badge {
+            font-size: 0.6rem;
+            font-weight: 800;
+            opacity: 0.65;
+        }
+        .cat-pill.active .count-badge { opacity: 0.5; }
+
+        /* ========== SORT DROPDOWN ========== */
+        .dropdown { position: relative; }
         
         .dropdown-btn {
             background: #1a1a1a;
@@ -88,16 +158,8 @@
             cursor: pointer;
             user-select: none;
         }
-        
-        .dropdown-btn:hover {
-            background: #1f1f1f;
-            border-color: #444;
-        }
-        
-        .dropdown-btn.open {
-            border-color: #444;
-            background: #1f1f1f;
-        }
+        .dropdown-btn:hover { background: #1f1f1f; border-color: #444; }
+        .dropdown-btn.open { border-color: #444; background: #1f1f1f; }
         
         .dropdown-menu {
             position: absolute;
@@ -116,31 +178,11 @@
             pointer-events: none;
             transition: all 0.2s ease;
         }
+        .dropdown-menu.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
         
-        .dropdown-menu.show {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-        
-        /* Custom scrollbar untuk dropdown */
-        .dropdown-menu::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .dropdown-menu::-webkit-scrollbar-track {
-            background: #1a1a1a;
-            border-radius: 3px;
-        }
-        
-        .dropdown-menu::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 3px;
-        }
-        
-        .dropdown-menu::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+        .dropdown-menu::-webkit-scrollbar { width: 6px; }
+        .dropdown-menu::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 3px; }
+        .dropdown-menu::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
         
         .dropdown-option {
             padding: 0.75rem 1rem;
@@ -151,90 +193,38 @@
             align-items: center;
             gap: 0.75rem;
         }
+        .dropdown-option:last-child { border-bottom: none; }
+        .dropdown-option:hover { background: #252525; }
+        .dropdown-option.active { background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%); color: #000; }
+        .dropdown-option.active i { color: #000; }
         
-        .dropdown-option:last-child {
-            border-bottom: none;
-        }
-        
-        .dropdown-option:hover {
-            background: #252525;
-        }
-        
-        .dropdown-option.active {
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            color: #000;
-        }
-        
-        .dropdown-option.active i {
-            color: #000;
-        }
-        
-        /* Footer styling */
         footer {
             background: rgba(26, 26, 26, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid #2a2a2a;
         }
         
-        /* Modal overlay */
-        .modal-overlay {
-            background: rgba(15, 15, 15, 0.95);
-            backdrop-filter: blur(8px);
-        }
-        
+        .modal-overlay { background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(8px); }
         .modal-content {
             background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
             border: 1px solid #2a2a2a;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
 
-        /* Logo styling */
-        .logo-img {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-        }
-        
-        .title-text {
-            font-size: 1.375rem;
-            line-height: 1.2;
-        }
+        .logo-img { width: 48px; height: 48px; object-fit: contain; }
+        .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        /* Sidebar Styles */
-        #sidebar-right {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #overlay {
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
-        }
-
-        #overlay.show {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #overlay { transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s; }
+        #overlay.show { opacity: 1 !important; visibility: visible !important; }
 
         @media (max-width: 767px) {
-            #sidebar-right {
-                transform: translateX(100%);
-            }
-            #sidebar-right.open {
-                transform: translateX(0);
-            }
-            .title-text {
-                font-size: 1.125rem;
-            }
-            .logo-img {
-                width: 40px;
-                height: 40px;
-            }
+            #sidebar-right { transform: translateX(100%); }
+            #sidebar-right.open { transform: translateX(0); }
+            .title-text { font-size: 1.125rem; }
+            .logo-img { width: 40px; height: 40px; }
         }
-
-        @media (min-width: 768px) {
-            #sidebar-right {
-                transform: translateX(0);
-            }
-        }
+        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
     </style>
 </head>
 <body>
@@ -246,65 +236,53 @@
                     <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
                     <span class="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI Prompt Hub</span>
                 </h1>
-                
                 <button id="sidebarToggleRight" class="text-white">
                     <i class="material-icons text-2xl">notes</i>
                 </button>
             </div>
             
+            <!-- Search -->
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
-            
-            <!-- Category & Sort Dropdowns - SIDE BY SIDE -->
-            <div class="flex gap-2">
-                <!-- Category Dropdown -->
-                <div class="dropdown flex-1">
-                    <button id="categoryBtn" class="dropdown-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-filter text-[10px]"></i>
-                            <span id="categoryLabel">ALL</span>
-                        </div>
-                        <i id="categoryChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </button>
-                    
-                    <div id="categoryMenu" class="dropdown-menu">
-                        <!-- Kategori akan di-render di sini -->
-                    </div>
+
+            <!-- Category Pills -->
+            <div class="category-scroll-wrapper mb-3 at-start" id="pillWrapper">
+                <div class="category-pills" id="categoryPills">
+                    <!-- diisi JS -->
                 </div>
-                
-                <!-- Sort Dropdown -->
-                <div class="dropdown flex-1">
-                    <button id="sortBtn" class="dropdown-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i id="sortIcon" class="fa-solid fa-fire text-yellow-500 text-[10px]"></i>
-                            <span id="sortLabel">Terbaru</span>
-                        </div>
-                        <i id="sortChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </button>
-                    
-                    <div id="sortMenu" class="dropdown-menu">
-                        <div class="dropdown-option active" data-sort="newest">
-                            <i class="fa-solid fa-fire text-yellow-500 text-sm"></i>
-                            <span class="text-sm font-semibold">Terbaru</span>
-                        </div>
-                        <div class="dropdown-option" data-sort="trending">
-                            <i class="fa-solid fa-chart-line text-orange-500 text-sm"></i>
-                            <span class="text-sm font-semibold">Trending</span>
-                        </div>
-                        <div class="dropdown-option" data-sort="popular">
-                            <i class="fa-solid fa-trophy text-yellow-600 text-sm"></i>
-                            <span class="text-sm font-semibold">Paling Populer</span>
-                        </div>
-                        <div class="dropdown-option" data-sort="a-z">
-                            <i class="fa-solid fa-arrow-down-a-z text-blue-500 text-sm"></i>
-                            <span class="text-sm font-semibold">A-Z</span>
-                        </div>
-                        <div class="dropdown-option" data-sort="z-a">
-                            <i class="fa-solid fa-arrow-up-z-a text-blue-500 text-sm"></i>
-                            <span class="text-sm font-semibold">Z-A</span>
-                        </div>
+            </div>
+            
+            <!-- Sort Dropdown (full width) -->
+            <div class="dropdown">
+                <button id="sortBtn" class="dropdown-btn w-full px-4 py-2.5 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i id="sortIcon" class="fa-solid fa-fire text-yellow-500 text-[10px]"></i>
+                        <span id="sortLabel">Terbaru</span>
+                    </div>
+                    <i id="sortChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
+                </button>
+                <div id="sortMenu" class="dropdown-menu">
+                    <div class="dropdown-option active" data-sort="newest">
+                        <i class="fa-solid fa-fire text-yellow-500 text-sm"></i>
+                        <span class="text-sm font-semibold">Terbaru</span>
+                    </div>
+                    <div class="dropdown-option" data-sort="trending">
+                        <i class="fa-solid fa-chart-line text-orange-500 text-sm"></i>
+                        <span class="text-sm font-semibold">Trending</span>
+                    </div>
+                    <div class="dropdown-option" data-sort="popular">
+                        <i class="fa-solid fa-trophy text-yellow-600 text-sm"></i>
+                        <span class="text-sm font-semibold">Paling Populer</span>
+                    </div>
+                    <div class="dropdown-option" data-sort="a-z">
+                        <i class="fa-solid fa-arrow-down-a-z text-blue-500 text-sm"></i>
+                        <span class="text-sm font-semibold">A-Z</span>
+                    </div>
+                    <div class="dropdown-option" data-sort="z-a">
+                        <i class="fa-solid fa-arrow-up-z-a text-blue-500 text-sm"></i>
+                        <span class="text-sm font-semibold">Z-A</span>
                     </div>
                 </div>
             </div>
@@ -325,7 +303,6 @@
                     <div class="skeleton skeleton-text" style="width: 120px;"></div>
                 </div>
             </div>
-            
             <div class="card rounded-lg p-3 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
                     <div class="skeleton skeleton-badge"></div>
@@ -338,7 +315,6 @@
                     <div class="skeleton skeleton-text" style="width: 120px;"></div>
                 </div>
             </div>
-            
             <div class="card rounded-lg p-3 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
                     <div class="skeleton skeleton-badge"></div>
@@ -352,28 +328,22 @@
                 </div>
             </div>
         </div>
-
         <div id="content" class="space-y-4"></div>
     </main>
 
     <footer class="py-4 text-center border-t border-[#2a2a2a] mt-8">
-        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
-            © 2026 Prompt Hub
-        </p>
+        <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">© 2026 Prompt Hub</p>
     </footer>
 
     <!-- Sidebar Right -->
     <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 bg-[#1a1a1a] text-gray-200 border-l border-[#2a2a2a] z-[100] flex flex-col">
-        
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
             <h1 class="text-xl font-medium text-white">#AIPromptHub</h1>
             <button id="sidebarCloseRight" class="text-white flex items-center justify-center md:hidden">
                 <i class="material-icons text-2xl">close</i>
             </button>
         </div>
-
         <div class="flex-1 overflow-y-auto px-5 pb-7">
-
             <nav>
                 <p class="font-medium text-sm text-gray-300 mb-4 px-4">Dashboard</p>
                 <div class="space-y-1 pl-2">
@@ -387,7 +357,6 @@
                     </a>
                 </div>
             </nav>
-
             <nav class="mt-8">
                 <p class="font-medium text-sm text-gray-300 mb-4 px-4">Management Menu</p>
                 <div class="space-y-1 pl-2">
@@ -397,9 +366,7 @@
                     </a>
                 </div>
             </nav>
-
         </div>
-
         <div class="border-t border-[#2a2a2a] bg-[#1a1a1a] px-5 py-8 flex-shrink-0">
             <p class="font-medium text-sm text-gray-300 mb-4 px-4">Other Links</p>
             <div class="space-y-1">
@@ -410,18 +377,16 @@
                 </a>
             </div>
         </div>
-
     </aside>
 
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-80 opacity-0 invisible z-[90] md:hidden"></div>
 
-    <!-- PENTING: Load timeago.js DULU sebelum script.js -->
     <script src="/js/timeago.js"></script>
     <script src="/js/script.js"></script>
     <script>
-        // Sidebar Toggle
+        // Sidebar
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
-        const sidebarCloseRight = document.getElementById('sidebarCloseRight');
+        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
         const overlay = document.getElementById('overlay');
 
@@ -431,16 +396,14 @@
             overlay.classList.remove('opacity-0', 'invisible');
             document.body.style.overflow = 'hidden';
         }
-
         function closeSidebarRight() {
             sidebarRight.classList.remove('open');
             overlay.classList.remove('show');
             overlay.classList.add('opacity-0', 'invisible');
             document.body.style.overflow = '';
         }
-
         sidebarToggleRight.onclick = openSidebarRight;
-        sidebarCloseRight.onclick = closeSidebarRight;
+        sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
     </script>
 </body>
