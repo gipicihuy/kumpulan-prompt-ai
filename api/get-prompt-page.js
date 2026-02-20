@@ -5,23 +5,31 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
-// Helper function untuk parse cookies
 function parseCookies(cookieHeader) {
   const cookies = {}
   if (!cookieHeader) return cookies
-  
   cookieHeader.split(';').forEach(cookie => {
     const [name, value] = cookie.trim().split('=')
-    if (name && value) {
-      cookies[name] = value
-    }
+    if (name && value) cookies[name] = value
   })
   return cookies
 }
 
-// Generate secure session token
 function generateSessionToken(slug) {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Auto-detect URLs in text and make them clickable
+function linkify(text) {
+  if (!text) return '';
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  return escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
+  });
 }
 
 export default async function handler(req, res) {
@@ -32,24 +40,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch data prompt dari Redis
     const promptData = await redis.hgetall(`prompt:${slug}`);
     
     if (!promptData || !promptData.judul) {
       return res.status(404).send('Prompt not found');
     }
 
-    // Cek apakah prompt ini diproteksi dengan password
     const isProtected = promptData.isProtected === 'true' || promptData.isProtected === true;
 
-    // Fetch profile URL dari user
     let profileUrl = '';
     if (promptData.uploadedBy) {
       const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
       profileUrl = userData?.profileUrl || '';
     }
 
-    // Fetch analytics data
     const analyticsKey = `analytics:${slug}`
     const analyticsData = await redis.hgetall(analyticsKey)
     
@@ -59,28 +63,18 @@ export default async function handler(req, res) {
       downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
     }
 
-    // ===== SIMPLIFIED VIEW TRACKING - NO SESSION =====
-    // Langsung track view SETIAP kali halaman dibuka (kecuali jika protected dan belum unlock)
     if (!isProtected) {
       try {
-        // Increment view counter
         await redis.hincrby(analyticsKey, 'views', 1);
-        
-        // Update analytics object
         analytics.views += 1;
-        
         console.log(`✅ View tracked for slug: ${slug}, new count: ${analytics.views}`);
       } catch (trackError) {
         console.error('❌ Failed to track view:', trackError);
-        // Continue rendering even if tracking fails
       }
     }
-    // ===== END SIMPLIFIED TRACKING =====
 
-    // Parse cookies untuk password-protected prompts
     const cookies = parseCookies(req.headers.cookie);
 
-    // Jika diproteksi
     if (isProtected) {
       const sessionToken = cookies[`prompt_session_${slug}`];
       
@@ -92,7 +86,6 @@ export default async function handler(req, res) {
       const isValidSession = await redis.get(sessionKey);
       
       if (isValidSession === 'valid') {
-        // Track view untuk protected content setelah berhasil unlock
         try {
           await redis.hincrby(analyticsKey, 'views', 1);
           analytics.views += 1;
@@ -100,17 +93,13 @@ export default async function handler(req, res) {
         } catch (trackError) {
           console.error('❌ Failed to track view:', trackError);
         }
-        
         return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
       } else {
-        res.setHeader('Set-Cookie', [
-          `prompt_session_${slug}=; Path=/; Max-Age=0`,
-        ]);
+        res.setHeader('Set-Cookie', [`prompt_session_${slug}=; Path=/; Max-Age=0`]);
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
     }
 
-    // Jika tidak diproteksi, tampilkan halaman normal
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
     
   } catch (error) {
@@ -125,16 +114,7 @@ export default async function handler(req, res) {
           <script src="https://cdn.tailwindcss.com"></script>
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
           <style>
-              body { 
-                  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-                  background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-                  color: #e5e5e5;
-                  min-height: 100vh;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  padding: 1rem;
-              }
+              body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
           </style>
       </head>
       <body>
@@ -152,7 +132,6 @@ export default async function handler(req, res) {
   }
 }
 
-// Fungsi untuk render halaman password input
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
@@ -160,9 +139,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
   const profilePicHtml = profileUrl && profileUrl.trim() !== '' 
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
-    : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]">
-         <i class="fa-solid fa-user text-sm text-gray-500"></i>
-       </div>`;
+    : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]"><i class="fa-solid fa-user text-sm text-gray-500"></i></div>`;
 
   return `<!DOCTYPE html>
 <html lang="id">
@@ -170,105 +147,31 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
-    
-    <!-- Meta tags -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
     <meta property="og:description" content="${metaDescription}">
     <meta property="og:image" content="${metaImage}">
     <meta name="description" content="${metaDescription}">
-    
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
     <style>
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e5e5e5;
-            min-height: 100vh;
-        }
-        header {
-            background: rgba(26, 26, 26, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
-        }
-        .password-container {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-        input { 
-            background-color: #1a1a1a !important; 
-            border-color: #2a2a2a !important;
-            transition: all 0.3s ease;
-        }
-        input:focus { 
-            border-color: #444 !important; 
-            background-color: #1f1f1f !important;
-            box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
-            box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2);
-            transform: translateY(-1px);
-        }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .back-btn {
-            transition: all 0.3s ease;
-        }
-        .back-btn:hover {
-            color: #e5e5e5;
-            transform: translateX(-2px);
-        }
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #444;
-        }
-        .profile-pic-placeholder {
-            width: 32px;
-            height: 32px;
-        }
-        .lock-icon-large {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
-            border: 2px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-        .toggle-password-btn {
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            transition: color 0.2s ease;
-        }
-        .toggle-password-btn i {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; }
+        header { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #2a2a2a; }
+        .password-container { background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); border: 1px solid #2a2a2a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+        input { background-color: #1a1a1a !important; border-color: #2a2a2a !important; transition: all 0.3s ease; }
+        input:focus { border-color: #444 !important; background-color: #1f1f1f !important; box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1); }
+        .btn-primary { background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%); transition: all 0.3s ease; }
+        .btn-primary:hover { background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%); box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .back-btn { transition: all 0.3s ease; }
+        .back-btn:hover { color: #e5e5e5; transform: translateX(-2px); }
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .profile-pic-placeholder { width: 32px; height: 32px; }
+        .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%); border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; }
     </style>
 </head>
 <body>
@@ -283,9 +186,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div class="mb-5 border-l-2 border-gray-400 pl-3">
-            <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">
-                ${promptData.kategori || 'Lainnya'}
-            </span>
+            <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">${promptData.kategori || 'Lainnya'}</span>
             <h2 class="text-xl font-bold text-white mt-3 uppercase tracking-tight leading-tight flex items-center gap-2">
                 ${promptData.judul}
                 <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
@@ -312,30 +213,19 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                     This content is password protected. Please enter the password to view the full prompt.
                 </p>
             </div>
-
             <div class="p-8">
                 <form id="passwordForm" class="space-y-5 max-w-md mx-auto">
                     <div>
                         <label class="text-sm font-bold text-gray-400 uppercase mb-2 block flex items-center gap-2">
-                            <i class="fa-solid fa-key text-xs"></i>
-                            Enter Password
+                            <i class="fa-solid fa-key text-xs"></i> Enter Password
                         </label>
                         <div class="relative">
-                            <input 
-                                type="password" 
-                                id="passwordInput" 
-                                placeholder="••••••••" 
-                                required 
+                            <input type="password" id="passwordInput" placeholder="••••••••" required 
                                 class="w-full p-4 pr-12 rounded-xl border outline-none text-white text-base"
-                                autocomplete="off"
-                            >
-                            <button 
-                                type="button" 
-                                id="togglePasswordBtn" 
-                                onclick="togglePasswordVisibility()"
+                                autocomplete="off">
+                            <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()"
                                 class="toggle-password-btn absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-all"
-                                title="Show/Hide Password"
-                            >
+                                title="Show/Hide Password">
                                 <i class="fa-solid fa-eye text-sm"></i>
                             </button>
                         </div>
@@ -345,12 +235,10 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                     </button>
                 </form>
             </div>
-
             <div class="px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
                 <div class="bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">
                     <p class="text-xs text-gray-400 text-center mb-2">
-                        <i class="fa-solid fa-info-circle mr-1 text-gray-300"></i>
-                        Don't have the password?
+                        <i class="fa-solid fa-info-circle mr-1 text-gray-300"></i> Don't have the password?
                     </p>
                     <p class="text-xs text-white text-center font-semibold">
                         Contact <span class="text-gray-300">@${promptData.uploadedBy}</span> for access
@@ -361,71 +249,44 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
     <script>
-        const notyf = new Notyf({
-            duration: 3000,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            ripple: true,
-            dismissible: true
-        });
+        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('passwordInput');
-            const toggleBtn = document.getElementById('togglePasswordBtn');
-            const icon = toggleBtn.querySelector('i');
-            
+            const icon = document.getElementById('togglePasswordBtn').querySelector('i');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                toggleBtn.setAttribute('title', 'Hide Password');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-                toggleBtn.setAttribute('title', 'Show Password');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const btn = this.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifying...';
             btn.disabled = true;
-
             const password = document.getElementById('passwordInput').value;
-
             try {
                 const response = await fetch('/api/verify-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        slug: '${slug}',
-                        password: password
-                    })
+                    body: JSON.stringify({ slug: '${slug}', password })
                 });
-
                 const result = await response.json();
-
                 if (result.success) {
                     notyf.success('Access granted! Redirecting...');
-                    
-                    setTimeout(() => {
-                        window.location.href = '/prompt/${slug}';
-                    }, 1000);
+                    setTimeout(() => { window.location.href = '/prompt/${slug}'; }, 1000);
                 } else {
                     notyf.error(result.message || 'Incorrect password');
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
                 }
             } catch (error) {
-                console.error('Error:', error);
                 notyf.error('An error occurred. Please try again.');
             } finally {
                 btn.innerHTML = originalText;
@@ -439,7 +300,6 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </html>`;
 }
 
-// Fungsi untuk render halaman normal - ANALYTICS TRACKING SEKARANG DI FRONTEND
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
   const metaDescription = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
@@ -463,132 +323,48 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
-    
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
     <meta property="og:description" content="${metaDescription}">
     <meta property="og:image" content="${metaImage}">
     <meta name="description" content="${metaDescription}">
-    
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${pageTitle}">
     <meta name="twitter:description" content="${metaDescription}">
     <meta name="twitter:image" content="${metaImage}">
-    
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
     <style>
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e5e5e5;
-            min-height: 100vh;
-        }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; }
         .carbon-dots span { width: 10px; height: 10px; display: inline-block; background: #fff; }
-        
-        header {
-            background: rgba(26, 26, 26, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #2a2a2a;
-        }
-        
-        .code-container {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            border: 1px solid #2a2a2a;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-        
-        .code-header {
-            background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%);
-            border-bottom: 1px solid #2a2a2a;
-        }
-        
-        .btn-icon {
-            transition: all 0.3s ease;
-            color: #888;
-        }
-        .btn-icon:hover {
+        header { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #2a2a2a; }
+        .code-container { background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); border: 1px solid #2a2a2a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+        .code-header { background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%); border-bottom: 1px solid #2a2a2a; }
+        .btn-icon { transition: all 0.3s ease; color: #888; }
+        .btn-icon:hover { color: #e5e5e5; transform: scale(1.05); }
+        .back-btn { transition: all 0.3s ease; }
+        .back-btn:hover { color: #e5e5e5; transform: translateX(-2px); }
+        .image-container { border: 1px solid #2a2a2a; background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .profile-pic-placeholder { width: 32px; height: 32px; }
+        .fullscreen-modal { position: fixed; inset: 0; background: rgba(15, 15, 15, 0.98); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .fullscreen-image-wrapper { position: relative; max-width: 100%; max-height: 100%; }
+        .fullscreen-modal img { max-width: 100%; max-height: 100vh; object-fit: contain; border-radius: 8px; }
+        .fullscreen-close { position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .fullscreen-close:hover { transform: scale(1.1); }
+        .fullscreen-close:active { transform: scale(0.95); }
+        /* Links in description */
+        .description-link {
             color: #e5e5e5;
-            transform: scale(1.05);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            word-break: break-all;
+            transition: color 0.2s ease;
         }
-        
-        .back-btn {
-            transition: all 0.3s ease;
-        }
-        .back-btn:hover {
-            color: #e5e5e5;
-            transform: translateX(-2px);
-        }
-        
-        .image-container {
-            border: 1px solid #2a2a2a;
-            background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-        
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #444;
-        }
-        
-        .profile-pic-placeholder {
-            width: 32px;
-            height: 32px;
-        }
-
-        .fullscreen-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 15, 15, 0.98);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        
-        .fullscreen-image-wrapper {
-            position: relative;
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .fullscreen-modal img {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        
-        .fullscreen-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .fullscreen-close:hover {
-            transform: scale(1.1);
-        }
-        
-        .fullscreen-close:active {
-            transform: scale(0.95);
-        }
+        .description-link:hover { color: #ffffff; }
     </style>
 </head>
 <body>
@@ -611,9 +387,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                         <div>
                             ${profileUrl && profileUrl.trim() !== '' 
                                 ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy || 'Admin'}">`
-                                : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]">
-                                     <i class="fa-solid fa-user text-sm text-gray-500"></i>
-                                   </div>`
+                                : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]"><i class="fa-solid fa-user text-sm text-gray-500"></i></div>`
                             }
                         </div>
                         <span class="font-semibold text-white">Uploaded by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
@@ -623,8 +397,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                         <span class="time-ago text-white text-[11px]" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">Loading...</span>
                     </div>
                 </div>
-                
-                <!-- Analytics Section -->
                 <div class="mt-3 flex flex-wrap gap-3">
                     <div class="flex items-center gap-1.5" title="Total Views">
                         <i class="fa-solid fa-eye text-[11px] text-gray-400"></i>
@@ -643,11 +415,9 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             
             ${promptData.description && promptData.description.trim() !== '' ? `
             <div class="mb-5">
-                <h3 class="text-base font-extrabold text-white mb-2">
-                    Description
-                </h3>
+                <h3 class="text-base font-extrabold text-white mb-2">Description</h3>
                 <hr class="border-0 h-px bg-[#2a2a2a] mb-2">
-                <p class="text-sm text-gray-300 leading-relaxed mb-3" style="white-space: pre-line;">${promptData.description}</p>
+                <p class="text-sm text-gray-300 leading-relaxed mb-3" style="white-space: pre-line;">${linkify(promptData.description)}</p>
                 <hr class="border-0 h-px bg-[#2a2a2a]">
             </div>
             ` : ''}
@@ -665,21 +435,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
 
             <div class="code-container rounded-lg overflow-hidden mb-6">
                 <div class="code-header px-4 py-2.5 flex justify-between items-center relative">
-                    <div class="carbon-dots flex gap-1.5">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">
-                        Prompt
-                    </div>
+                    <div class="carbon-dots flex gap-1.5"><span></span><span></span><span></span></div>
+                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">Prompt</div>
                     <div class="flex gap-3 items-center">
-                        <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                        <button id="downloadBtn" title="Download as .txt" class="btn-icon text-sm">
-                            <i class="fa-solid fa-download"></i>
-                        </button>
+                        <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm"><i class="fa-solid fa-copy"></i></button>
+                        <button id="downloadBtn" title="Download as .txt" class="btn-icon text-sm"><i class="fa-solid fa-download"></i></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto">
@@ -699,26 +459,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
-    <!-- ✅ Timeago.js - Hybrid display (dinamis untuk baru, static untuk lama) -->
     <script src="/js/timeago.js"></script>
-    
     <script>
-        const promptData = ${JSON.stringify({
-          judul: promptData.judul,
-          isi: promptData.isi,
-          slug: slug
-        })};
+        const promptData = ${JSON.stringify({ judul: promptData.judul, isi: promptData.isi, slug: slug })};
         
-        const notyf = new Notyf({
-            duration: 2500,
-            position: {
-                x: 'right',
-                y: 'top',
-            },
-            ripple: true,
-            dismissible: true
-        });
+        const notyf = new Notyf({ duration: 2500, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
         
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -732,7 +477,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
         }
         
-        // ✅ FIXED: Track analytics dengan benar
         async function trackAnalytics(action) {
             try {
                 const response = await fetch('/api/analytics', {
@@ -741,22 +485,18 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     body: JSON.stringify({ slug: promptData.slug, action })
                 });
                 const result = await response.json();
-                if (result.success && result.analytics) {
-                    updateAnalyticsDisplay(result.analytics);
-                }
+                if (result.success && result.analytics) updateAnalyticsDisplay(result.analytics);
             } catch (error) {
                 console.error('Error tracking analytics:', error);
             }
         }
         
-        // ✅ FIXED: Copy button - PANGGIL trackAnalytics!
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
-            await trackAnalytics('copy'); // ⬅️ INI YANG TADINYA HILANG!
+            await trackAnalytics('copy');
             notyf.success('Copied to clipboard!');
         };
         
-        // ✅ FIXED: Download button - PANGGIL trackAnalytics!
         document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -767,31 +507,23 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            await trackAnalytics('download'); // ⬅️ INI YANG TADINYA HILANG!
+            await trackAnalytics('download');
             notyf.success('Downloaded successfully!');
         };
 
         function openFullscreen(imageUrl) {
-            const modal = document.getElementById('fullscreenModal');
-            const img = document.getElementById('fullscreenImage');
-            img.src = imageUrl;
-            modal.classList.remove('hidden');
+            document.getElementById('fullscreenImage').src = imageUrl;
+            document.getElementById('fullscreenModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
         function closeFullscreen(event) {
             if (event) event.stopPropagation();
-            const modal = document.getElementById('fullscreenModal');
-            modal.classList.add('hidden');
+            document.getElementById('fullscreenModal').classList.add('hidden');
             document.body.style.overflow = '';
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeFullscreen();
-            }
-        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFullscreen(); });
     </script>
 </body>
 </html>`;
