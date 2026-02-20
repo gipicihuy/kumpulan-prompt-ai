@@ -45,11 +45,11 @@ async function fetchPrompts() {
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('content').innerHTML = `
             <div class="text-center py-16">
-                <div class="inline-block p-8 bg-gradient-to-br from-[#1a1a1a] to-[#1f1f1f] border border-red-900/50 rounded-2xl shadow-2xl">
+                <div class="inline-block p-8 rounded-2xl shadow-2xl" style="background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%); border: 1px solid var(--border);">
                     <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
-                    <h3 class="text-red-400 font-bold text-xl uppercase mb-3">Failed to Load Data</h3>
-                    <p class="text-gray-400 text-sm mb-4 font-mono">${err.message}</p>
-                    <button onclick="window.location.reload()" class="bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase">
+                    <h3 class="font-bold text-xl uppercase mb-3" style="color: #f87171">Failed to Load Data</h3>
+                    <p class="text-sm mb-4 font-mono" style="color: var(--text-muted)">${err.message}</p>
+                    <button onclick="window.location.reload()" class="px-6 py-3 rounded-lg text-sm font-bold uppercase" style="background: var(--text-primary); color: var(--bg-base)">
                         <i class="fa-solid fa-rotate-right mr-2"></i>Retry
                     </button>
                 </div>
@@ -198,44 +198,49 @@ function renderPrompts(data) {
     const container = document.getElementById('content');
     if (data.length === 0) {
         container.innerHTML = `
-            <div class="text-center text-gray-500 py-10 text-sm font-bold uppercase">
+            <div class="text-center py-10 text-sm font-bold uppercase" style="color: var(--text-muted)">
                 <i class="fa-solid fa-ghost text-2xl mb-2 block"></i>Tidak ditemukan
             </div>`;
         return;
     }
     container.innerHTML = data.map(item => {
+        // Profile pic — uses CSS var for placeholder background
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== ''
-            ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover border border-[#333]" alt="${item.uploadedBy}">`
-            : `<div class="w-7 h-7 rounded-full bg-[#252525] flex items-center justify-center border border-[#333]"><i class="fa-solid fa-user text-xs text-gray-500"></i></div>`;
-        const lockIcon = item.isProtected ? `<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>` : '';
-        const previewText = item.isProtected ? '🔒 This content is password protected. Click to unlock.' : item.isi;
+            ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover" style="border: 1px solid var(--border)" alt="${item.uploadedBy}">`
+            : `<div class="w-7 h-7 rounded-full flex items-center justify-center profile-placeholder" style="border: 1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color: var(--text-muted)"></i></div>`;
+
+        const lockIcon = item.isProtected
+            ? `<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>`
+            : '';
+
+        const previewText = item.isProtected
+            ? '🔒 This content is password protected. Click to unlock.'
+            : item.isi;
+
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
 
         return `<a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
-                <span class="text-[10px] font-bold px-2 py-0.5 bg-[#252525] text-gray-400 rounded uppercase border border-[#333]">${toTitleCase(item.kategori)}</span>
-                <span class="time-ago text-[10px] text-white font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}" data-created-at="${item.createdAt || '-'}">Loading...</span>
+                <span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase">${toTitleCase(item.kategori)}</span>
+                <span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}" data-created-at="${item.createdAt || '-'}">Loading...</span>
             </div>
             <div class="flex justify-between items-center mb-1">
-                <h3 class="font-bold text-white text-sm uppercase group-hover:text-gray-200 transition-colors flex items-center">${item.judul}${lockIcon}</h3>
-                <i class="fa-solid fa-chevron-right text-gray-600 text-xs group-hover:text-gray-400 transition-colors"></i>
+                <h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color: var(--text-primary)">${item.judul}${lockIcon}</h3>
+                <i class="fa-solid fa-chevron-right text-xs transition-colors" style="color: var(--text-muted)"></i>
             </div>
-            <p class="text-xs ${item.isProtected ? 'text-yellow-500 italic' : 'text-gray-400'} line-clamp-2 leading-relaxed mb-2">${previewText}</p>
-            <div class="flex items-center justify-between pt-2 border-t border-[#2a2a2a] mt-2.5">
-                <div class="flex items-center gap-2">${profilePicHtml}<span class="text-xs font-semibold text-gray-300">@${item.uploadedBy}</span></div>
+            <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected ? 'protected-text italic' : ''}" style="${item.isProtected ? '' : 'color: var(--text-secondary)'}">${previewText}</p>
+            <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top: 1px solid var(--border)">
+                <div class="flex items-center gap-2">${profilePicHtml}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span></div>
                 <div class="flex items-center gap-3 text-xs">
-                    <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px] text-gray-400"></i><span class="font-bold text-gray-300">${formatNumber(analytics.views)}</span></div>
-                    <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px] text-gray-400"></i><span class="font-bold text-gray-300">${formatNumber(analytics.copies)}</span></div>
-                    <div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px] text-gray-400"></i><span class="font-bold text-gray-300">${formatNumber(analytics.downloads)}</span></div>
+                    <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.views)}</span></div>
+                    <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.copies)}</span></div>
+                    <div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.downloads)}</span></div>
                 </div>
             </div>
         </a>`;
     }).join('');
     updateAllTimeAgo();
 }
-
-// ✅ DIHAPUS: listener search tidak lagi di sini, sudah dihandle di index.html dengan debounce
-// document.getElementById('searchInput').addEventListener('input', applyFilters); // <-- DIHAPUS
 
 setInterval(async () => {
     try {
