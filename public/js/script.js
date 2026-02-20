@@ -123,13 +123,12 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// type: 'material' atau 'fa', icon: nama icon, color: warna
 const sortIndicatorMap = {
-    newest:   { type: 'fa',       icon: 'fa-fire',           color: '#eab308' },
-    trending: { type: 'fa',       icon: 'fa-chart-line',     color: '#f97316' },
-    popular:  { type: 'fa',       icon: 'fa-trophy',         color: '#ca8a04' },
-    'a-z':    { type: 'fa',       icon: 'fa-arrow-down-a-z', color: '#60a5fa' },
-    'z-a':    { type: 'fa',       icon: 'fa-arrow-up-z-a',   color: '#60a5fa' },
+    newest:   { type: 'fa', icon: 'fa-fire',           color: '#eab308' },
+    trending: { type: 'fa', icon: 'fa-chart-line',     color: '#f97316' },
+    popular:  { type: 'fa', icon: 'fa-trophy',         color: '#ca8a04' },
+    'a-z':    { type: 'fa', icon: 'fa-arrow-down-a-z', color: '#60a5fa' },
+    'z-a':    { type: 'fa', icon: 'fa-arrow-up-z-a',   color: '#60a5fa' },
 };
 
 function updateSortIndicator() {
@@ -235,7 +234,8 @@ function renderPrompts(data) {
     updateAllTimeAgo();
 }
 
-document.getElementById('searchInput').addEventListener('input', applyFilters);
+// ✅ DIHAPUS: listener search tidak lagi di sini, sudah dihandle di index.html dengan debounce
+// document.getElementById('searchInput').addEventListener('input', applyFilters); // <-- DIHAPUS
 
 setInterval(async () => {
     try {
