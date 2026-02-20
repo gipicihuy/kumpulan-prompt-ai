@@ -15,10 +15,6 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
-function generateSessionToken(slug) {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 function linkify(text) {
   if (!text) return '';
   const escaped = text
@@ -31,7 +27,6 @@ function linkify(text) {
   });
 }
 
-// Shared theme CSS variables injected into every rendered page
 const THEME_CSS = `
     :root, [data-theme="dark"] {
         --bg-base:        #0f0f0f;
@@ -50,8 +45,6 @@ const THEME_CSS = `
         --code-bg-to:     #1f1f1f;
         --code-hdr-from:  #252525;
         --code-hdr-to:    #2a2a2a;
-        --sidebar-bg:     #1a1a1a;
-        --overlay-bg:     rgba(0,0,0,0.8);
         --shadow:         rgba(0,0,0,0.4);
     }
     [data-theme="light"] {
@@ -71,59 +64,22 @@ const THEME_CSS = `
         --code-bg-to:     #f9f9f9;
         --code-hdr-from:  #f0f0f0;
         --code-hdr-to:    #e8e8e8;
-        --sidebar-bg:     #ffffff;
-        --overlay-bg:     rgba(0,0,0,0.5);
         --shadow:         rgba(0,0,0,0.06);
     }
 `;
 
-// Shared theme JS (inline, no external file dependency)
-const THEME_SCRIPT_INIT = `
-    (function() {
-        var t = localStorage.getItem('prompthub-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', t);
-    })();
-`;
-
-const THEME_SCRIPT_LOGIC = `
-    (function() {
-        var STORAGE_KEY = 'prompthub-theme';
-        function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
-        function applyTheme(t) {
-            document.documentElement.setAttribute('data-theme', t);
-            var btn = document.getElementById('themeToggleBtn');
-            if (!btn) return;
-            var icon = btn.querySelector('i');
-            if (t === 'light') { icon.textContent = 'dark_mode'; btn.title = 'Switch to Dark Mode'; }
-            else               { icon.textContent = 'light_mode'; btn.title = 'Switch to Light Mode'; }
-        }
-        window.toggleTheme = function() {
-            var next = getTheme() === 'dark' ? 'light' : 'dark';
-            localStorage.setItem(STORAGE_KEY, next);
-            applyTheme(next);
-        };
-        document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
-    })();
-`;
-
-// Shared theme toggle button HTML
-const THEME_BTN_HTML = `
-    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode"
-        style="background:none;border:none;padding:0;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
-        <i class="material-icons" style="font-size:1.5rem;">light_mode</i>
-    </button>
-`;
+const THEME_INIT = `(function(){var t=localStorage.getItem('prompthub-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`;
 
 export default async function handler(req, res) {
   const { slug } = req.query;
-  
+
   if (!slug) {
     return res.status(404).send('Slug not found');
   }
 
   try {
     const promptData = await redis.hgetall(`prompt:${slug}`);
-    
+
     if (!promptData || !promptData.judul) {
       return res.status(404).send('Prompt not found');
     }
@@ -136,21 +92,21 @@ export default async function handler(req, res) {
       profileUrl = userData?.profileUrl || '';
     }
 
-    const analyticsKey = `analytics:${slug}`
-    const analyticsData = await redis.hgetall(analyticsKey)
-    
+    const analyticsKey  = `analytics:${slug}`;
+    const analyticsData = await redis.hgetall(analyticsKey);
+
     const analytics = {
-      views: analyticsData && analyticsData.views ? parseInt(analyticsData.views) : 0,
-      copies: analyticsData && analyticsData.copies ? parseInt(analyticsData.copies) : 0,
-      downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0
-    }
+      views:     analyticsData && analyticsData.views     ? parseInt(analyticsData.views)     : 0,
+      copies:    analyticsData && analyticsData.copies    ? parseInt(analyticsData.copies)    : 0,
+      downloads: analyticsData && analyticsData.downloads ? parseInt(analyticsData.downloads) : 0,
+    };
 
     if (!isProtected) {
       try {
         await redis.hincrby(analyticsKey, 'views', 1);
         analytics.views += 1;
-      } catch (trackError) {
-        console.error('❌ Failed to track view:', trackError);
+      } catch (e) {
+        console.error('Failed to track view:', e);
       }
     }
 
@@ -158,20 +114,20 @@ export default async function handler(req, res) {
 
     if (isProtected) {
       const sessionToken = cookies[`prompt_session_${slug}`];
-      
+
       if (!sessionToken) {
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
-      
-      const sessionKey = `session:${slug}:${sessionToken}`;
+
+      const sessionKey    = `session:${slug}:${sessionToken}`;
       const isValidSession = await redis.get(sessionKey);
-      
+
       if (isValidSession === 'valid') {
         try {
           await redis.hincrby(analyticsKey, 'views', 1);
           analytics.views += 1;
-        } catch (trackError) {
-          console.error('❌ Failed to track view:', trackError);
+        } catch (e) {
+          console.error('Failed to track view:', e);
         }
         return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
       } else {
@@ -181,44 +137,43 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
-    
+
   } catch (error) {
-    console.error('❌ Error in get-prompt-page:', error);
-    res.status(500).send(`
-      <!DOCTYPE html>
-      <html lang="id" data-theme="dark">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Error - AI Prompt Hub</title>
-          <script src="https://cdn.tailwindcss.com"></script>
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-          <style>
-              ${THEME_CSS}
-              body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, var(--bg-base), var(--bg-surface)); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-          </style>
-      </head>
-      <body>
-          <div class="max-w-lg mx-auto p-8 rounded-xl text-center shadow-xl" style="background:linear-gradient(135deg,var(--bg-surface),var(--bg-surface2));border:1px solid var(--border)">
-              <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
-              <h2 class="font-bold text-2xl uppercase mb-4" style="color:#f87171">Internal Server Error</h2>
-              <p class="text-sm mb-6 font-mono" style="color:var(--text-muted)">${error.message}</p>
-              <a href="/" class="inline-block px-6 py-3 rounded-lg text-sm font-bold uppercase" style="background:var(--text-primary);color:var(--bg-base)">
-                  <i class="fa-solid fa-home mr-2"></i>Back to Home
-              </a>
-          </div>
-      </body>
-      </html>
-    `);
+    console.error('Error in get-prompt-page:', error);
+    res.status(500).send(`<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - AI Prompt Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>${THEME_INIT}</script>
+    <style>
+        ${THEME_CSS}
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, var(--bg-base), var(--bg-surface)); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="max-w-lg mx-auto p-8 rounded-xl text-center shadow-xl" style="background:linear-gradient(135deg,var(--bg-surface),var(--bg-surface2));border:1px solid var(--border)">
+        <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
+        <h2 class="font-bold text-2xl uppercase mb-4" style="color:#f87171">Internal Server Error</h2>
+        <p class="text-sm mb-6 font-mono" style="color:var(--text-muted)">${error.message}</p>
+        <a href="/" class="inline-block px-6 py-3 rounded-lg text-sm font-bold uppercase" style="background:var(--text-primary);color:var(--bg-base)">
+            <i class="fa-solid fa-home mr-2"></i>Back to Home
+        </a>
+    </div>
+</body>
+</html>`);
   }
 }
 
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
-  const metaDescription = promptData.description || 'Prompt ini diproteksi dengan password';
+  const metaDesc  = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
 
-  const profilePicHtml = profileUrl && profileUrl.trim() !== '' 
+  const profilePicHtml = profileUrl && profileUrl.trim() !== ''
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
     : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`;
 
@@ -231,14 +186,14 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
-    <meta property="og:description" content="${metaDescription}">
+    <meta property="og:description" content="${metaDesc}">
     <meta property="og:image" content="${metaImage}">
-    <meta name="description" content="${metaDescription}">
+    <meta name="description" content="${metaDesc}">
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    <script>${THEME_SCRIPT_INIT}</script>
+    <script>${THEME_INIT}</script>
     <style>
         ${THEME_CSS}
         * { box-sizing: border-box; }
@@ -256,9 +211,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
         .profile-pic-placeholder { width: 32px; height: 32px; }
         .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 2px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background:none; border:none; color: var(--text-muted); }
+        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background: none; border: none; color: var(--text-muted); }
         .toggle-password-btn:hover { color: var(--text-primary); }
-        #themeToggleBtn { background:none; border:none; padding:0; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
@@ -267,10 +221,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             <a href="/" class="back-btn font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
-            <div class="flex items-center gap-2">
-                ${THEME_BTN_HTML}
-                <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Protected Content</h1>
-            </div>
+            <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Protected Content</h1>
         </div>
     </header>
 
@@ -339,25 +290,24 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        ${THEME_SCRIPT_LOGIC}
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         function togglePasswordVisibility() {
-            const pi = document.getElementById('passwordInput');
+            const pi   = document.getElementById('passwordInput');
             const icon = document.getElementById('togglePasswordBtn').querySelector('i');
-            if (pi.type === 'password') { pi.type = 'text'; icon.className = 'fa-solid fa-eye-slash text-sm'; }
+            if (pi.type === 'password') { pi.type = 'text';     icon.className = 'fa-solid fa-eye-slash text-sm'; }
             else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye text-sm'; }
         }
 
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const btn = this.querySelector('button[type="submit"]');
+            const btn  = this.querySelector('button[type="submit"]');
             const orig = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifying...';
-            btn.disabled = true;
+            btn.disabled  = true;
             const password = document.getElementById('passwordInput').value;
             try {
-                const res = await fetch('/api/verify-password', {
+                const res    = await fetch('/api/verify-password', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: '${slug}', password })
                 });
@@ -381,19 +331,19 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 }
 
 function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
-  const metaDescription = promptData.description && promptData.description.trim() !== ''
+  const metaDesc = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
     : (promptData.isi || '').substring(0, 150) + '...';
-  
+
   const metaImage = promptData.imageUrl && promptData.imageUrl.trim() !== ''
     ? promptData.imageUrl
     : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
-  
+
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
 
-  const formatNumber = (num) => {
+  const fmt = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
 
@@ -406,18 +356,18 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
-    <meta property="og:description" content="${metaDescription}">
+    <meta property="og:description" content="${metaDesc}">
     <meta property="og:image" content="${metaImage}">
-    <meta name="description" content="${metaDescription}">
+    <meta name="description" content="${metaDesc}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${pageTitle}">
-    <meta name="twitter:description" content="${metaDescription}">
+    <meta name="twitter:description" content="${metaDesc}">
     <meta name="twitter:image" content="${metaImage}">
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    <script>${THEME_SCRIPT_INIT}</script>
+    <script>${THEME_INIT}</script>
     <style>
         ${THEME_CSS}
         * { box-sizing: border-box; }
@@ -426,7 +376,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
         .code-container { background: linear-gradient(135deg, var(--code-bg-from) 0%, var(--code-bg-to) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
         .code-header { background: linear-gradient(135deg, var(--code-hdr-from) 0%, var(--code-hdr-to) 100%); border-bottom: 1px solid var(--border); }
-        .btn-icon { transition: all 0.3s ease; color: var(--text-muted); background:none; border:none; cursor:pointer; }
+        .btn-icon { transition: all 0.3s ease; color: var(--text-muted); background: none; border: none; cursor: pointer; }
         .btn-icon:hover { color: var(--text-primary); transform: scale(1.05); }
         .back-btn { transition: all 0.3s ease; color: var(--text-muted); }
         .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
@@ -441,7 +391,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .description-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; transition: color 0.2s ease; }
         .description-link:hover { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
-        #themeToggleBtn { background:none; border:none; padding:0; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
@@ -450,10 +399,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <a href="/" class="back-btn font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
-            <div class="flex items-center gap-2">
-                ${THEME_BTN_HTML}
-                <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Detail View</h1>
-            </div>
+            <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Detail View</h1>
         </div>
     </header>
 
@@ -465,7 +411,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                     <div class="flex items-center gap-2">
                         <div>
-                            ${profileUrl && profileUrl.trim() !== '' 
+                            ${profileUrl && profileUrl.trim() !== ''
                                 ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy || 'Admin'}">`
                                 : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`
                             }
@@ -480,19 +426,19 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 <div class="mt-3 flex flex-wrap gap-3">
                     <div class="flex items-center gap-1.5" title="Total Views">
                         <i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i>
-                        <span id="viewsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.views)}</span>
+                        <span id="viewsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${fmt(analytics.views)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Total Copies">
                         <i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i>
-                        <span id="copiesCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.copies)}</span>
+                        <span id="copiesCount" class="text-xs font-bold" style="color:var(--text-secondary)">${fmt(analytics.copies)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Total Downloads">
                         <i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i>
-                        <span id="downloadsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.downloads)}</span>
+                        <span id="downloadsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${fmt(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
-            
+
             ${promptData.description && promptData.description.trim() !== '' ? `
             <div class="mb-5">
                 <h3 class="text-base font-extrabold mb-2" style="color:var(--text-primary)">Description</h3>
@@ -506,7 +452,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="mb-5">
                 <div class="image-container rounded-lg overflow-hidden relative">
                     <img src="${promptData.imageUrl}" class="w-full h-auto max-h-64 object-contain" alt="${promptData.judul}">
-                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Fullscreen">
+                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-content: center; transition-all hover:scale-110 active:scale-95" title="Fullscreen">
                         <img src="/assets/open_in_full.svg" class="w-6 h-6" alt="Fullscreen">
                     </button>
                 </div>
@@ -541,26 +487,24 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="/js/timeago.js"></script>
     <script>
-        ${THEME_SCRIPT_LOGIC}
-
         const promptData = ${JSON.stringify({ judul: promptData.judul, isi: promptData.isi, slug: slug })};
         const notyf = new Notyf({ duration: 2500, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
-        function formatNumber(num) {
+        function fmt(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
             return num.toString();
         }
 
-        function updateAnalyticsDisplay(analytics) {
-            document.getElementById('viewsCount').innerText = formatNumber(analytics.views);
-            document.getElementById('copiesCount').innerText = formatNumber(analytics.copies);
-            document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
+        function updateAnalyticsDisplay(a) {
+            document.getElementById('viewsCount').innerText     = fmt(a.views);
+            document.getElementById('copiesCount').innerText    = fmt(a.copies);
+            document.getElementById('downloadsCount').innerText = fmt(a.downloads);
         }
 
         async function trackAnalytics(action) {
             try {
-                const res = await fetch('/api/analytics', {
+                const res    = await fetch('/api/analytics', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: promptData.slug, action })
                 });
@@ -579,7 +523,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
-            a.href = url;
+            a.href     = url;
             a.download = promptData.judul.replace(/[^a-zA-Z0-9]/g, '_') + '.txt';
             document.body.appendChild(a); a.click();
             document.body.removeChild(a); URL.revokeObjectURL(url);
@@ -592,11 +536,13 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.getElementById('fullscreenModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
+
         function closeFullscreen(event) {
             if (event) event.stopPropagation();
             document.getElementById('fullscreenModal').classList.add('hidden');
             document.body.style.overflow = '';
         }
+
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFullscreen(); });
     </script>
 </body>
