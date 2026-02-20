@@ -179,16 +179,14 @@
         }
         .sort-indicator {
             position: absolute;
-            bottom: 2px;
-            right: 2px;
-            font-size: 0.7rem !important;
-            color: #888;
-            opacity: 0;
-            transition: opacity 0.2s;
+            bottom: -5px;
+            right: -5px;
             line-height: 1;
-            transform: translate(20%, 20%);
+            opacity: 1;
+            transition: color 0.2s;
         }
-        .sort-btn.has-sort .sort-indicator { opacity: 1; }
+        .sort-indicator.material-icons { font-size: 0.72rem !important; }
+        .sort-indicator.fa-solid { font-size: 0.65rem !important; }
 
         .sort-dropdown {
             position: absolute;
@@ -283,7 +281,7 @@
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
                         <i class="material-icons" style="font-size: 1.6rem;">filter_list</i>
-                        <i class="material-icons sort-indicator" id="sortIndicator"></i>
+                        <i class="fa-solid fa-fire sort-indicator" id="sortIndicator" style="color:#eab308;"></i>
                     </button>
                     <div class="sort-dropdown" id="sortDropdown">
                         <div class="sort-option active" data-sort="newest">
