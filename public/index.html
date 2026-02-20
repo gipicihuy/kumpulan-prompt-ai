@@ -62,14 +62,12 @@
             box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
         }
 
-        /* ========== FILTER ROW ========== */
         .filter-row {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        /* Category scroll wrapper */
         .category-scroll-wrapper {
             position: relative;
             flex: 1;
@@ -94,7 +92,7 @@
             background: linear-gradient(to left, rgba(15,15,15,0.95), transparent);
         }
         .category-scroll-wrapper.at-start::before { opacity: 0; }
-        .category-scroll-wrapper.at-end::after   { opacity: 0; }
+        .category-scroll-wrapper.at-end::after { opacity: 0; }
 
         .category-pills {
             display: flex;
@@ -107,7 +105,6 @@
         }
         .category-pills::-webkit-scrollbar { display: none; }
 
-        /* ========== CATEGORY PILL ========== */
         .cat-pill {
             flex-shrink: 0;
             display: inline-flex;
@@ -135,7 +132,6 @@
             box-shadow: 0 0 10px rgba(229,229,229,0.12);
         }
 
-        /* Count badge — white circle */
         .count-badge {
             display: inline-flex;
             align-items: center;
@@ -156,7 +152,6 @@
             color: #e5e5e5;
         }
 
-        /* ========== SORT BUTTON (icon style, distinct) ========== */
         .sort-pill-wrapper {
             position: relative;
             flex-shrink: 0;
@@ -168,31 +163,30 @@
             justify-content: center;
             width: 32px;
             height: 32px;
-            border-radius: 50%;
+            border-radius: 8px;
             cursor: pointer;
-            border: 1px solid #2a2a2a;
-            background: #141414;
-            color: #666;
+            border: 1px solid #3a3a3a;
+            background: #252525;
+            color: #aaa;
             transition: all 0.2s ease;
             position: relative;
         }
         .sort-btn:hover {
-            border-color: #555;
-            color: #ccc;
-            background: #1f1f1f;
+            border-color: #666;
+            color: #fff;
+            background: #2f2f2f;
         }
         .sort-btn.open {
             border-color: #888;
-            background: #252525;
+            background: #333;
             color: #e5e5e5;
         }
-        /* active sort indicator dot */
         .sort-btn .sort-dot {
             position: absolute;
             top: 2px;
             right: 2px;
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
             background: #e5e5e5;
             opacity: 0;
@@ -280,20 +274,16 @@
                 </button>
             </div>
             
-            <!-- Search -->
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-4 py-2.5 rounded-lg outline-none text-sm text-white" />
             </div>
 
-            <!-- Filter Row -->
             <div class="filter-row">
-                <!-- Category Pills -->
                 <div class="category-scroll-wrapper at-start" id="pillWrapper">
                     <div class="category-pills" id="categoryPills"></div>
                 </div>
 
-                <!-- Sort Button (icon only, circle) -->
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
                         <i class="fa-solid fa-arrow-up-wide-short" style="font-size: 0.7rem;"></i>
