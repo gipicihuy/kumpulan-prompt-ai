@@ -123,30 +123,30 @@ document.addEventListener('click', (e) => {
     }
 });
 
-const sortIndicatorIcons = {
-    newest:   { icon: '',              color: '' },
-    trending: { icon: 'trending_up',   color: '#f97316' },
-    popular:  { icon: 'emoji_events',  color: '#ca8a04' },
-    'a-z':    { icon: 'arrow_downward', color: '#60a5fa' },
-    'z-a':    { icon: 'arrow_upward',   color: '#60a5fa' },
+// type: 'material' atau 'fa', icon: nama icon, color: warna
+const sortIndicatorMap = {
+    newest:   { type: 'fa',       icon: 'fa-fire',           color: '#eab308' },
+    trending: { type: 'fa',       icon: 'fa-chart-line',     color: '#f97316' },
+    popular:  { type: 'fa',       icon: 'fa-trophy',         color: '#ca8a04' },
+    'a-z':    { type: 'fa',       icon: 'fa-arrow-down-a-z', color: '#60a5fa' },
+    'z-a':    { type: 'fa',       icon: 'fa-arrow-up-z-a',   color: '#60a5fa' },
 };
+
+function updateSortIndicator() {
+    const indicator = document.getElementById('sortIndicator');
+    if (!indicator) return;
+    const s = sortIndicatorMap[currentSort];
+    indicator.className = `fa-solid ${s.icon} sort-indicator`;
+    indicator.style.color = s.color;
+    indicator.textContent = '';
+}
 
 sortOptions.forEach(option => {
     option.addEventListener('click', () => {
         sortOptions.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         currentSort = option.dataset.sort;
-
-        const isNonDefault = currentSort !== 'newest';
-        sortBtn.classList.toggle('has-sort', isNonDefault);
-
-        const indicator = document.getElementById('sortIndicator');
-        if (indicator) {
-            const s = sortIndicatorIcons[currentSort];
-            indicator.textContent = s.icon;
-            indicator.style.color = s.color;
-        }
-
+        updateSortIndicator();
         sortDropdown.classList.remove('show');
         sortBtn.classList.remove('open');
         applyFilters();
