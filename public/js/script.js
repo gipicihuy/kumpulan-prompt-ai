@@ -49,7 +49,7 @@ async function fetchPrompts() {
                     <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
                     <h3 class="text-red-400 font-bold text-xl uppercase mb-3">Failed to Load Data</h3>
                     <p class="text-gray-400 text-sm mb-4 font-mono">${err.message}</p>
-                    <button onclick="window.location.reload()" class="bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase hover:from-gray-300 hover:to-gray-100 transition-all shadow-lg">
+                    <button onclick="window.location.reload()" class="bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase">
                         <i class="fa-solid fa-rotate-right mr-2"></i>Retry
                     </button>
                 </div>
@@ -79,8 +79,10 @@ function renderCategoryPills() {
     pillsContainer.innerHTML = categories.map(cat => {
         const label = cat === 'all' ? 'All' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
-        return `<button class="cat-pill ${selectedCategory === cat ? 'active' : ''}" data-category="${cat}" onclick="setCategory('${cat}')">
-            ${label}<span class="count-badge">${count}</span>
+        const isActive = selectedCategory === cat;
+        return `<button class="cat-pill ${isActive ? 'active' : ''}" data-category="${cat}" onclick="setCategory('${cat}')">
+            ${label}
+            <span class="count-badge">${count}</span>
         </button>`;
     }).join('');
 
@@ -106,24 +108,31 @@ function setCategory(cat) {
     applyFilters();
 }
 
-// ========== SORT PILL ==========
+// ========== SORT BUTTON ==========
 
-const sortPillBtn  = document.getElementById('sortPillBtn');
+const sortBtn      = document.getElementById('sortBtn');
 const sortDropdown = document.getElementById('sortDropdown');
 const sortOptions  = document.querySelectorAll('.sort-option');
-const sortLabel    = document.getElementById('sortLabel');
-const sortIcon     = document.getElementById('sortIcon');
 
-sortPillBtn.addEventListener('click', (e) => {
+// Sort icons per type
+const sortIcons = {
+    newest:   'fa-fire',
+    trending: 'fa-chart-line',
+    popular:  'fa-trophy',
+    'a-z':    'fa-arrow-down-a-z',
+    'z-a':    'fa-arrow-up-z-a',
+};
+
+sortBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const open = sortDropdown.classList.toggle('show');
-    sortPillBtn.classList.toggle('open', open);
+    sortBtn.classList.toggle('open', open);
 });
 
 document.addEventListener('click', (e) => {
-    if (!sortPillBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+    if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
         sortDropdown.classList.remove('show');
-        sortPillBtn.classList.remove('open');
+        sortBtn.classList.remove('open');
     }
 });
 
@@ -132,13 +141,17 @@ sortOptions.forEach(option => {
         sortOptions.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         currentSort = option.dataset.sort;
-        // update pill label & icon
-        sortLabel.textContent = option.textContent.trim();
-        const iconEl = option.querySelector('i');
-        sortIcon.className = iconEl.className + ' fa-xs';
-        sortIcon.style.fontSize = '0.6rem';
+
+        // Update sort button icon to reflect current sort
+        const iconName = sortIcons[currentSort] || 'fa-arrow-up-wide-short';
+        sortBtn.querySelector('i').className = `fa-solid ${iconName}`;
+        sortBtn.querySelector('i').style.fontSize = '0.7rem';
+
+        // Show dot indicator when not default sort
+        sortBtn.classList.toggle('has-sort', currentSort !== 'newest');
+
         sortDropdown.classList.remove('show');
-        sortPillBtn.classList.remove('open');
+        sortBtn.classList.remove('open');
         applyFilters();
     });
 });
