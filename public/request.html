@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <!-- Theme init: run BEFORE paint -->
     <script>
         (function() {
             var t = localStorage.getItem('prompthub-theme') || 'dark';
@@ -155,7 +154,7 @@
                 </h1>
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                     </button>
                     <button id="sidebarToggleRight" style="color: var(--text-primary)">
                         <i class="material-icons text-2xl">notes</i>
@@ -204,7 +203,6 @@
         <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
     </footer>
 
-    <!-- Sidebar -->
     <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col"
         style="background: var(--sidebar-bg); border-color: var(--border);">
         <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
@@ -249,7 +247,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        /* ---- Theme ---- */
         (function() {
             var STORAGE_KEY = 'prompthub-theme';
             function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
@@ -258,10 +255,10 @@
                 var btn = document.getElementById('themeToggleBtn');
                 if (!btn) return;
                 if (t === 'light') {
-                    btn.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
+                    btn.innerHTML = '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
                     btn.title = 'Switch to Dark Mode';
                 } else {
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
                     btn.title = 'Switch to Light Mode';
                 }
             }
@@ -273,7 +270,6 @@
             document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
         })();
 
-        /* ---- Sidebar ---- */
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
         const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
@@ -284,10 +280,8 @@
         sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
-        /* ---- Notyf ---- */
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
-        /* ---- Turnstile ---- */
         let turnstileToken = null;
         window.onTurnstileSuccess = function(token) {
             turnstileToken = token;
