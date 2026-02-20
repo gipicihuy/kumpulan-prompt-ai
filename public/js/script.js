@@ -124,11 +124,11 @@ document.addEventListener('click', (e) => {
 });
 
 const sortIndicatorIcons = {
-    newest:   '',
-    trending: 'trending_up',
-    popular:  'emoji_events',
-    'a-z':    'arrow_downward',
-    'z-a':    'arrow_upward',
+    newest:   { icon: '',              color: '' },
+    trending: { icon: 'trending_up',   color: '#f97316' },
+    popular:  { icon: 'emoji_events',  color: '#ca8a04' },
+    'a-z':    { icon: 'arrow_downward', color: '#60a5fa' },
+    'z-a':    { icon: 'arrow_upward',   color: '#60a5fa' },
 };
 
 sortOptions.forEach(option => {
@@ -142,7 +142,9 @@ sortOptions.forEach(option => {
 
         const indicator = document.getElementById('sortIndicator');
         if (indicator) {
-            indicator.textContent = sortIndicatorIcons[currentSort] || '';
+            const s = sortIndicatorIcons[currentSort];
+            indicator.textContent = s.icon;
+            indicator.style.color = s.color;
         }
 
         sortDropdown.classList.remove('show');
