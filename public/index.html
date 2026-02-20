@@ -20,6 +20,7 @@
         }
         .loader { border: 2px solid #2a2a2a; border-top: 2px solid #e5e5e5; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .card { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 1px solid #2a2a2a; 
@@ -33,6 +34,7 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
             transform: translateY(-2px);
         }
+        
         .skeleton { 
             background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%); 
             background-size: 200% 100%; 
@@ -42,11 +44,13 @@
         .skeleton-text { height: 10px; border-radius: 4px; }
         .skeleton-title { height: 14px; border-radius: 4px; width: 70%; }
         .skeleton-badge { height: 18px; width: 60px; border-radius: 4px; }
+        
         header {
             background: rgba(26, 26, 26, 0.8);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid #2a2a2a;
         }
+        
         input[type="text"] {
             background: #1a1a1a !important;
             border: 1px solid #2a2a2a !important;
@@ -57,7 +61,13 @@
             border-color: #444 !important;
             box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1);
         }
-        .filter-row { display: flex; align-items: center; gap: 0.5rem; }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .category-scroll-wrapper {
             position: relative;
             flex: 1;
@@ -83,6 +93,7 @@
         }
         .category-scroll-wrapper.at-start::before { opacity: 0; }
         .category-scroll-wrapper.at-end::after { opacity: 0; }
+
         .category-pills {
             display: flex;
             gap: 0.4rem;
@@ -93,6 +104,7 @@
             padding: 2px 2px;
         }
         .category-pills::-webkit-scrollbar { display: none; }
+
         .cat-pill {
             flex-shrink: 0;
             display: inline-flex;
@@ -119,6 +131,7 @@
             color: #111;
             box-shadow: 0 0 10px rgba(229,229,229,0.12);
         }
+
         .count-badge {
             display: inline-flex;
             align-items: center;
@@ -134,8 +147,16 @@
             color: #bbb;
             transition: all 0.2s ease;
         }
-        .cat-pill.active .count-badge { background: #111; color: #e5e5e5; }
-        .sort-pill-wrapper { position: relative; flex-shrink: 0; }
+        .cat-pill.active .count-badge {
+            background: #111;
+            color: #e5e5e5;
+        }
+
+        .sort-pill-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
         .sort-btn {
             display: inline-flex;
             align-items: center;
@@ -162,6 +183,7 @@
         }
         .sort-indicator.material-icons { font-size: 0.72rem !important; }
         .sort-indicator.fa-solid { font-size: 0.65rem !important; }
+
         .sort-dropdown {
             position: absolute;
             top: calc(100% + 0.4rem);
@@ -179,6 +201,7 @@
             overflow: hidden;
         }
         .sort-dropdown.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
         .sort-option {
             padding: 0.6rem 0.9rem;
             cursor: pointer;
@@ -204,16 +227,20 @@
             flex-shrink: 0;
             margin-right: -2px;
         }
+
         footer {
             background: rgba(26, 26, 26, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid #2a2a2a;
         }
+
         .logo-img { width: 48px; height: 48px; object-fit: contain; }
         .title-text { font-size: 1.375rem; line-height: 1.2; }
+
         #sidebar-right { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #overlay { transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s; }
         #overlay.show { opacity: 1 !important; visibility: visible !important; }
+
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
             #sidebar-right.open { transform: translateX(0); }
@@ -222,7 +249,7 @@
         }
         @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
 
-        /* Clear search — no background, just icon */
+        /* Clear search button — no background */
         #clearSearch {
             position: absolute;
             right: 10px;
@@ -240,7 +267,7 @@
             font-size: 0.8rem;
             line-height: 1;
         }
-        #clearSearch:hover { color: #bbb; }
+        #clearSearch:hover { color: #ccc; }
         #clearSearch.visible { display: flex; }
     </style>
 </head>
@@ -270,6 +297,7 @@
                 <div class="category-scroll-wrapper at-start" id="pillWrapper">
                     <div class="category-pills" id="categoryPills"></div>
                 </div>
+
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
                         <i class="material-icons" style="font-size: 1.6rem;">filter_list</i>
