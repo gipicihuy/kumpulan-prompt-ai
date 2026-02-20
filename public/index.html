@@ -177,18 +177,17 @@
         .sort-btn.open {
             color: #aaa;
         }
-        .sort-btn .sort-dot {
+        .sort-indicator {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #e5e5e5;
+            bottom: -1px;
+            right: -1px;
+            font-size: 0.65rem !important;
+            color: #fff;
             opacity: 0;
             transition: opacity 0.2s;
+            line-height: 1;
         }
-        .sort-btn.has-sort .sort-dot { opacity: 1; }
+        .sort-btn.has-sort .sort-indicator { opacity: 1; }
 
         .sort-dropdown {
             position: absolute;
@@ -283,7 +282,7 @@
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
                         <i class="material-icons" style="font-size: 1.6rem;">filter_list</i>
-                        <span class="sort-dot"></span>
+                        <i class="material-icons sort-indicator" id="sortIndicator"></i>
                     </button>
                     <div class="sort-dropdown" id="sortDropdown">
                         <div class="sort-option active" data-sort="newest">
