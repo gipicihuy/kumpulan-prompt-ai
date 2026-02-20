@@ -59,8 +59,6 @@ async function fetchPrompts() {
     }
 }
 
-// ========== CATEGORY PILLS ==========
-
 function renderCategoryPills() {
     const pillsContainer = document.getElementById('categoryPills');
     const wrapper = document.getElementById('pillWrapper');
@@ -108,20 +106,9 @@ function setCategory(cat) {
     applyFilters();
 }
 
-// ========== SORT BUTTON ==========
-
 const sortBtn      = document.getElementById('sortBtn');
 const sortDropdown = document.getElementById('sortDropdown');
 const sortOptions  = document.querySelectorAll('.sort-option');
-
-// Sort icons per type
-const sortIcons = {
-    newest:   'fa-fire',
-    trending: 'fa-chart-line',
-    popular:  'fa-trophy',
-    'a-z':    'fa-arrow-down-a-z',
-    'z-a':    'fa-arrow-up-z-a',
-};
 
 sortBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -141,22 +128,12 @@ sortOptions.forEach(option => {
         sortOptions.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         currentSort = option.dataset.sort;
-
-        // Update sort button icon to reflect current sort
-        const iconName = sortIcons[currentSort] || 'fa-arrow-up-wide-short';
-        sortBtn.querySelector('i').className = `fa-solid ${iconName}`;
-        sortBtn.querySelector('i').style.fontSize = '0.7rem';
-
-        // Show dot indicator when not default sort
         sortBtn.classList.toggle('has-sort', currentSort !== 'newest');
-
         sortDropdown.classList.remove('show');
         sortBtn.classList.remove('open');
         applyFilters();
     });
 });
-
-// ========== FILTERS ==========
 
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -242,7 +219,6 @@ function renderPrompts(data) {
 
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
-// ========== AUTO REFRESH ==========
 setInterval(async () => {
     try {
         const json = await (await fetch('/api/get-prompts')).json();
