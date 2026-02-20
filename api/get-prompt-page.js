@@ -19,7 +19,6 @@ function generateSessionToken(slug) {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Auto-detect URLs in text and make them clickable
 function linkify(text) {
   if (!text) return '';
   const escaped = text
@@ -31,6 +30,91 @@ function linkify(text) {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
   });
 }
+
+// Shared theme CSS variables injected into every rendered page
+const THEME_CSS = `
+    :root, [data-theme="dark"] {
+        --bg-base:        #0f0f0f;
+        --bg-surface:     #1a1a1a;
+        --bg-surface2:    #1f1f1f;
+        --bg-surface3:    #252525;
+        --border:         #2a2a2a;
+        --border-hover:   #444;
+        --text-primary:   #e5e5e5;
+        --text-secondary: #9ca3af;
+        --text-muted:     #6b7280;
+        --header-bg:      rgba(26,26,26,0.8);
+        --input-bg:       #1a1a1a;
+        --input-focus:    #1f1f1f;
+        --code-bg-from:   #1a1a1a;
+        --code-bg-to:     #1f1f1f;
+        --code-hdr-from:  #252525;
+        --code-hdr-to:    #2a2a2a;
+        --sidebar-bg:     #1a1a1a;
+        --overlay-bg:     rgba(0,0,0,0.8);
+        --shadow:         rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] {
+        --bg-base:        #f4f4f5;
+        --bg-surface:     #ffffff;
+        --bg-surface2:    #f9f9f9;
+        --bg-surface3:    #f0f0f0;
+        --border:         #e4e4e7;
+        --border-hover:   #a1a1aa;
+        --text-primary:   #18181b;
+        --text-secondary: #52525b;
+        --text-muted:     #71717a;
+        --header-bg:      rgba(255,255,255,0.9);
+        --input-bg:       #ffffff;
+        --input-focus:    #f9f9f9;
+        --code-bg-from:   #ffffff;
+        --code-bg-to:     #f9f9f9;
+        --code-hdr-from:  #f0f0f0;
+        --code-hdr-to:    #e8e8e8;
+        --sidebar-bg:     #ffffff;
+        --overlay-bg:     rgba(0,0,0,0.5);
+        --shadow:         rgba(0,0,0,0.06);
+    }
+`;
+
+// Shared theme JS (inline, no external file dependency)
+const THEME_SCRIPT_INIT = `
+    (function() {
+        var t = localStorage.getItem('prompthub-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+    })();
+`;
+
+const THEME_SCRIPT_LOGIC = `
+    (function() {
+        var STORAGE_KEY = 'prompthub-theme';
+        function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            var icon = btn.querySelector('i');
+            if (t === 'light') { icon.className = 'fa-solid fa-moon'; btn.title = 'Switch to Dark Mode'; }
+            else               { icon.className = 'fa-solid fa-sun';  btn.title = 'Switch to Light Mode'; }
+        }
+        window.toggleTheme = function() {
+            var next = getTheme() === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(STORAGE_KEY, next);
+            applyTheme(next);
+        };
+        document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+    })();
+`;
+
+// Shared theme toggle button HTML
+const THEME_BTN_HTML = `
+    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode"
+        style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+               border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);
+               color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0;margin-right:4px;">
+        <i class="fa-solid fa-sun" style="font-size:0.9rem;"></i>
+    </button>
+`;
 
 export default async function handler(req, res) {
   const { slug } = req.query;
@@ -67,7 +151,6 @@ export default async function handler(req, res) {
       try {
         await redis.hincrby(analyticsKey, 'views', 1);
         analytics.views += 1;
-        console.log(`✅ View tracked for slug: ${slug}, new count: ${analytics.views}`);
       } catch (trackError) {
         console.error('❌ Failed to track view:', trackError);
       }
@@ -89,7 +172,6 @@ export default async function handler(req, res) {
         try {
           await redis.hincrby(analyticsKey, 'views', 1);
           analytics.views += 1;
-          console.log(`✅ View tracked for protected slug: ${slug}`);
         } catch (trackError) {
           console.error('❌ Failed to track view:', trackError);
         }
@@ -106,7 +188,7 @@ export default async function handler(req, res) {
     console.error('❌ Error in get-prompt-page:', error);
     res.status(500).send(`
       <!DOCTYPE html>
-      <html lang="id">
+      <html lang="id" data-theme="dark">
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -114,15 +196,16 @@ export default async function handler(req, res) {
           <script src="https://cdn.tailwindcss.com"></script>
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
           <style>
-              body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+              ${THEME_CSS}
+              body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, var(--bg-base), var(--bg-surface)); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
           </style>
       </head>
       <body>
-          <div class="max-w-lg mx-auto bg-gradient-to-br from-[#1a1a1a] to-[#1f1f1f] border border-red-900/50 p-8 rounded-xl text-center shadow-xl">
+          <div class="max-w-lg mx-auto p-8 rounded-xl text-center shadow-xl" style="background:linear-gradient(135deg,var(--bg-surface),var(--bg-surface2));border:1px solid var(--border)">
               <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
-              <h2 class="text-red-400 font-bold text-2xl uppercase mb-4">Internal Server Error</h2>
-              <p class="text-gray-400 text-sm mb-6 font-mono">${error.message}</p>
-              <a href="/" class="inline-block bg-gradient-to-r from-gray-200 to-white text-black px-6 py-3 rounded-lg text-sm font-bold uppercase hover:from-gray-300 hover:to-gray-100 transition-all shadow-lg hover:shadow-xl">
+              <h2 class="font-bold text-2xl uppercase mb-4" style="color:#f87171">Internal Server Error</h2>
+              <p class="text-sm mb-6 font-mono" style="color:var(--text-muted)">${error.message}</p>
+              <a href="/" class="inline-block px-6 py-3 rounded-lg text-sm font-bold uppercase" style="background:var(--text-primary);color:var(--bg-base)">
                   <i class="fa-solid fa-home mr-2"></i>Back to Home
               </a>
           </div>
@@ -139,10 +222,10 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
   const profilePicHtml = profileUrl && profileUrl.trim() !== '' 
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
-    : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]"><i class="fa-solid fa-user text-sm text-gray-500"></i></div>`;
+    : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`;
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -157,91 +240,100 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script>${THEME_SCRIPT_INIT}</script>
     <style>
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; }
-        header { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #2a2a2a; }
-        .password-container { background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); border: 1px solid #2a2a2a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
-        input { background-color: #1a1a1a !important; border-color: #2a2a2a !important; transition: all 0.3s ease; }
-        input:focus { border-color: #444 !important; background-color: #1f1f1f !important; box-shadow: 0 0 0 3px rgba(68, 68, 68, 0.1); }
-        .btn-primary { background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%); transition: all 0.3s ease; }
-        .btn-primary:hover { background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%); box-shadow: 0 4px 12px rgba(229, 229, 229, 0.2); transform: translateY(-1px); }
+        ${THEME_CSS}
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%); color: var(--text-primary); min-height: 100vh; transition: background 0.25s, color 0.25s; }
+        header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+        .password-container { background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
+        input { background-color: var(--input-bg) !important; border-color: var(--border) !important; color: var(--text-primary) !important; transition: all 0.3s ease; }
+        input:focus { border-color: var(--border-hover) !important; background-color: var(--input-focus) !important; box-shadow: 0 0 0 3px rgba(128,128,128,0.1); }
+        input::placeholder { color: var(--text-muted) !important; }
+        .btn-primary { background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-primary) 100%); color: var(--bg-base); transition: all 0.3s ease; }
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(128,128,128,0.2); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .back-btn { transition: all 0.3s ease; }
-        .back-btn:hover { color: #e5e5e5; transform: translateX(-2px); }
-        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .back-btn { transition: all 0.3s ease; color: var(--text-muted); }
+        .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
         .profile-pic-placeholder { width: 32px; height: 32px; }
-        .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%); border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; }
+        .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 2px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background:none; border:none; color: var(--text-muted); }
+        .toggle-password-btn:hover { color: var(--text-primary); }
+        #themeToggleBtn { display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0; }
+        #themeToggleBtn:hover { border-color:var(--border-hover);color:var(--text-primary);background:var(--bg-surface3); }
     </style>
 </head>
 <body>
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="/" class="back-btn text-gray-400 font-bold text-xs flex items-center gap-2">
+            <a href="/" class="back-btn font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
-            <h1 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Protected Content</h1>
+            <div class="flex items-center gap-2">
+                ${THEME_BTN_HTML}
+                <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Protected Content</h1>
+            </div>
         </div>
     </header>
 
     <main class="max-w-3xl mx-auto px-4 py-6">
-        <div class="mb-5 border-l-2 border-gray-400 pl-3">
-            <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">${promptData.kategori || 'Lainnya'}</span>
-            <h2 class="text-xl font-bold text-white mt-3 uppercase tracking-tight leading-tight flex items-center gap-2">
+        <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
+            <span class="text-xs font-bold px-2 py-0.5 rounded uppercase" style="background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover)">${promptData.kategori || 'Lainnya'}</span>
+            <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
                 ${promptData.judul}
                 <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
             </h2>
-            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                 <div class="flex items-center gap-2">
                     ${profilePicHtml}
-                    <span class="font-semibold text-white">Uploaded by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
+                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <span style="color:var(--text-secondary)">@${promptData.uploadedBy || 'Admin'}</span></span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
-                    <span class="text-white text-[11px]">${promptData.createdAt || '-'}</span>
+                    <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
+                    <span class="text-[11px]" style="color:var(--text-primary)">${promptData.createdAt || '-'}</span>
                 </div>
             </div>
         </div>
 
         <div class="password-container rounded-lg overflow-hidden">
-            <div class="p-8 text-center border-b border-[#2a2a2a]">
+            <div class="p-8 text-center" style="border-bottom:1px solid var(--border)">
                 <div class="lock-icon-large rounded-full">
                     <i class="fa-solid fa-lock text-3xl text-yellow-500"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-2 uppercase tracking-tight">Password Required</h3>
-                <p class="text-sm text-gray-400 leading-relaxed max-w-md mx-auto">
+                <h3 class="text-lg font-bold mb-2 uppercase tracking-tight" style="color:var(--text-primary)">Password Required</h3>
+                <p class="text-sm leading-relaxed max-w-md mx-auto" style="color:var(--text-secondary)">
                     This content is password protected. Please enter the password to view the full prompt.
                 </p>
             </div>
             <div class="p-8">
                 <form id="passwordForm" class="space-y-5 max-w-md mx-auto">
                     <div>
-                        <label class="text-sm font-bold text-gray-400 uppercase mb-2 block flex items-center gap-2">
+                        <label class="text-sm font-bold uppercase mb-2 flex items-center gap-2" style="color:var(--text-muted)">
                             <i class="fa-solid fa-key text-xs"></i> Enter Password
                         </label>
                         <div class="relative">
-                            <input type="password" id="passwordInput" placeholder="••••••••" required 
-                                class="w-full p-4 pr-12 rounded-xl border outline-none text-white text-base"
-                                autocomplete="off">
+                            <input type="password" id="passwordInput" placeholder="••••••••" required
+                                class="w-full p-4 pr-12 rounded-xl border outline-none text-base" autocomplete="off">
                             <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()"
-                                class="toggle-password-btn absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-all"
+                                class="toggle-password-btn absolute right-4 top-1/2 -translate-y-1/2"
                                 title="Show/Hide Password">
                                 <i class="fa-solid fa-eye text-sm"></i>
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="w-full btn-primary text-black font-bold py-4 rounded-xl uppercase tracking-widest text-sm">
+                    <button type="submit" class="w-full btn-primary font-bold py-4 rounded-xl uppercase tracking-widest text-sm">
                         <i class="fa-solid fa-unlock mr-2"></i>Unlock Prompt
                     </button>
                 </form>
             </div>
-            <div class="px-8 pb-8 pt-4 border-t border-[#2a2a2a]">
-                <div class="bg-[#0f0f0f] rounded-lg p-4 border border-[#2a2a2a]">
-                    <p class="text-xs text-gray-400 text-center mb-2">
-                        <i class="fa-solid fa-info-circle mr-1 text-gray-300"></i> Don't have the password?
+            <div class="px-8 pb-8 pt-4" style="border-top:1px solid var(--border)">
+                <div class="rounded-lg p-4" style="background:var(--bg-base);border:1px solid var(--border)">
+                    <p class="text-xs text-center mb-2" style="color:var(--text-muted)">
+                        <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i> Don't have the password?
                     </p>
-                    <p class="text-xs text-white text-center font-semibold">
-                        Contact <span class="text-gray-300">@${promptData.uploadedBy}</span> for access
+                    <p class="text-xs text-center font-semibold" style="color:var(--text-primary)">
+                        Contact <span style="color:var(--text-secondary)">@${promptData.uploadedBy}</span> for access
                     </p>
                 </div>
             </div>
@@ -250,34 +342,29 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        ${THEME_SCRIPT_LOGIC}
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('passwordInput');
+            const pi = document.getElementById('passwordInput');
             const icon = document.getElementById('togglePasswordBtn').querySelector('i');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            if (pi.type === 'password') { pi.type = 'text'; icon.className = 'fa-solid fa-eye-slash text-sm'; }
+            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye text-sm'; }
         }
 
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
+            const orig = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifying...';
             btn.disabled = true;
             const password = document.getElementById('passwordInput').value;
             try {
-                const response = await fetch('/api/verify-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch('/api/verify-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: '${slug}', password })
                 });
-                const result = await response.json();
+                const result = await res.json();
                 if (result.success) {
                     notyf.success('Access granted! Redirecting...');
                     setTimeout(() => { window.location.href = '/prompt/${slug}'; }, 1000);
@@ -286,12 +373,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('passwordInput').focus();
                 }
-            } catch (error) {
-                notyf.error('An error occurred. Please try again.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+            } catch(e) { notyf.error('An error occurred. Please try again.'); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         });
 
         document.getElementById('passwordInput').focus();
@@ -318,7 +401,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
   };
 
   return `<!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -337,88 +420,89 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script>${THEME_SCRIPT_INIT}</script>
     <style>
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #0f0f0f 0%, #1a1a1a 100%); color: #e5e5e5; min-height: 100vh; }
-        .carbon-dots span { width: 10px; height: 10px; display: inline-block; background: #fff; }
-        header { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #2a2a2a; }
-        .code-container { background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); border: 1px solid #2a2a2a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
-        .code-header { background: linear-gradient(135deg, #252525 0%, #2a2a2a 100%); border-bottom: 1px solid #2a2a2a; }
-        .btn-icon { transition: all 0.3s ease; color: #888; }
-        .btn-icon:hover { color: #e5e5e5; transform: scale(1.05); }
-        .back-btn { transition: all 0.3s ease; }
-        .back-btn:hover { color: #e5e5e5; transform: translateX(-2px); }
-        .image-container { border: 1px solid #2a2a2a; background: linear-gradient(135deg, #1a1a1a 0%, #1f1f1f 100%); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
-        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        ${THEME_CSS}
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%); color: var(--text-primary); min-height: 100vh; transition: background 0.25s, color 0.25s; }
+        .carbon-dots span { width: 10px; height: 10px; display: inline-block; background: var(--text-primary); border-radius: 50%; opacity: 0.4; }
+        header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+        .code-container { background: linear-gradient(135deg, var(--code-bg-from) 0%, var(--code-bg-to) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
+        .code-header { background: linear-gradient(135deg, var(--code-hdr-from) 0%, var(--code-hdr-to) 100%); border-bottom: 1px solid var(--border); }
+        .btn-icon { transition: all 0.3s ease; color: var(--text-muted); background:none; border:none; cursor:pointer; }
+        .btn-icon:hover { color: var(--text-primary); transform: scale(1.05); }
+        .back-btn { transition: all 0.3s ease; color: var(--text-muted); }
+        .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
+        .image-container { border: 1px solid var(--border); background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%); box-shadow: 0 8px 24px var(--shadow); }
+        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
         .profile-pic-placeholder { width: 32px; height: 32px; }
-        .fullscreen-modal { position: fixed; inset: 0; background: rgba(15, 15, 15, 0.98); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .fullscreen-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.97); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .fullscreen-image-wrapper { position: relative; max-width: 100%; max-height: 100%; }
         .fullscreen-modal img { max-width: 100%; max-height: 100vh; object-fit: contain; border-radius: 8px; }
         .fullscreen-close { position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
         .fullscreen-close:hover { transform: scale(1.1); }
-        .fullscreen-close:active { transform: scale(0.95); }
-        /* Links in description */
-        .description-link {
-            color: #e5e5e5;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            word-break: break-all;
-            transition: color 0.2s ease;
-        }
-        .description-link:hover { color: #ffffff; }
+        .description-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; transition: color 0.2s ease; }
+        .description-link:hover { color: var(--text-secondary); }
+        pre code { color: var(--text-secondary) !important; }
+        #themeToggleBtn { display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0; }
+        #themeToggleBtn:hover { border-color:var(--border-hover);color:var(--text-primary);background:var(--bg-surface3); }
     </style>
 </head>
 <body>
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="/" class="back-btn text-gray-400 font-bold text-xs flex items-center gap-2">
+            <a href="/" class="back-btn font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
-            <h1 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Detail View</h1>
+            <div class="flex items-center gap-2">
+                ${THEME_BTN_HTML}
+                <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Detail View</h1>
+            </div>
         </div>
     </header>
 
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div id="detailContent">
-            <div class="mb-5 border-l-2 border-gray-400 pl-3">
-                <span class="text-xs font-bold px-2 py-0.5 bg-gradient-to-r from-gray-200 to-white text-black rounded uppercase border border-gray-300">${promptData.kategori || 'Lainnya'}</span>
-                <h2 class="text-xl font-bold text-white mt-3 uppercase tracking-tight leading-tight">${promptData.judul}</h2>
-                <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+            <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
+                <span class="text-xs font-bold px-2 py-0.5 rounded uppercase" style="background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover)">${promptData.kategori || 'Lainnya'}</span>
+                <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight" style="color:var(--text-primary)">${promptData.judul}</h2>
+                <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                     <div class="flex items-center gap-2">
                         <div>
                             ${profileUrl && profileUrl.trim() !== '' 
                                 ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy || 'Admin'}">`
-                                : `<div class="profile-pic-placeholder rounded-full bg-[#252525] flex items-center justify-center border border-[#444]"><i class="fa-solid fa-user text-sm text-gray-500"></i></div>`
+                                : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`
                             }
                         </div>
-                        <span class="font-semibold text-white">Uploaded by <span class="text-gray-300">@${promptData.uploadedBy || 'Admin'}</span></span>
+                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <span style="color:var(--text-secondary)">@${promptData.uploadedBy || 'Admin'}</span></span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <i class="fa-solid fa-clock text-gray-300 text-[10px]"></i>
-                        <span class="time-ago text-white text-[11px]" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">Loading...</span>
+                        <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
+                        <span class="time-ago text-[11px]" style="color:var(--text-primary)" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">Loading...</span>
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-3">
                     <div class="flex items-center gap-1.5" title="Total Views">
-                        <i class="fa-solid fa-eye text-[11px] text-gray-400"></i>
-                        <span id="viewsCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.views)}</span>
+                        <i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i>
+                        <span id="viewsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.views)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Total Copies">
-                        <i class="fa-solid fa-copy text-[11px] text-gray-400"></i>
-                        <span id="copiesCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.copies)}</span>
+                        <i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i>
+                        <span id="copiesCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.copies)}</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Total Downloads">
-                        <i class="fa-solid fa-download text-[11px] text-gray-400"></i>
-                        <span id="downloadsCount" class="text-xs font-bold text-gray-300">${formatNumber(analytics.downloads)}</span>
+                        <i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i>
+                        <span id="downloadsCount" class="text-xs font-bold" style="color:var(--text-secondary)">${formatNumber(analytics.downloads)}</span>
                     </div>
                 </div>
             </div>
             
             ${promptData.description && promptData.description.trim() !== '' ? `
             <div class="mb-5">
-                <h3 class="text-base font-extrabold text-white mb-2">Description</h3>
-                <hr class="border-0 h-px bg-[#2a2a2a] mb-2">
-                <p class="text-sm text-gray-300 leading-relaxed mb-3" style="white-space: pre-line;">${linkify(promptData.description)}</p>
-                <hr class="border-0 h-px bg-[#2a2a2a]">
+                <h3 class="text-base font-extrabold mb-2" style="color:var(--text-primary)">Description</h3>
+                <hr style="border:0;height:1px;background:var(--border);margin-bottom:0.5rem">
+                <p class="text-sm leading-relaxed mb-3" style="color:var(--text-secondary);white-space:pre-line">${linkify(promptData.description)}</p>
+                <hr style="border:0;height:1px;background:var(--border)">
             </div>
             ` : ''}
 
@@ -436,14 +520,14 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="code-container rounded-lg overflow-hidden mb-6">
                 <div class="code-header px-4 py-2.5 flex justify-between items-center relative">
                     <div class="carbon-dots flex gap-1.5"><span></span><span></span><span></span></div>
-                    <div class="text-xs font-bold text-white uppercase tracking-wider absolute left-1/2 -translate-x-1/2">Prompt</div>
+                    <div class="text-xs font-bold uppercase tracking-wider absolute left-1/2 -translate-x-1/2" style="color:var(--text-primary)">Prompt</div>
                     <div class="flex gap-3 items-center">
                         <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm"><i class="fa-solid fa-copy"></i></button>
                         <button id="downloadBtn" title="Download as .txt" class="btn-icon text-sm"><i class="fa-solid fa-download"></i></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto">
-                    <pre><code class="text-gray-300 leading-relaxed whitespace-pre-wrap text-xs block font-mono">${promptData.isi || ''}</code></pre>
+                    <pre><code class="leading-relaxed whitespace-pre-wrap text-xs block font-mono">${promptData.isi || ''}</code></pre>
                 </div>
             </div>
         </div>
@@ -461,52 +545,48 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="/js/timeago.js"></script>
     <script>
+        ${THEME_SCRIPT_LOGIC}
+
         const promptData = ${JSON.stringify({ judul: promptData.judul, isi: promptData.isi, slug: slug })};
-        
         const notyf = new Notyf({ duration: 2500, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
-        
+
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
             if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
             return num.toString();
         }
-        
+
         function updateAnalyticsDisplay(analytics) {
             document.getElementById('viewsCount').innerText = formatNumber(analytics.views);
             document.getElementById('copiesCount').innerText = formatNumber(analytics.copies);
             document.getElementById('downloadsCount').innerText = formatNumber(analytics.downloads);
         }
-        
+
         async function trackAnalytics(action) {
             try {
-                const response = await fetch('/api/analytics', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch('/api/analytics', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ slug: promptData.slug, action })
                 });
-                const result = await response.json();
+                const result = await res.json();
                 if (result.success && result.analytics) updateAnalyticsDisplay(result.analytics);
-            } catch (error) {
-                console.error('Error tracking analytics:', error);
-            }
+            } catch(e) { console.error('Error tracking analytics:', e); }
         }
-        
+
         document.getElementById('copyCodeBtn').onclick = async () => {
             navigator.clipboard.writeText(promptData.isi);
             await trackAnalytics('copy');
             notyf.success('Copied to clipboard!');
         };
-        
+
         document.getElementById('downloadBtn').onclick = async () => {
             const blob = new Blob([promptData.isi], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
             a.href = url;
             a.download = promptData.judul.replace(/[^a-zA-Z0-9]/g, '_') + '.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
             await trackAnalytics('download');
             notyf.success('Downloaded successfully!');
         };
@@ -516,13 +596,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             document.getElementById('fullscreenModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
-
         function closeFullscreen(event) {
             if (event) event.stopPropagation();
             document.getElementById('fullscreenModal').classList.add('hidden');
             document.body.style.overflow = '';
         }
-
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFullscreen(); });
     </script>
 </body>
