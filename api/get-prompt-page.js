@@ -94,8 +94,8 @@ const THEME_SCRIPT_LOGIC = `
             var btn = document.getElementById('themeToggleBtn');
             if (!btn) return;
             var icon = btn.querySelector('i');
-            if (t === 'light') { icon.className = 'fa-solid fa-moon'; btn.title = 'Switch to Dark Mode'; }
-            else               { icon.className = 'fa-solid fa-sun';  btn.title = 'Switch to Light Mode'; }
+            if (t === 'light') { icon.textContent = 'dark_mode'; btn.title = 'Switch to Dark Mode'; }
+            else               { icon.textContent = 'light_mode'; btn.title = 'Switch to Light Mode'; }
         }
         window.toggleTheme = function() {
             var next = getTheme() === 'dark' ? 'light' : 'dark';
@@ -109,10 +109,8 @@ const THEME_SCRIPT_LOGIC = `
 // Shared theme toggle button HTML
 const THEME_BTN_HTML = `
     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode"
-        style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
-               border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);
-               color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0;margin-right:4px;">
-        <i class="fa-solid fa-sun" style="font-size:0.9rem;"></i>
+        style="background:none;border:none;padding:0;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+        <i class="material-icons" style="font-size:1.5rem;">light_mode</i>
     </button>
 `;
 
@@ -260,8 +258,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 2px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
         .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background:none; border:none; color: var(--text-muted); }
         .toggle-password-btn:hover { color: var(--text-primary); }
-        #themeToggleBtn { display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0; }
-        #themeToggleBtn:hover { border-color:var(--border-hover);color:var(--text-primary);background:var(--bg-surface3); }
+        #themeToggleBtn { background:none; border:none; padding:0; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
@@ -444,8 +441,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .description-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; transition: color 0.2s ease; }
         .description-link:hover { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
-        #themeToggleBtn { display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface2);color:var(--text-secondary);cursor:pointer;transition:all 0.2s ease;flex-shrink:0; }
-        #themeToggleBtn:hover { border-color:var(--border-hover);color:var(--text-primary);background:var(--bg-surface3); }
+        #themeToggleBtn { background:none; border:none; padding:0; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
