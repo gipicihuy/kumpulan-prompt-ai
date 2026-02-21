@@ -46,6 +46,10 @@ const THEME_CSS = `
         --code-hdr-from:  #252525;
         --code-hdr-to:    #2a2a2a;
         --shadow:         rgba(0,0,0,0.4);
+        --dot-color:      #e5e5e5;
+        --fullscreen-filter: none;
+        --btn-bg:         #ffffff;
+        --btn-text:       #0f0f0f;
     }
     [data-theme="light"] {
         --bg-base:        #f4f4f5;
@@ -65,6 +69,10 @@ const THEME_CSS = `
         --code-hdr-from:  #f0f0f0;
         --code-hdr-to:    #e8e8e8;
         --shadow:         rgba(0,0,0,0.06);
+        --dot-color:      #18181b;
+        --fullscreen-filter: invert(1);
+        --btn-bg:         #18181b;
+        --btn-text:       #ffffff;
     }
 `;
 
@@ -203,9 +211,9 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         input { background-color: var(--input-bg) !important; border-color: var(--border) !important; color: var(--text-primary) !important; transition: all 0.3s ease; }
         input:focus { border-color: var(--border-hover) !important; background-color: var(--input-focus) !important; box-shadow: 0 0 0 3px rgba(128,128,128,0.1); }
         input::placeholder { color: var(--text-muted) !important; }
-        .btn-primary { background: linear-gradient(135deg, var(--text-secondary) 0%, var(--text-primary) 100%); color: var(--bg-base); transition: all 0.3s ease; }
-        .btn-primary:hover { box-shadow: 0 4px 12px rgba(128,128,128,0.2); transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-primary { background: var(--btn-bg); color: var(--btn-text); transition: all 0.3s ease; }
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(128,128,128,0.2); transform: translateY(-1px); opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
         .back-btn { transition: all 0.3s ease; color: var(--text-muted); }
         .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
         .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
@@ -372,7 +380,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         ${THEME_CSS}
         * { box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%); color: var(--text-primary); min-height: 100vh; transition: background 0.25s, color 0.25s; }
-        .carbon-dots span { width: 10px; height: 10px; display: inline-block; background: var(--text-primary); border-radius: 50%; opacity: 0.4; }
+        .carbon-squares { display: flex; gap: 6px; align-items: center; }
+        .carbon-squares span { width: 10px; height: 10px; display: inline-block; background: var(--dot-color); border-radius: 2px; opacity: 0.5; }
         header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
         .code-container { background: linear-gradient(135deg, var(--code-bg-from) 0%, var(--code-bg-to) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
         .code-header { background: linear-gradient(135deg, var(--code-hdr-from) 0%, var(--code-hdr-to) 100%); border-bottom: 1px solid var(--border); }
@@ -391,6 +400,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .description-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; transition: color 0.2s ease; }
         .description-link:hover { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
+        .fullscreen-icon-btn { filter: var(--fullscreen-filter); }
     </style>
 </head>
 <body>
@@ -452,8 +462,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="mb-5">
                 <div class="image-container rounded-lg overflow-hidden relative">
                     <img src="${promptData.imageUrl}" class="w-full h-auto max-h-64 object-contain" alt="${promptData.judul}">
-                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-content: center; transition-all hover:scale-110 active:scale-95" title="Fullscreen">
-                        <img src="/assets/open_in_full.svg" class="w-6 h-6" alt="Fullscreen">
+                    <button onclick="openFullscreen('${promptData.imageUrl}')" class="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-center transition-all hover:scale-110 active:scale-95" title="Fullscreen">
+                        <img src="/assets/open_in_full.svg" class="w-6 h-6 fullscreen-icon-btn" alt="Fullscreen">
                     </button>
                 </div>
             </div>
@@ -461,7 +471,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
 
             <div class="code-container rounded-lg overflow-hidden mb-6">
                 <div class="code-header px-4 py-2.5 flex justify-between items-center relative">
-                    <div class="carbon-dots flex gap-1.5"><span></span><span></span><span></span></div>
+                    <div class="carbon-squares"><span></span><span></span><span></span></div>
                     <div class="text-xs font-bold uppercase tracking-wider absolute left-1/2 -translate-x-1/2" style="color:var(--text-primary)">Prompt</div>
                     <div class="flex gap-3 items-center">
                         <button id="copyCodeBtn" title="Copy Prompt" class="btn-icon text-sm"><i class="fa-solid fa-copy"></i></button>
