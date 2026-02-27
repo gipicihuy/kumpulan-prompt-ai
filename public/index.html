@@ -172,23 +172,12 @@
             pointer-events: none;
             transition: opacity 0.3s;
         }
-        .category-scroll-wrapper::before {
-            left: 0;
-            background: linear-gradient(to right, var(--bg-base), transparent);
-        }
-        .category-scroll-wrapper::after {
-            right: 0;
-            background: linear-gradient(to left, var(--bg-base), transparent);
-        }
+        .category-scroll-wrapper::before { left: 0; background: linear-gradient(to right, var(--bg-base), transparent); }
+        .category-scroll-wrapper::after  { right: 0; background: linear-gradient(to left, var(--bg-base), transparent); }
         .category-scroll-wrapper.at-start::before { opacity: 0; }
         .category-scroll-wrapper.at-end::after   { opacity: 0; }
 
-        .category-pills {
-            display: flex; gap: 0.4rem;
-            overflow-x: auto; scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; padding: 2px 2px;
-        }
+        .category-pills { display: flex; gap: 0.4rem; overflow-x: auto; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px 2px; }
         .category-pills::-webkit-scrollbar { display: none; }
 
         .cat-pill {
@@ -196,29 +185,18 @@
             display: inline-flex; align-items: center; gap: 0.4rem;
             padding: 0.4rem 0.75rem 0.4rem 0.9rem;
             border-radius: 999px;
-            font-size: 0.75rem; font-weight: 700;
-            letter-spacing: 0.04em; text-transform: uppercase;
-            cursor: pointer;
-            border: 1px solid var(--pill-border);
-            background: var(--pill-bg);
-            color: var(--pill-text);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap; user-select: none;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+            cursor: pointer; border: 1px solid var(--pill-border); background: var(--pill-bg); color: var(--pill-text);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; user-select: none;
         }
         .cat-pill:hover { border-color: var(--border-hover); color: var(--text-secondary); background: var(--bg-surface2); }
-        .cat-pill.active {
-            background: var(--text-primary);
-            border-color: var(--text-primary);
-            color: var(--bg-base);
-            box-shadow: 0 0 10px rgba(128,128,128,0.15);
-        }
+        .cat-pill.active { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-base); box-shadow: 0 0 10px rgba(128,128,128,0.15); }
 
         .count-badge {
             display: inline-flex; align-items: center; justify-content: center;
             min-width: 16px; height: 16px; padding: 0 4px;
             border-radius: 999px; font-size: 0.55rem; font-weight: 800; line-height: 1;
-            background: rgba(128,128,128,0.15); color: var(--text-secondary);
-            transition: all 0.2s ease;
+            background: rgba(128,128,128,0.15); color: var(--text-secondary); transition: all 0.2s ease;
         }
         .cat-pill.active .count-badge { background: var(--bg-base); color: var(--text-primary); }
 
@@ -226,56 +204,33 @@
         .sort-btn {
             display: inline-flex; align-items: center; justify-content: center;
             width: 40px; height: 40px; border-radius: 8px;
-            cursor: pointer; border: none;
-            background: transparent; color: var(--text-primary);
+            cursor: pointer; border: none; background: transparent; color: var(--text-primary);
             transition: all 0.2s ease; position: relative;
         }
-        .sort-btn:hover { color: var(--text-secondary); }
-        .sort-indicator {
-            position: absolute; top: 2px; right: 2px;
-            line-height: 1; opacity: 1; transition: color 0.2s;
-        }
+        .sort-indicator { position: absolute; top: 2px; right: 2px; line-height: 1; opacity: 1; transition: color 0.2s; }
         .sort-indicator.material-icons { font-size: 0.72rem !important; }
         .sort-indicator.fa-solid { font-size: 0.65rem !important; }
 
         .sort-dropdown {
-            position: absolute; top: calc(100% + 0.4rem); right: 0;
-            min-width: 160px;
+            position: absolute; top: calc(100% + 0.4rem); right: 0; min-width: 160px;
             background: linear-gradient(135deg, var(--dropdown-bg-from) 0%, var(--dropdown-bg-to) 100%);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            z-index: 50; opacity: 0;
-            transform: translateY(-8px) scale(0.97);
-            pointer-events: none;
-            transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
-            overflow: hidden;
+            border: 1px solid var(--border); border-radius: 0.75rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 50; opacity: 0; transform: translateY(-8px) scale(0.97); pointer-events: none;
+            transition: all 0.18s cubic-bezier(0.4,0,0.2,1); overflow: hidden;
         }
         .sort-dropdown.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 
         .sort-option {
-            padding: 0.6rem 0.9rem; cursor: pointer;
-            transition: background 0.15s ease;
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 0.6rem;
-            font-size: 0.75rem; font-weight: 600;
-            color: var(--text-muted);
+            padding: 0.6rem 0.9rem; cursor: pointer; transition: background 0.15s ease;
+            border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem;
+            font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
         }
         .sort-option:last-child { border-bottom: none; }
         .sort-option:hover { background: var(--sort-opt-hover); color: var(--text-primary); }
         .sort-option.active { color: var(--text-primary); }
-        .sort-option.active::before {
-            content: '';
-            display: block; width: 4px; height: 4px;
-            border-radius: 50%; background: var(--text-primary);
-            flex-shrink: 0; margin-right: -2px;
-        }
+        .sort-option.active::before { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--text-primary); flex-shrink: 0; margin-right: -2px; }
 
-        footer {
-            background: var(--footer-bg);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-        }
+        footer { background: var(--footer-bg); backdrop-filter: blur(10px); border-top: 1px solid var(--border); }
 
         .logo-img  { width: 48px; height: 48px; object-fit: contain; }
         .title-text { font-size: 1.375rem; line-height: 1.2; }
@@ -284,21 +239,13 @@
         #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
         #overlay.show  { opacity: 1 !important; visibility: visible !important; }
 
-        .sidebar-inner {
-            background: var(--sidebar-bg) !important;
-            border-color: var(--sidebar-border) !important;
-            color: var(--text-primary) !important;
-        }
-        .sidebar-link {
-            color: var(--text-muted);
-            transition: background 0.2s, color 0.2s;
-        }
+        .sidebar-inner { background: var(--sidebar-bg) !important; border-color: var(--sidebar-border) !important; color: var(--text-primary) !important; }
+        .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
         .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
 
         #clearSearch {
-            position: absolute; right: 10px; top: 50%;
-            transform: translateY(-50%);
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
             display: none; align-items: center; justify-content: center;
             border: none; background: none; cursor: pointer;
             color: var(--text-muted); transition: color 0.2s ease;
@@ -307,15 +254,32 @@
         #clearSearch:hover { color: var(--text-primary); }
         #clearSearch.visible { display: flex; }
 
-        .cat-badge {
-            background: var(--cat-badge-bg);
-            color: var(--cat-badge-text);
-            border: 1px solid var(--cat-badge-bdr);
-        }
+        .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
         .protected-text { color: var(--protected-text) !important; }
         .profile-placeholder { background: var(--profile-bg); }
         .time-chip { color: var(--text-primary); }
         .card-author { color: var(--text-secondary); }
+
+        /* Sidebar user section */
+        .sidebar-user-card { background: var(--bg-surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .sidebar-user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-hover); flex-shrink: 0; }
+        .sidebar-btn-login { display: block; width: 100%; padding: 10px; background: var(--text-primary); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; }
+        .sidebar-btn-login:hover { opacity: 0.85; transform: translateY(-1px); }
+        .sidebar-btn-logout { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 8px; }
+        .sidebar-btn-logout:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.05); }
+
+        /* Auth Modal (reused from prompt page) */
+        .auth-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .auth-modal-overlay.show { opacity: 1; visibility: visible; }
+        .auth-modal { background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface2)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .auth-input { background: var(--input-bg) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; padding: 10px 14px; border-radius: 8px; outline: none; width: 100%; font-size: 0.875rem; transition: border-color 0.2s; font-family: inherit; }
+        .auth-input:focus { border-color: var(--border-hover) !important; }
+        .auth-input::placeholder { color: var(--text-muted) !important; }
+        .auth-tab { padding: 8px 16px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .auth-tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+        .btn-auth-submit { background: var(--text-primary); color: var(--bg-base); width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-auth-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-auth-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
@@ -348,37 +312,24 @@
             <div class="relative mb-3">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted)"></i>
                 <input type="text" id="searchInput" placeholder="Cari prompt..." class="w-full pl-10 pr-10 py-2.5 rounded-lg outline-none text-sm" autocomplete="off" />
-                <button id="clearSearch" title="Hapus pencarian">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button id="clearSearch" title="Hapus pencarian"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="filter-row">
                 <div class="category-scroll-wrapper at-start" id="pillWrapper">
                     <div class="category-pills" id="categoryPills"></div>
                 </div>
-
                 <div class="sort-pill-wrapper">
                     <button class="sort-btn" id="sortBtn" title="Sort">
                         <i class="material-icons" style="font-size: 1.6rem;">filter_list</i>
                         <i class="fa-solid fa-fire sort-indicator" id="sortIndicator" style="color:#eab308;"></i>
                     </button>
                     <div class="sort-dropdown" id="sortDropdown">
-                        <div class="sort-option active" data-sort="newest">
-                            <i class="fa-solid fa-fire text-yellow-500"></i> Terbaru
-                        </div>
-                        <div class="sort-option" data-sort="trending">
-                            <i class="fa-solid fa-chart-line text-orange-500"></i> Trending
-                        </div>
-                        <div class="sort-option" data-sort="popular">
-                            <i class="fa-solid fa-trophy" style="color:#ca8a04"></i> Populer
-                        </div>
-                        <div class="sort-option" data-sort="a-z">
-                            <i class="fa-solid fa-arrow-down-a-z text-blue-400"></i> A–Z
-                        </div>
-                        <div class="sort-option" data-sort="z-a">
-                            <i class="fa-solid fa-arrow-up-z-a text-blue-400"></i> Z–A
-                        </div>
+                        <div class="sort-option active" data-sort="newest"><i class="fa-solid fa-fire text-yellow-500"></i> Terbaru</div>
+                        <div class="sort-option" data-sort="trending"><i class="fa-solid fa-chart-line text-orange-500"></i> Trending</div>
+                        <div class="sort-option" data-sort="popular"><i class="fa-solid fa-trophy" style="color:#ca8a04"></i> Populer</div>
+                        <div class="sort-option" data-sort="a-z"><i class="fa-solid fa-arrow-down-a-z text-blue-400"></i> A–Z</div>
+                        <div class="sort-option" data-sort="z-a"><i class="fa-solid fa-arrow-up-z-a text-blue-400"></i> Z–A</div>
                     </div>
                 </div>
             </div>
@@ -387,36 +338,9 @@
 
     <main class="max-w-4xl mx-auto px-4 py-4">
         <div id="loading" class="space-y-4">
-            <div class="card rounded-lg p-3 shadow-sm">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="skeleton skeleton-badge"></div>
-                    <div class="skeleton skeleton-text" style="width: 80px;"></div>
-                </div>
-                <div class="skeleton skeleton-title mb-2"></div>
-                <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
-                <div class="skeleton skeleton-text mb-2.5" style="width: 90%;"></div>
-                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
-            </div>
-            <div class="card rounded-lg p-3 shadow-sm">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="skeleton skeleton-badge"></div>
-                    <div class="skeleton skeleton-text" style="width: 80px;"></div>
-                </div>
-                <div class="skeleton skeleton-title mb-2"></div>
-                <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
-                <div class="skeleton skeleton-text mb-2.5" style="width: 85%;"></div>
-                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
-            </div>
-            <div class="card rounded-lg p-3 shadow-sm">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="skeleton skeleton-badge"></div>
-                    <div class="skeleton skeleton-text" style="width: 80px;"></div>
-                </div>
-                <div class="skeleton skeleton-title mb-2"></div>
-                <div class="skeleton skeleton-text mb-1" style="width: 100%;"></div>
-                <div class="skeleton skeleton-text mb-2.5" style="width: 95%;"></div>
-                <div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div>
-            </div>
+            <div class="card rounded-lg p-3 shadow-sm"><div class="flex justify-between items-start mb-2"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text" style="width: 80px;"></div></div><div class="skeleton skeleton-title mb-2"></div><div class="skeleton skeleton-text mb-1" style="width: 100%;"></div><div class="skeleton skeleton-text mb-2.5" style="width: 90%;"></div><div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div></div>
+            <div class="card rounded-lg p-3 shadow-sm"><div class="flex justify-between items-start mb-2"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text" style="width: 80px;"></div></div><div class="skeleton skeleton-title mb-2"></div><div class="skeleton skeleton-text mb-1" style="width: 100%;"></div><div class="skeleton skeleton-text mb-2.5" style="width: 85%;"></div><div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div></div>
+            <div class="card rounded-lg p-3 shadow-sm"><div class="flex justify-between items-start mb-2"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-text" style="width: 80px;"></div></div><div class="skeleton skeleton-title mb-2"></div><div class="skeleton skeleton-text mb-1" style="width: 100%;"></div><div class="skeleton skeleton-text mb-2.5" style="width: 95%;"></div><div class="pt-1.5 border-t" style="border-color: var(--border)"><div class="skeleton skeleton-text" style="width: 120px;"></div></div></div>
         </div>
         <div id="content" class="space-y-4"></div>
     </main>
@@ -433,31 +357,29 @@
             </button>
         </div>
         <div class="flex-1 overflow-y-auto px-5 pb-7">
+            <!-- USER SECTION -->
+            <div class="mb-6 px-2" id="sidebarUserSection">
+                <!-- filled by JS -->
+            </div>
+
             <nav>
                 <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
-                        <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
-                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
-                        <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
+                    <a href="/" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
+                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
                 </div>
             </nav>
             <nav class="mt-8">
                 <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
                 <div class="space-y-1 pl-2">
-                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
-                        <span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-                    </a>
+                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
                 </div>
             </nav>
         </div>
         <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--sidebar-border); background: var(--sidebar-bg)">
             <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
             <div class="space-y-1">
-                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
-                   class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
+                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer" class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
                     <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
                 </a>
             </div>
@@ -465,6 +387,42 @@
     </aside>
 
     <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="auth-modal-overlay">
+        <div class="auth-modal">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex gap-0" style="border-bottom: 1px solid var(--border)">
+                    <button class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">Login</button>
+                    <button class="auth-tab" id="tabRegisterBtn" onclick="switchAuthTab('register')">Register</button>
+                </div>
+                <button onclick="closeAuthModal()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div id="authLoginForm">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label><input type="text" id="authLoginUser" class="auth-input" placeholder="your_username" autocomplete="username"></div>
+                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
+                        <div class="relative"><input type="password" id="authLoginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px">
+                        <button type="button" onclick="toggleAuthPwd('authLoginPass','eyeLogin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer"><i id="eyeLogin" class="fa-solid fa-eye text-sm"></i></button></div>
+                    </div>
+                    <button onclick="doLogin()" id="btnDoLogin" class="btn-auth-submit mt-2"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login</button>
+                    <p class="text-xs text-center" style="color:var(--text-muted)">Belum punya akun? <button onclick="switchAuthTab('register')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-weight:700;text-decoration:underline">Daftar</button></p>
+                </div>
+            </div>
+            <div id="authRegisterForm" class="hidden">
+                <div class="space-y-3">
+                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label><input type="text" id="authRegUser" class="auth-input" placeholder="username (a-z, 0-9, _)" autocomplete="username"><p class="text-[10px] mt-1" style="color:var(--text-muted)">3-30 karakter, huruf/angka/underscore</p></div>
+                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Display Name</label><input type="text" id="authRegDisplay" class="auth-input" placeholder="Nama tampilan (opsional)"></div>
+                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
+                        <div class="relative"><input type="password" id="authRegPass" class="auth-input" placeholder="Min. 6 karakter" style="padding-right:40px">
+                        <button type="button" onclick="toggleAuthPwd('authRegPass','eyeReg')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer"><i id="eyeReg" class="fa-solid fa-eye text-sm"></i></button></div>
+                    </div>
+                    <button onclick="doRegister()" id="btnDoRegister" class="btn-auth-submit mt-2"><i class="fa-solid fa-user-plus mr-2"></i>Daftar</button>
+                    <p class="text-xs text-center" style="color:var(--text-muted)">Sudah punya akun? <button onclick="switchAuthTab('login')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-weight:700;text-decoration:underline">Login</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="/js/timeago.js"></script>
     <script src="/js/script.js"></script>
@@ -492,22 +450,18 @@
             document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
         })();
 
+        // Sidebar
         const sidebarToggleRight = document.getElementById('sidebarToggleRight');
         const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
         const sidebarRight = document.getElementById('sidebar-right');
         const overlay = document.getElementById('overlay');
-        function openSidebarRight() {
-            sidebarRight.classList.add('open'); overlay.classList.add('show');
-            overlay.classList.remove('opacity-0', 'invisible'); document.body.style.overflow = 'hidden';
-        }
-        function closeSidebarRight() {
-            sidebarRight.classList.remove('open'); overlay.classList.remove('show');
-            overlay.classList.add('opacity-0', 'invisible'); document.body.style.overflow = '';
-        }
+        function openSidebarRight() { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow = 'hidden'; }
+        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow = ''; }
         sidebarToggleRight.onclick = openSidebarRight;
         sidebarCloseRight.onclick  = closeSidebarRight;
         overlay.onclick = closeSidebarRight;
 
+        // Search
         const searchInput = document.getElementById('searchInput');
         const clearSearch = document.getElementById('clearSearch');
         let searchDebounceTimer = null;
@@ -523,6 +477,115 @@
             applyFilters();
             searchInput.focus();
         });
+
+        // ===== AUTH =====
+        let currentUser = null;
+        let userToken = localStorage.getItem('user_token');
+
+        function openAuthModal() { document.getElementById('authModal').classList.add('show'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('show'); }
+        document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuthModal(); });
+
+        function switchAuthTab(tab) {
+            document.getElementById('authLoginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('authRegisterForm').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('tabLoginBtn').classList.toggle('active', tab === 'login');
+            document.getElementById('tabRegisterBtn').classList.toggle('active', tab === 'register');
+        }
+        function toggleAuthPwd(inputId, iconId) {
+            const el = document.getElementById(inputId), icon = document.getElementById(iconId);
+            el.type = el.type === 'password' ? 'text' : 'password';
+            icon.className = el.type === 'password' ? 'fa-solid fa-eye text-sm' : 'fa-solid fa-eye-slash text-sm';
+        }
+
+        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
+
+        async function doLogin() {
+            const username = document.getElementById('authLoginUser').value.trim();
+            const password = document.getElementById('authLoginPass').value;
+            if (!username || !password) { notyf.error('Isi username dan password'); return; }
+            const btn = document.getElementById('btnDoLogin'), orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Login...'; btn.disabled = true;
+            try {
+                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, action: 'login' }) });
+                const data = await res.json();
+                if (data.success && !data.isAdmin) {
+                    localStorage.setItem('user_token', data.token);
+                    userToken = data.token; currentUser = data.user;
+                    notyf.success('Login berhasil, ' + data.user.display_name + '!');
+                    closeAuthModal();
+                    renderSidebarUser();
+                } else if (data.isAdmin) {
+                    notyf.error('Gunakan halaman Admin untuk login admin');
+                } else {
+                    notyf.error(data.message || 'Login gagal');
+                }
+            } catch(e) { notyf.error('Error: ' + e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
+        }
+
+        async function doRegister() {
+            const username = document.getElementById('authRegUser').value.trim();
+            const display_name = document.getElementById('authRegDisplay').value.trim();
+            const password = document.getElementById('authRegPass').value;
+            if (!username || !password) { notyf.error('Isi username dan password'); return; }
+            const btn = document.getElementById('btnDoRegister'), orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Daftar...'; btn.disabled = true;
+            try {
+                const res = await fetch('/api/login?action=register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, display_name, password, action: 'register' }) });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('user_token', data.token);
+                    userToken = data.token; currentUser = data.user;
+                    notyf.success('Selamat datang, ' + data.user.display_name + '!');
+                    closeAuthModal();
+                    renderSidebarUser();
+                } else {
+                    notyf.error(data.message || 'Registrasi gagal');
+                }
+            } catch(e) { notyf.error('Error: ' + e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
+        }
+
+        async function doLogout() {
+            try { await fetch('/api/login?action=logout', { method: 'POST', headers: { 'Authorization': userToken } }); } catch(e) {}
+            localStorage.removeItem('user_token');
+            userToken = null; currentUser = null;
+            renderSidebarUser();
+            notyf.success('Logout berhasil');
+        }
+
+        function renderSidebarUser() {
+            const section = document.getElementById('sidebarUserSection');
+            if (currentUser) {
+                const avatarUrl = currentUser.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.display_name || currentUser.username) + '&background=random&color=fff&bold=true&size=128';
+                section.innerHTML = `<div class="sidebar-user-card">
+                    <div class="flex items-center gap-3 mb-2">
+                        <img src="${avatarUrl}" class="sidebar-user-avatar" alt="" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.username)}&background=random&color=fff'">
+                        <div style="min-width:0">
+                            <p class="text-sm font-bold truncate" style="color:var(--text-primary)">${currentUser.display_name || currentUser.username}</p>
+                            <p class="text-xs truncate" style="color:var(--text-muted)">@${currentUser.username}</p>
+                        </div>
+                    </div>
+                    <button onclick="doLogout()" class="sidebar-btn-logout"><i class="fa-solid fa-right-from-bracket mr-1.5"></i>Logout</button>
+                </div>`;
+            } else {
+                section.innerHTML = `<button onclick="openAuthModal()" class="sidebar-btn-login"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login / Register</button>`;
+            }
+        }
+
+        async function initUserSession() {
+            if (!userToken) { renderSidebarUser(); return; }
+            try {
+                const res = await fetch('/api/login?action=profile', { headers: { 'Authorization': userToken } });
+                const data = await res.json();
+                if (data.success) { currentUser = data.user; }
+                else { localStorage.removeItem('user_token'); userToken = null; }
+            } catch(e) { localStorage.removeItem('user_token'); userToken = null; }
+            renderSidebarUser();
+        }
+
+        initUserSession();
     </script>
 </body>
 </html>
