@@ -185,13 +185,17 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
         .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
         .profile-pic-placeholder { width: 32px; height: 32px; }
+        #themeToggleBtn { background:none; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
     </style>
 </head>
 <body>
     <header class="sticky top-0 z-10 shadow-lg">
         <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="/" class="back-btn font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI</a>
-            <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Protected Content</h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Protected Content</h1>
+                <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme"></button>
+            </div>
         </div>
     </header>
     <main class="max-w-3xl mx-auto px-4 py-6">
@@ -229,6 +233,21 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     </main>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        var THEME_KEY = 'prompthub-theme';
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            btn.innerHTML = t === 'light'
+                ? '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+        }
+        function toggleTheme() {
+            var next = (localStorage.getItem(THEME_KEY) || 'dark') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(THEME_KEY, next); applyTheme(next);
+        }
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' } });
         function togglePwd() {
             const pi = document.getElementById('passwordInput'), icon = document.getElementById('eyeIcon');
@@ -308,23 +327,27 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .description-link:hover { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
         .fullscreen-icon-btn { filter: var(--fullscreen-filter); }
+        #themeToggleBtn { background:none; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
 
-        /* === COMMENT STYLES === */
+        /* === COMMENT STYLES (TikTok/YT style) === */
         .comments-section { background: var(--comment-bg); border: 1px solid var(--comment-border); border-radius: 12px; overflow: hidden; }
         .comment-input-area { background: var(--comment-input-bg); border: 1px solid var(--border); color: var(--text-primary); border-radius: 10px; resize: none; outline: none; transition: border-color 0.2s ease; width: 100%; padding: 12px; font-size: 0.875rem; font-family: inherit; }
         .comment-input-area:focus { border-color: var(--border-hover); }
         .comment-input-area::placeholder { color: var(--text-muted); }
-        .comment-item { border-bottom: 1px solid var(--comment-border); padding: 16px; transition: background 0.2s; }
+        .comment-item { border-bottom: 1px solid var(--comment-border); padding: 14px 16px; transition: background 0.2s; }
         .comment-item:last-child { border-bottom: none; }
-        .comment-item:hover { background: rgba(255,255,255,0.02); }
+        .comment-item:hover { background: rgba(128,128,128,0.04); }
         .comment-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
-        .comment-avatar-placeholder { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-comment-submit { background: var(--btn-bg); color: var(--btn-text); border: none; padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; }
         .btn-comment-submit:hover { opacity: 0.85; transform: translateY(-1px); }
         .btn-comment-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-        .login-prompt-box { background: linear-gradient(135deg, var(--bg-surface2), var(--bg-surface3)); border: 1px dashed var(--border-hover); border-radius: 10px; padding: 20px; text-align: center; }
-        .btn-login-comment { display: inline-flex; align-items: center; gap: 8px; background: var(--btn-bg); color: var(--btn-text); border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; text-transform: uppercase; text-decoration: none; }
-        .btn-login-comment:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        /* Login prompt bar (like YT/TikTok - stays as a bar above comments) */
+        .login-bar { background: linear-gradient(135deg, var(--bg-surface2), var(--bg-surface3)); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .login-bar-text { font-size: 0.8rem; color: var(--text-muted); }
+        .btn-login-bar { display: inline-flex; align-items: center; gap: 6px; background: var(--btn-bg); color: var(--btn-text); border: none; padding: 7px 16px; border-radius: 7px; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; text-transform: uppercase; white-space: nowrap; }
+        .btn-login-bar:hover { opacity: 0.85; transform: translateY(-1px); }
+
         .char-count { font-size: 0.7rem; color: var(--text-muted); text-align: right; }
         .char-count.warning { color: #f59e0b; }
         .char-count.danger { color: #ef4444; }
@@ -336,12 +359,12 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .auth-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .auth-modal-overlay.show { opacity: 1; visibility: visible; }
         .auth-modal { background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface2)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .auth-input { background: var(--input-bg) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; padding: 10px 14px; border-radius: 8px; outline: none; width: 100%; font-size: 0.875rem; transition: border-color 0.2s; }
+        .auth-input { background: var(--input-bg) !important; border: 1px solid var(--border) !important; color: var(--text-primary) !important; padding: 10px 14px; border-radius: 8px; outline: none; width: 100%; font-size: 0.875rem; transition: border-color 0.2s; font-family: inherit; }
         .auth-input:focus { border-color: var(--border-hover) !important; }
         .auth-input::placeholder { color: var(--text-muted) !important; }
         .auth-tab { padding: 8px 16px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
         .auth-tab.active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
-        .btn-auth-submit { background: var(--btn-bg); color: var(--btn-text); width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; }
+        .btn-auth-submit { background: var(--btn-bg); color: var(--btn-text); width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .btn-auth-submit:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-auth-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
         .user-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--bg-surface3); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
@@ -357,6 +380,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <a href="/" class="back-btn font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI</a>
             <div class="flex items-center gap-3">
                 <h1 class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)">Detail View</h1>
+                <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme"></button>
                 <div id="userHeaderSection"><!-- filled by JS --></div>
             </div>
         </div>
@@ -419,7 +443,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 </div>
             </div>
 
-            <!-- COMMENTS SECTION -->
+            <!-- COMMENTS SECTION (TikTok/YT style - visible to all) -->
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-base font-extrabold uppercase tracking-tight flex items-center gap-2" style="color:var(--text-primary)">
@@ -428,10 +452,13 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </h3>
                 </div>
 
-                <!-- Comment Input -->
-                <div id="commentInputSection" class="mb-5"></div>
+                <!-- Login bar (shown when not logged in, hides when logged in) -->
+                <div id="loginBarSection"></div>
 
-                <!-- Comments List -->
+                <!-- Comment Input (shown only when logged in) -->
+                <div id="commentInputSection" class="mb-4 hidden"></div>
+
+                <!-- Comments List (ALWAYS VISIBLE) -->
                 <div id="commentsList" class="comments-section">
                     <div class="p-6 text-center" style="color:var(--text-muted)">
                         <i class="fa-solid fa-circle-notch fa-spin text-xl mb-2 block"></i>
@@ -493,6 +520,22 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         const PROMPT_SLUG = '${slug}';
         const promptData = ${JSON.stringify({ judul: promptData.judul, isi: promptData.isi, slug: slug })};
         const notyf = new Notyf({ duration: 2500, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
+
+        // ===== THEME =====
+        var THEME_KEY = 'prompthub-theme';
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            btn.innerHTML = t === 'light'
+                ? '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+        }
+        function toggleTheme() {
+            var next = (localStorage.getItem(THEME_KEY) || 'dark') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(THEME_KEY, next); applyTheme(next);
+        }
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 
         // ===== AUTH STATE =====
         let currentUser = null;
@@ -575,17 +618,14 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 const data = await res.json();
                 if (data.success && !data.isAdmin) {
                     localStorage.setItem('user_token', data.token);
-                    userToken = data.token;
-                    currentUser = data.user;
+                    userToken = data.token; currentUser = data.user;
                     notyf.success('Login berhasil!');
                     closeAuthModal();
                     renderUserHeader();
-                    renderCommentInput();
+                    renderCommentArea();
                 } else if (data.isAdmin) {
                     notyf.error('Gunakan halaman Admin untuk login admin');
-                } else {
-                    notyf.error(data.message || 'Login gagal');
-                }
+                } else { notyf.error(data.message || 'Login gagal'); }
             } catch(e) { notyf.error('Error: ' + e.message); }
             finally { btn.innerHTML = orig; btn.disabled = false; }
         }
@@ -602,15 +642,12 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 const data = await res.json();
                 if (data.success) {
                     localStorage.setItem('user_token', data.token);
-                    userToken = data.token;
-                    currentUser = data.user;
+                    userToken = data.token; currentUser = data.user;
                     notyf.success('Registrasi berhasil! Selamat datang, ' + data.user.display_name + '!');
                     closeAuthModal();
                     renderUserHeader();
-                    renderCommentInput();
-                } else {
-                    notyf.error(data.message || 'Registrasi gagal');
-                }
+                    renderCommentArea();
+                } else { notyf.error(data.message || 'Registrasi gagal'); }
             } catch(e) { notyf.error('Error: ' + e.message); }
             finally { btn.innerHTML = orig; btn.disabled = false; }
         }
@@ -620,7 +657,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             localStorage.removeItem('user_token');
             userToken = null; currentUser = null;
             renderUserHeader();
-            renderCommentInput();
+            renderCommentArea();
             notyf.success('Logout berhasil');
         }
 
@@ -635,18 +672,24 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     <button class="logout-btn" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>\`;
             } else {
-                section.innerHTML = \`<button onclick="openAuthModal()" class="btn-login-comment text-xs" style="padding: 6px 14px"><i class="fa-solid fa-right-to-bracket"></i> Login</button>\`;
+                section.innerHTML = \`<button onclick="openAuthModal()" class="btn-auth-submit" style="padding:6px 14px;font-size:0.7rem"><i class="fa-solid fa-right-to-bracket mr-1"></i>Login</button>\`;
             }
         }
 
-        function renderCommentInput() {
-            const section = document.getElementById('commentInputSection');
+        // Render comment input area (only for logged-in) + login bar for guests
+        function renderCommentArea() {
+            const loginBar = document.getElementById('loginBarSection');
+            const inputSection = document.getElementById('commentInputSection');
+
             if (currentUser) {
-                section.innerHTML = \`<div style="background:var(--comment-bg);border:1px solid var(--comment-border);border-radius:12px;padding:16px">
+                // Hide login bar, show input
+                loginBar.innerHTML = '';
+                inputSection.classList.remove('hidden');
+                inputSection.innerHTML = \`<div style="background:var(--comment-bg);border:1px solid var(--comment-border);border-radius:12px;padding:16px">
                     <div class="flex gap-3 items-start">
                         <img src="\${currentUser.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.display_name || currentUser.username) + '&background=random&color=fff'}" class="comment-avatar" alt="">
                         <div style="flex:1">
-                            <textarea id="newCommentText" class="comment-input-area" rows="3" placeholder="Tulis komentar..." maxlength="500" oninput="updateCharCount(this)"></textarea>
+                            <textarea id="newCommentText" class="comment-input-area" rows="2" placeholder="Tambah komentar..." maxlength="500" oninput="updateCharCount(this)"></textarea>
                             <div class="flex items-center justify-between mt-2">
                                 <span id="charCountDisplay" class="char-count">0 / 500</span>
                                 <button onclick="submitComment()" id="submitCommentBtn" class="btn-comment-submit"><i class="fa-solid fa-paper-plane mr-1.5"></i>Kirim</button>
@@ -655,11 +698,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>\`;
             } else {
-                section.innerHTML = \`<div class="login-prompt-box">
-                    <i class="fa-solid fa-comment-dots text-2xl mb-3 block" style="color:var(--text-muted)"></i>
-                    <p class="text-sm font-semibold mb-1" style="color:var(--text-primary)">Ingin berkomentar?</p>
-                    <p class="text-xs mb-4" style="color:var(--text-muted)">Login atau daftar untuk meninggalkan komentar</p>
-                    <button onclick="openAuthModal()" class="btn-login-comment"><i class="fa-solid fa-right-to-bracket"></i> Login / Register</button>
+                // Show login bar, hide input (TikTok style - compact bar)
+                inputSection.classList.add('hidden');
+                loginBar.innerHTML = \`<div class="login-bar mb-4">
+                    <span class="login-bar-text"><i class="fa-regular fa-comment mr-2"></i>Login untuk meninggalkan komentar</span>
+                    <button onclick="openAuthModal()" class="btn-login-bar"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
                 </div>\`;
             }
         }
@@ -689,9 +732,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     updateCharCount(document.getElementById('newCommentText'));
                     notyf.success('Komentar terkirim!');
                     loadComments();
-                } else {
-                    notyf.error(data.message || 'Gagal mengirim komentar');
-                }
+                } else { notyf.error(data.message || 'Gagal mengirim komentar'); }
             } catch(e) { notyf.error('Error: ' + e.message); }
             finally { btn.innerHTML = orig; btn.disabled = false; }
         }
@@ -743,56 +784,55 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     return;
                 }
 
-                const isCurrentUserComment = (username) => currentUser && currentUser.username === username;
-
-                container.innerHTML = comments.map(c => \`
-                    <div class="comment-item">
+                container.innerHTML = comments.map(c => {
+                    const canDelete = currentUser && currentUser.username === c.username;
+                    const avatarFallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.display_name || c.username) + '&background=random&color=fff&bold=true&size=128';
+                    return \`<div class="comment-item">
                         <div class="flex gap-3 items-start">
-                            <img src="\${c.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.display_name || c.username) + '&background=random&color=fff&bold=true&size=128'}" class="comment-avatar" alt="" onerror="this.src='https://ui-avatars.com/api/?name=\${encodeURIComponent(c.username)}&background=random&color=fff&bold=true&size=128'">
+                            <img src="\${c.avatar_url || avatarFallback}" class="comment-avatar" alt="" onerror="this.src='\${avatarFallback}'">
                             <div style="flex:1;min-width:0">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <span class="text-sm font-bold" style="color:var(--text-primary)">\${c.display_name || c.username}</span>
                                     <span class="text-[10px]" style="color:var(--text-muted)">@\${c.username}</span>
                                     <span class="text-[10px]" style="color:var(--text-muted)">·</span>
                                     <span class="text-[10px]" style="color:var(--text-muted)">\${formatCommentTime(c.created_at)}</span>
-                                    \${isCurrentUserComment(c.username) ? \`<button class="comment-delete-btn" onclick="deleteComment(\${c.id})" title="Hapus"><i class="fa-solid fa-trash text-[10px]"></i></button>\` : ''}
+                                    \${canDelete ? \`<button class="comment-delete-btn" onclick="deleteComment(\${c.id})" title="Hapus"><i class="fa-solid fa-trash text-[10px]"></i></button>\` : ''}
                                 </div>
                                 <p class="text-sm leading-relaxed" style="color:var(--text-secondary);word-break:break-word">\${c.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\\n/g,'<br>')}</p>
                             </div>
                         </div>
-                    </div>\`).join('');
+                    </div>\`;
+                }).join('');
             } catch(error) {
                 container.innerHTML = \`<div class="p-6 text-center text-xs" style="color:var(--text-muted)">Gagal memuat komentar</div>\`;
             }
         }
 
-        async function initUserSession() {
-            if (!userToken) { renderUserHeader(); renderCommentInput(); loadComments(); return; }
-            try {
-                const res = await fetch('/api/login?action=profile', { headers: { 'Authorization': userToken } });
-                const data = await res.json();
-                if (data.success) {
-                    currentUser = data.user;
-                } else {
-                    localStorage.removeItem('user_token');
-                    userToken = null;
-                }
-            } catch(e) {
-                localStorage.removeItem('user_token');
-                userToken = null;
-            }
-            renderUserHeader();
-            renderCommentInput();
-            loadComments();
-        }
-
-        // Enter to submit comment (Shift+Enter for newline)
+        // Enter to submit (Shift+Enter for newline)
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey && document.activeElement?.id === 'newCommentText') {
                 e.preventDefault();
                 submitComment();
             }
         });
+
+        async function initUserSession() {
+            if (!userToken) {
+                renderUserHeader();
+                renderCommentArea();
+                loadComments(); // Always load comments regardless of auth
+                return;
+            }
+            try {
+                const res = await fetch('/api/login?action=profile', { headers: { 'Authorization': userToken } });
+                const data = await res.json();
+                if (data.success) { currentUser = data.user; }
+                else { localStorage.removeItem('user_token'); userToken = null; }
+            } catch(e) { localStorage.removeItem('user_token'); userToken = null; }
+            renderUserHeader();
+            renderCommentArea();
+            loadComments(); // Always load comments regardless of auth
+        }
 
         initUserSession();
     </script>
