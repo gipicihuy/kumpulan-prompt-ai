@@ -154,7 +154,6 @@
             background: none;
             border: none;
             padding: 0;
-            color: var(--text-primary);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -235,11 +234,32 @@
         .logo-img  { width: 48px; height: 48px; object-fit: contain; }
         .title-text { font-size: 1.375rem; line-height: 1.2; }
 
-        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
-        #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
-        #overlay.show  { opacity: 1 !important; visibility: visible !important; }
+        /* ===== SIDEBAR FIX ===== */
+        #sidebar-right {
+            position: fixed;
+            top: 0; right: 0;
+            height: 100%;
+            width: 256px;
+            border-left: 1px solid var(--sidebar-border);
+            background: var(--sidebar-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), background 0.25s ease, border-color 0.25s ease;
+        }
+        /* Mobile: hidden by default */
+        @media (max-width: 767px) {
+            #sidebar-right { transform: translateX(100%); }
+            #sidebar-right.open { transform: translateX(0); }
+        }
+        /* Desktop: always visible, !important agar tidak bisa di-override JS */
+        @media (min-width: 768px) {
+            #sidebar-right { transform: translateX(0) !important; }
+        }
 
-        .sidebar-inner { background: var(--sidebar-bg) !important; border-color: var(--sidebar-border) !important; color: var(--text-primary) !important; }
+        #overlay { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        #overlay.show { opacity: 1 !important; visibility: visible !important; }
+
         .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
         .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
@@ -268,7 +288,7 @@
         .sidebar-btn-logout { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 8px; }
         .sidebar-btn-logout:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.05); }
 
-        /* Auth Modal (reused from prompt page) */
+        /* Auth Modal */
         .auth-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .auth-modal-overlay.show { opacity: 1; visibility: visible; }
         .auth-modal { background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface2)); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
@@ -282,12 +302,9 @@
         .btn-auth-submit:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
         @media (max-width: 767px) {
-            #sidebar-right { transform: translateX(100%); }
-            #sidebar-right.open { transform: translateX(0); }
             .title-text { font-size: 1.125rem; }
             .logo-img   { width: 40px; height: 40px; }
         }
-        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
     </style>
 </head>
 <body>
@@ -300,10 +317,10 @@
                     <span>AI Prompt Hub</span>
                 </h1>
                 <div class="flex items-center gap-2">
-                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <button id="themeToggleBtn" title="Toggle theme">
+                        <!-- icon diisi oleh JS -->
                     </button>
-                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                    <button id="sidebarToggleRight" style="color: var(--text-primary); background: none; border: none; cursor: pointer; display: flex; align-items: center;">
                         <i class="material-icons text-2xl">notes</i>
                     </button>
                 </div>
@@ -349,18 +366,16 @@
         <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
     </footer>
 
-    <aside id="sidebar-right" class="sidebar-inner fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col" style="background: var(--sidebar-bg); border-color: var(--sidebar-border);">
-        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
+    <!-- SIDEBAR -->
+    <aside id="sidebar-right">
+        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0" style="border-bottom: 1px solid var(--sidebar-border);">
             <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
+            <button id="sidebarCloseRight" class="md:hidden" style="color: var(--text-primary); background: none; border: none; cursor: pointer; display: flex; align-items: center;">
                 <i class="material-icons text-2xl">close</i>
             </button>
         </div>
-        <div class="flex-1 overflow-y-auto px-5 pb-7">
-            <!-- USER SECTION -->
-            <div class="mb-6 px-2" id="sidebarUserSection">
-                <!-- filled by JS -->
-            </div>
+        <div class="flex-1 overflow-y-auto px-5 pb-7 pt-4">
+            <div class="mb-6" id="sidebarUserSection"><!-- filled by JS --></div>
 
             <nav>
                 <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
@@ -376,7 +391,7 @@
                 </div>
             </nav>
         </div>
-        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--sidebar-border); background: var(--sidebar-bg)">
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--sidebar-border);">
             <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
             <div class="space-y-1">
                 <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer" class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
@@ -386,7 +401,8 @@
         </div>
     </aside>
 
-    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
+    <!-- OVERLAY (mobile only) -->
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible md:hidden" style="background: var(--overlay-bg); z-index: 90;"></div>
 
     <!-- AUTH MODAL -->
     <div id="authModal" class="auth-modal-overlay">
@@ -400,10 +416,18 @@
             </div>
             <div id="authLoginForm">
                 <div class="space-y-3">
-                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label><input type="text" id="authLoginUser" class="auth-input" placeholder="your_username" autocomplete="username"></div>
-                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
-                        <div class="relative"><input type="password" id="authLoginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px">
-                        <button type="button" onclick="toggleAuthPwd('authLoginPass','eyeLogin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer"><i id="eyeLogin" class="fa-solid fa-eye text-sm"></i></button></div>
+                    <div>
+                        <label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label>
+                        <input type="text" id="authLoginUser" class="auth-input" placeholder="your_username" autocomplete="username">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
+                        <div class="relative">
+                            <input type="password" id="authLoginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px">
+                            <button type="button" onclick="toggleAuthPwd('authLoginPass','eyeLogin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer">
+                                <i id="eyeLogin" class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
                     <button onclick="doLogin()" id="btnDoLogin" class="btn-auth-submit mt-2"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login</button>
                     <p class="text-xs text-center" style="color:var(--text-muted)">Belum punya akun? <button onclick="switchAuthTab('register')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-weight:700;text-decoration:underline">Daftar</button></p>
@@ -411,11 +435,23 @@
             </div>
             <div id="authRegisterForm" class="hidden">
                 <div class="space-y-3">
-                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label><input type="text" id="authRegUser" class="auth-input" placeholder="username (a-z, 0-9, _)" autocomplete="username"><p class="text-[10px] mt-1" style="color:var(--text-muted)">3-30 karakter, huruf/angka/underscore</p></div>
-                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Display Name</label><input type="text" id="authRegDisplay" class="auth-input" placeholder="Nama tampilan (opsional)"></div>
-                    <div><label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
-                        <div class="relative"><input type="password" id="authRegPass" class="auth-input" placeholder="Min. 6 karakter" style="padding-right:40px">
-                        <button type="button" onclick="toggleAuthPwd('authRegPass','eyeReg')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer"><i id="eyeReg" class="fa-solid fa-eye text-sm"></i></button></div>
+                    <div>
+                        <label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Username</label>
+                        <input type="text" id="authRegUser" class="auth-input" placeholder="username (a-z, 0-9, _)" autocomplete="username">
+                        <p class="text-[10px] mt-1" style="color:var(--text-muted)">3-30 karakter, huruf/angka/underscore</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Display Name</label>
+                        <input type="text" id="authRegDisplay" class="auth-input" placeholder="Nama tampilan (opsional)">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase mb-1 block" style="color:var(--text-muted)">Password</label>
+                        <div class="relative">
+                            <input type="password" id="authRegPass" class="auth-input" placeholder="Min. 6 karakter" style="padding-right:40px">
+                            <button type="button" onclick="toggleAuthPwd('authRegPass','eyeReg')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer">
+                                <i id="eyeReg" class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
                     </div>
                     <button onclick="doRegister()" id="btnDoRegister" class="btn-auth-submit mt-2"><i class="fa-solid fa-user-plus mr-2"></i>Daftar</button>
                     <p class="text-xs text-center" style="color:var(--text-muted)">Sudah punya akun? <button onclick="switchAuthTab('login')" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-weight:700;text-decoration:underline">Login</button></p>
@@ -427,64 +463,95 @@
     <script src="/js/timeago.js"></script>
     <script src="/js/script.js"></script>
     <script>
-        (function() {
-            var STORAGE_KEY = 'prompthub-theme';
-            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
-            function applyTheme(t) {
-                document.documentElement.setAttribute('data-theme', t);
-                var btn = document.getElementById('themeToggleBtn');
-                if (!btn) return;
-                if (t === 'light') {
-                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
-                    btn.title = 'Switch to Dark Mode';
-                } else {
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-                    btn.title = 'Switch to Light Mode';
-                }
+        // ===== THEME TOGGLE =====
+        // Definisikan sebagai fungsi global, tidak dalam IIFE, hanya 1 kali
+        var THEME_KEY = 'prompthub-theme';
+
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            if (t === 'light') {
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
+                btn.title = 'Switch to Dark Mode';
+            } else {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                btn.title = 'Switch to Light Mode';
             }
-            window.toggleTheme = function() {
-                var next = getTheme() === 'dark' ? 'light' : 'dark';
-                localStorage.setItem(STORAGE_KEY, next);
-                applyTheme(next);
-            };
-            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
-        })();
+        }
 
-        // Sidebar
-        const sidebarToggleRight = document.getElementById('sidebarToggleRight');
-        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
-        const sidebarRight = document.getElementById('sidebar-right');
-        const overlay = document.getElementById('overlay');
-        function openSidebarRight() { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow = 'hidden'; }
-        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow = ''; }
-        sidebarToggleRight.onclick = openSidebarRight;
-        sidebarCloseRight.onclick  = closeSidebarRight;
-        overlay.onclick = closeSidebarRight;
+        function toggleTheme() {
+            var next = (localStorage.getItem(THEME_KEY) || 'dark') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(THEME_KEY, next);
+            applyTheme(next);
+        }
 
-        // Search
-        const searchInput = document.getElementById('searchInput');
-        const clearSearch = document.getElementById('clearSearch');
-        let searchDebounceTimer = null;
-        searchInput.addEventListener('input', () => {
-            clearSearch.classList.toggle('visible', searchInput.value.length > 0);
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => { applyFilters(); }, 200);
+        // Pasang event ke button
+        document.getElementById('themeToggleBtn').onclick = toggleTheme;
+        // Apply tema saat script ini jalan (DOM sudah ada karena script di bawah body)
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+        // ===== SIDEBAR =====
+        var sidebarEl = document.getElementById('sidebar-right');
+        var overlayEl = document.getElementById('overlay');
+        var toggleBtn = document.getElementById('sidebarToggleRight');
+        var closeBtn  = document.getElementById('sidebarCloseRight');
+
+        function openSidebar() {
+            sidebarEl.classList.add('open');
+            overlayEl.classList.add('show');
+            overlayEl.classList.remove('opacity-0', 'invisible');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebarEl.classList.remove('open');
+            overlayEl.classList.remove('show');
+            overlayEl.classList.add('opacity-0', 'invisible');
+            document.body.style.overflow = '';
+        }
+
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openSidebar();
         });
-        clearSearch.addEventListener('click', () => {
+
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeSidebar();
+        });
+
+        overlayEl.addEventListener('click', closeSidebar);
+
+        // ===== SEARCH =====
+        var searchInput    = document.getElementById('searchInput');
+        var clearSearchBtn = document.getElementById('clearSearch');
+        var searchTimer    = null;
+
+        searchInput.addEventListener('input', function() {
+            clearSearchBtn.classList.toggle('visible', searchInput.value.length > 0);
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(applyFilters, 200);
+        });
+
+        clearSearchBtn.addEventListener('click', function() {
             searchInput.value = '';
-            clearSearch.classList.remove('visible');
-            clearTimeout(searchDebounceTimer);
+            clearSearchBtn.classList.remove('visible');
+            clearTimeout(searchTimer);
             applyFilters();
             searchInput.focus();
         });
 
         // ===== AUTH =====
-        let currentUser = null;
-        let userToken = localStorage.getItem('user_token');
+        var currentUser = null;
+        var userToken   = localStorage.getItem('user_token');
 
-        function openAuthModal() { document.getElementById('authModal').classList.add('show'); }
+        function openAuthModal()  { document.getElementById('authModal').classList.add('show'); }
         function closeAuthModal() { document.getElementById('authModal').classList.remove('show'); }
-        document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuthModal(); });
+
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAuthModal();
+        });
 
         function switchAuthTab(tab) {
             document.getElementById('authLoginForm').classList.toggle('hidden', tab !== 'login');
@@ -492,26 +559,29 @@
             document.getElementById('tabLoginBtn').classList.toggle('active', tab === 'login');
             document.getElementById('tabRegisterBtn').classList.toggle('active', tab === 'register');
         }
+
         function toggleAuthPwd(inputId, iconId) {
-            const el = document.getElementById(inputId), icon = document.getElementById(iconId);
+            var el = document.getElementById(inputId), icon = document.getElementById(iconId);
             el.type = el.type === 'password' ? 'text' : 'password';
             icon.className = el.type === 'password' ? 'fa-solid fa-eye text-sm' : 'fa-solid fa-eye-slash text-sm';
         }
 
-        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
+        var notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         async function doLogin() {
-            const username = document.getElementById('authLoginUser').value.trim();
-            const password = document.getElementById('authLoginPass').value;
+            var username = document.getElementById('authLoginUser').value.trim();
+            var password = document.getElementById('authLoginPass').value;
             if (!username || !password) { notyf.error('Isi username dan password'); return; }
-            const btn = document.getElementById('btnDoLogin'), orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Login...'; btn.disabled = true;
+            var btn = document.getElementById('btnDoLogin'), orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Login...';
+            btn.disabled = true;
             try {
-                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, action: 'login' }) });
-                const data = await res.json();
+                var res  = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, password: password, action: 'login' }) });
+                var data = await res.json();
                 if (data.success && !data.isAdmin) {
                     localStorage.setItem('user_token', data.token);
-                    userToken = data.token; currentUser = data.user;
+                    userToken   = data.token;
+                    currentUser = data.user;
                     notyf.success('Login berhasil, ' + data.user.display_name + '!');
                     closeAuthModal();
                     renderSidebarUser();
@@ -525,18 +595,20 @@
         }
 
         async function doRegister() {
-            const username = document.getElementById('authRegUser').value.trim();
-            const display_name = document.getElementById('authRegDisplay').value.trim();
-            const password = document.getElementById('authRegPass').value;
+            var username     = document.getElementById('authRegUser').value.trim();
+            var display_name = document.getElementById('authRegDisplay').value.trim();
+            var password     = document.getElementById('authRegPass').value;
             if (!username || !password) { notyf.error('Isi username dan password'); return; }
-            const btn = document.getElementById('btnDoRegister'), orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Daftar...'; btn.disabled = true;
+            var btn = document.getElementById('btnDoRegister'), orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Daftar...';
+            btn.disabled = true;
             try {
-                const res = await fetch('/api/login?action=register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, display_name, password, action: 'register' }) });
-                const data = await res.json();
+                var res  = await fetch('/api/login?action=register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username, display_name: display_name, password: password, action: 'register' }) });
+                var data = await res.json();
                 if (data.success) {
                     localStorage.setItem('user_token', data.token);
-                    userToken = data.token; currentUser = data.user;
+                    userToken   = data.token;
+                    currentUser = data.user;
                     notyf.success('Selamat datang, ' + data.user.display_name + '!');
                     closeAuthModal();
                     renderSidebarUser();
@@ -550,35 +622,39 @@
         async function doLogout() {
             try { await fetch('/api/login?action=logout', { method: 'POST', headers: { 'Authorization': userToken } }); } catch(e) {}
             localStorage.removeItem('user_token');
-            userToken = null; currentUser = null;
+            userToken   = null;
+            currentUser = null;
             renderSidebarUser();
             notyf.success('Logout berhasil');
         }
 
         function renderSidebarUser() {
-            const section = document.getElementById('sidebarUserSection');
+            var section = document.getElementById('sidebarUserSection');
             if (currentUser) {
-                const avatarUrl = currentUser.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(currentUser.display_name || currentUser.username) + '&background=random&color=fff&bold=true&size=128';
-                section.innerHTML = `<div class="sidebar-user-card">
-                    <div class="flex items-center gap-3 mb-2">
-                        <img src="${avatarUrl}" class="sidebar-user-avatar" alt="" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.username)}&background=random&color=fff'">
-                        <div style="min-width:0">
-                            <p class="text-sm font-bold truncate" style="color:var(--text-primary)">${currentUser.display_name || currentUser.username}</p>
-                            <p class="text-xs truncate" style="color:var(--text-muted)">@${currentUser.username}</p>
-                        </div>
-                    </div>
-                    <button onclick="doLogout()" class="sidebar-btn-logout"><i class="fa-solid fa-right-from-bracket mr-1.5"></i>Logout</button>
-                </div>`;
+                var name      = currentUser.display_name || currentUser.username;
+                var uname     = currentUser.username;
+                var avatarUrl = currentUser.avatar_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=random&color=fff&bold=true&size=128');
+                section.innerHTML =
+                    '<div class="sidebar-user-card">' +
+                        '<div class="flex items-center gap-3 mb-2">' +
+                            '<img src="' + avatarUrl + '" class="sidebar-user-avatar" alt="" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(uname) + '&background=random&color=fff\'">' +
+                            '<div style="min-width:0">' +
+                                '<p class="text-sm font-bold truncate" style="color:var(--text-primary)">' + name + '</p>' +
+                                '<p class="text-xs truncate" style="color:var(--text-muted)">@' + uname + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button onclick="doLogout()" class="sidebar-btn-logout"><i class="fa-solid fa-right-from-bracket mr-1.5"></i>Logout</button>' +
+                    '</div>';
             } else {
-                section.innerHTML = `<button onclick="openAuthModal()" class="sidebar-btn-login"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login / Register</button>`;
+                section.innerHTML = '<button onclick="openAuthModal()" class="sidebar-btn-login"><i class="fa-solid fa-right-to-bracket mr-2"></i>Login / Register</button>';
             }
         }
 
         async function initUserSession() {
             if (!userToken) { renderSidebarUser(); return; }
             try {
-                const res = await fetch('/api/login?action=profile', { headers: { 'Authorization': userToken } });
-                const data = await res.json();
+                var res  = await fetch('/api/login?action=profile', { headers: { 'Authorization': userToken } });
+                var data = await res.json();
                 if (data.success) { currentUser = data.user; }
                 else { localStorage.removeItem('user_token'); userToken = null; }
             } catch(e) { localStorage.removeItem('user_token'); userToken = null; }
