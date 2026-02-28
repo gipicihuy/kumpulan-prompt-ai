@@ -210,24 +210,10 @@
                             <div class="w-8 text-center flex-shrink-0 text-xl">${medal}</div>
                             ${avatarHtml}
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-sm uppercase tracking-tight truncate" style="color:var(--text-primary)">@${c.name}</p>
-                                <div class="flex items-center gap-3 mt-1 text-xs">
-                                    <span class="flex items-center gap-1" title="Prompts">
-                                        <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
-                                        <span class="font-bold" style="color:var(--text-secondary)">${fmt(c.prompts)}</span>
-                                    </span>
-                                    <span class="flex items-center gap-1" title="Views">
-                                        <i class="fa-solid fa-eye text-[10px]" style="color:var(--text-muted)"></i>
-                                        <span class="font-bold" style="color:var(--text-secondary)">${fmt(c.views)}</span>
-                                    </span>
-                                    <span class="flex items-center gap-1" title="Copies">
-                                        <i class="fa-solid fa-copy text-[10px]" style="color:var(--text-muted)"></i>
-                                        <span class="font-bold" style="color:var(--text-secondary)">${fmt(c.copies)}</span>
-                                    </span>
-                                    <span class="flex items-center gap-1" title="Downloads">
-                                        <i class="fa-solid fa-download text-[10px]" style="color:var(--text-muted)"></i>
-                                        <span class="font-bold" style="color:var(--text-secondary)">${fmt(c.downloads)}</span>
-                                    </span>
+                                <p class="font-bold text-sm truncate" style="color:var(--text-primary)">@${c.name}</p>
+                                <div class="flex items-center gap-1.5 mt-1 text-xs">
+                                    <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
+                                    <span class="font-bold" style="color:var(--text-secondary)">${fmt(c.prompts)} Prompt</span>
                                 </div>
                             </div>
                             <i class="fa-solid fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-muted)"></i>
