@@ -204,7 +204,7 @@ function renderPrompts(data) {
         return;
     }
     container.innerHTML = data.map(item => {
-        // Profile pic — uses CSS var for placeholder background
+        // Profile pic
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== ''
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover" style="border: 1px solid var(--border)" alt="${item.uploadedBy}">`
             : `<div class="w-7 h-7 rounded-full flex items-center justify-center profile-placeholder" style="border: 1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color: var(--text-muted)"></i></div>`;
@@ -230,7 +230,10 @@ function renderPrompts(data) {
             </div>
             <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected ? 'protected-text italic' : ''}" style="${item.isProtected ? '' : 'color: var(--text-secondary)'}">${previewText}</p>
             <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top: 1px solid var(--border)">
-                <div class="flex items-center gap-2">${profilePicHtml}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span></div>
+                <a href="/@${encodeURIComponent(item.uploadedBy)}" class="flex items-center gap-2 group/author" onclick="event.stopPropagation()">
+                    ${profilePicHtml}
+                    <span class="text-xs font-semibold card-author group-hover/author:underline" style="color:var(--text-secondary)">@${item.uploadedBy}</span>
+                </a>
                 <div class="flex items-center gap-3 text-xs">
                     <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.views)}</span></div>
                     <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.copies)}</span></div>
