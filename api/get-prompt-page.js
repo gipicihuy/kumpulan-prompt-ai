@@ -180,6 +180,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDesc  = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+  const authorUrl = `/@${encodeURIComponent(promptData.uploadedBy || 'Admin')}`;
 
   const profilePicHtml = profileUrl && profileUrl.trim() !== ''
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
@@ -221,6 +222,8 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 2px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
         .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background: none; border: none; color: var(--text-muted); }
         .toggle-password-btn:hover { color: var(--text-primary); }
+        .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .author-link:hover { color: var(--text-primary); text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -243,7 +246,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                 <div class="flex items-center gap-2">
                     ${profilePicHtml}
-                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <span style="color:var(--text-secondary)">@${promptData.uploadedBy || 'Admin'}</span></span>
+                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
                 </div>
                 <div class="flex items-center gap-1">
                     <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
@@ -289,7 +292,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                         <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i> Don't have the password?
                     </p>
                     <p class="text-xs text-center font-semibold" style="color:var(--text-primary)">
-                        Contact <span style="color:var(--text-secondary)">@${promptData.uploadedBy}</span> for access
+                        Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a> for access
                     </p>
                 </div>
             </div>
@@ -348,6 +351,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
 
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
+  const authorUrl = `/@${encodeURIComponent(promptData.uploadedBy || 'Admin')}`;
 
   const fmt = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -401,6 +405,8 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .description-link:hover { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
         .fullscreen-icon-btn { filter: var(--fullscreen-filter); }
+        .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .author-link:hover { color: var(--text-primary); text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -422,11 +428,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     <div class="flex items-center gap-2">
                         <div>
                             ${profileUrl && profileUrl.trim() !== ''
-                                ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy || 'Admin'}">`
-                                : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`
+                                ? `<a href="${authorUrl}"><img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy || 'Admin'}"></a>`
+                                : `<a href="${authorUrl}"><div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div></a>`
                             }
                         </div>
-                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <span style="color:var(--text-secondary)">@${promptData.uploadedBy || 'Admin'}</span></span>
+                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
