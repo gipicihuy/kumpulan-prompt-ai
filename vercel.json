@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/prompt/:slug", "destination": "/api/get-prompt-page?slug=:slug" },
-    { "source": "/@:username", "destination": "/api/get-prompt-page?username=:username" },
+    { "source": "/@:username", "destination": "/profile.html" },
     { "source": "/leaderboard", "destination": "/leaderboard.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/request", "destination": "/request.html" }
