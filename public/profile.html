@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - AI Prompt Hub</title>
+    <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+
+    <script>
+        (function() {
+            var t = localStorage.getItem('prompthub-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+
+    <style>
+        :root, [data-theme="dark"] {
+            --bg-base:        #0f0f0f;
+            --bg-surface:     #1a1a1a;
+            --bg-surface2:    #1f1f1f;
+            --bg-surface3:    #252525;
+            --border:         #2a2a2a;
+            --border-hover:   #444;
+            --text-primary:   #e5e5e5;
+            --text-secondary: #9ca3af;
+            --text-muted:     #6b7280;
+            --header-bg:      rgba(26,26,26,0.8);
+            --input-bg:       #1a1a1a;
+            --input-focus:    #1f1f1f;
+            --footer-bg:      rgba(26,26,26,0.95);
+            --sidebar-bg:     #1a1a1a;
+            --overlay-bg:     rgba(0,0,0,0.8);
+            --card-from:      #1a1a1a;
+            --card-to:        #1f1f1f;
+            --shadow:         rgba(0,0,0,0.4);
+            --btn-bg:         #ffffff;
+            --btn-text:       #0f0f0f;
+            --cat-badge-bg:   #252525;
+            --cat-badge-text: #9ca3af;
+            --cat-badge-bdr:  #333;
+            --skeleton-from:  #1a1a1a;
+            --skeleton-to:    #252525;
+            --protected-text: #eab308;
+            --profile-bg:     #252525;
+        }
+        [data-theme="light"] {
+            --bg-base:        #f4f4f5;
+            --bg-surface:     #ffffff;
+            --bg-surface2:    #f9f9f9;
+            --bg-surface3:    #f0f0f0;
+            --border:         #e4e4e7;
+            --border-hover:   #a1a1aa;
+            --text-primary:   #18181b;
+            --text-secondary: #52525b;
+            --text-muted:     #71717a;
+            --header-bg:      rgba(255,255,255,0.9);
+            --input-bg:       #ffffff;
+            --input-focus:    #f9f9f9;
+            --footer-bg:      rgba(255,255,255,0.95);
+            --sidebar-bg:     #ffffff;
+            --overlay-bg:     rgba(0,0,0,0.5);
+            --card-from:      #ffffff;
+            --card-to:        #f9f9f9;
+            --shadow:         rgba(0,0,0,0.06);
+            --btn-bg:         #18181b;
+            --btn-text:       #ffffff;
+            --cat-badge-bg:   #f4f4f5;
+            --cat-badge-text: #52525b;
+            --cat-badge-bdr:  #d4d4d8;
+            --skeleton-from:  #e4e4e7;
+            --skeleton-to:    #f4f4f5;
+            --protected-text: #b45309;
+            --profile-bg:     #e4e4e7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        header {
+            background: var(--header-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-img  { width: 48px; height: 48px; object-fit: contain; }
+        .title-text { font-size: 1.375rem; line-height: 1.2; }
+
+        #themeToggleBtn {
+            background: none; border: none; padding: 0;
+            color: var(--text-primary); cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #overlay       { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
+        #overlay.show  { opacity: 1 !important; visibility: visible !important; }
+
+        @media (max-width: 767px) {
+            #sidebar-right { transform: translateX(100%); }
+            #sidebar-right.open { transform: translateX(0); }
+            .title-text { font-size: 1.125rem; }
+            .logo-img   { width: 40px; height: 40px; }
+        }
+        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
+
+        /* Profile Hero */
+        .profile-hero {
+            background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+
+        .profile-avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--border-hover);
+            object-fit: cover;
+        }
+        .profile-avatar-placeholder {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--profile-bg);
+            border: 3px solid var(--border-hover);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .stat-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Cards */
+        .prompt-card {
+            background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+            text-decoration: none;
+            display: block;
+        }
+        .prompt-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .cat-badge {
+            background: var(--cat-badge-bg);
+            color: var(--cat-badge-text);
+            border: 1px solid var(--cat-badge-bdr);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--skeleton-from) 25%, var(--skeleton-to) 50%, var(--skeleton-from) 75%);
+            background-size: 200% 100%;
+            animation: pulse 1.5s ease-in-out infinite;
+            border-radius: 0.4rem;
+        }
+        @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .back-btn { transition: all 0.2s; color: var(--text-muted); }
+        .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
+
+        .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
+
+        footer {
+            background: var(--footer-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+        }
+
+        .protected-badge { color: var(--protected-text); }
+        .not-found-box {
+            background: linear-gradient(135deg, var(--card-from), var(--card-to));
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px var(--shadow);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-10 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="title-text font-bold flex items-center gap-3" style="color: var(--text-primary)">
+                    <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
+                    <span>AI Prompt Hub</span>
+                </h1>
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                        <i class="material-icons text-2xl">notes</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-6 w-full">
+
+        <!-- Back -->
+        <a href="/" class="back-btn inline-flex items-center gap-2 text-xs font-bold uppercase mb-5">
+            <i class="fa-solid fa-arrow-left text-xs"></i> Kembali
+        </a>
+
+        <!-- Skeleton Loading -->
+        <div id="loadingSection">
+            <div class="profile-hero p-6 mb-6">
+                <div class="flex items-center gap-4 mb-5">
+                    <div class="skeleton" style="width:80px;height:80px;border-radius:50%;flex-shrink:0"></div>
+                    <div class="flex-1">
+                        <div class="skeleton mb-2" style="height:20px;width:160px"></div>
+                        <div class="skeleton" style="height:12px;width:100px"></div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <div class="stat-box skeleton" style="height:56px"></div>
+                    <div class="stat-box skeleton" style="height:56px"></div>
+                    <div class="stat-box skeleton" style="height:56px"></div>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="prompt-card p-4" style="pointer-events:none">
+                    <div class="skeleton mb-2" style="height:12px;width:60px"></div>
+                    <div class="skeleton mb-2" style="height:16px;width:70%"></div>
+                    <div class="skeleton" style="height:12px;width:100%"></div>
+                </div>
+                <div class="prompt-card p-4" style="pointer-events:none">
+                    <div class="skeleton mb-2" style="height:12px;width:60px"></div>
+                    <div class="skeleton mb-2" style="height:16px;width:55%"></div>
+                    <div class="skeleton" style="height:12px;width:90%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div id="profileSection" class="hidden">
+
+            <!-- Hero Card -->
+            <div class="profile-hero p-6 mb-6">
+                <div class="flex items-center gap-4 mb-5">
+                    <div id="avatarContainer"></div>
+                    <div>
+                        <h2 id="profileName" class="text-xl font-bold uppercase tracking-tight" style="color:var(--text-primary)"></h2>
+                        <p id="profileHandle" class="text-sm font-mono mt-0.5" style="color:var(--text-muted)"></p>
+                    </div>
+                </div>
+                <!-- Stats -->
+                <div class="flex gap-3">
+                    <div class="stat-box">
+                        <p id="statPrompts" class="text-xl font-black" style="color:var(--text-primary)">0</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p>
+                    </div>
+                    <div class="stat-box">
+                        <p id="statViews" class="text-xl font-black" style="color:var(--text-primary)">0</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Total Views</p>
+                    </div>
+                    <div class="stat-box">
+                        <p id="statCopies" class="text-xl font-black" style="color:var(--text-primary)">0</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Total Copies</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompts List -->
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-sm font-bold uppercase tracking-widest" style="color:var(--text-muted)">
+                    <i class="fa-solid fa-layer-group mr-2"></i>Prompt yang di-upload
+                </h3>
+                <span id="promptCount" class="text-xs font-bold px-2 py-0.5 rounded" style="background:var(--bg-surface3);color:var(--text-secondary);border:1px solid var(--border)">0 prompt</span>
+            </div>
+            <div id="promptsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Not Found -->
+        <div id="notFoundSection" class="hidden text-center py-16">
+            <div class="not-found-box rounded-2xl p-10 max-w-sm mx-auto">
+                <i class="fa-solid fa-user-slash text-4xl mb-4 block" style="color:var(--text-muted)"></i>
+                <h3 class="text-lg font-bold uppercase tracking-tight mb-2" style="color:var(--text-primary)">User Tidak Ditemukan</h3>
+                <p class="text-sm mb-5" style="color:var(--text-muted)">Admin dengan username ini tidak ada atau belum upload prompt apapun.</p>
+                <a href="/" class="inline-block px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest" style="background:var(--btn-bg);color:var(--btn-text)">
+                    <i class="fa-solid fa-home mr-1.5"></i>Kembali ke Home
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="py-4 text-center mt-8">
+        <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
+    </footer>
+
+    <!-- Sidebar -->
+    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col"
+        style="background: var(--sidebar-bg); border-color: var(--border);">
+        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
+            <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
+                <i class="material-icons text-2xl">close</i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-5 pb-7">
+            <nav>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                </div>
+            </nav>
+            <nav class="mt-8">
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
+                        <span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--border); background: var(--sidebar-bg)">
+            <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
+            <div class="space-y-1">
+                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer"
+                   class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors">
+                    <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
+
+    <script src="/js/timeago.js"></script>
+    <script>
+        // Theme
+        (function() {
+            var STORAGE_KEY = 'prompthub-theme';
+            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+            function applyTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                var btn = document.getElementById('themeToggleBtn');
+                if (!btn) return;
+                if (t === 'light') {
+                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
+                    btn.title = 'Switch to Dark Mode';
+                } else {
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                    btn.title = 'Switch to Light Mode';
+                }
+            }
+            window.toggleTheme = function() {
+                var next = getTheme() === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(STORAGE_KEY, next);
+                applyTheme(next);
+            };
+            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+        })();
+
+        // Sidebar
+        const sidebarToggleRight = document.getElementById('sidebarToggleRight');
+        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
+        const sidebarRight = document.getElementById('sidebar-right');
+        const overlay = document.getElementById('overlay');
+        function openSidebarRight()  { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow='hidden'; }
+        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow=''; }
+        sidebarToggleRight.onclick = openSidebarRight;
+        sidebarCloseRight.onclick  = closeSidebarRight;
+        overlay.onclick = closeSidebarRight;
+
+        // Utilities
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function toTitleCase(str) {
+            const specials = { 'ai':'AI','api':'API','seo':'SEO','html':'HTML','css':'CSS','chatgpt':'ChatGPT','gpt':'GPT','llm':'LLM','sql':'SQL','php':'PHP','ui':'UI','ux':'UX' };
+            return str.split(' ').map(w => specials[w.toLowerCase()] || (w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())).join(' ');
+        }
+
+        // Main
+        async function loadProfile() {
+            // Extract username dari URL: /@username
+            const path = window.location.pathname;
+            const match = path.match(/^\/@(.+)/);
+            if (!match) { showNotFound(); return; }
+            const username = decodeURIComponent(match[1]);
+
+            try {
+                const res = await fetch('/api/get-prompts');
+                const json = await res.json();
+                if (!json.success || !json.data) { showNotFound(); return; }
+
+                // Filter prompts by this user
+                const userPrompts = json.data.filter(p =>
+                    p.uploadedBy && p.uploadedBy.toLowerCase() === username.toLowerCase()
+                );
+
+                if (userPrompts.length === 0) { showNotFound(); return; }
+
+                // Get profile pic from first prompt that has it
+                const profileUrl = userPrompts.find(p => p.profileUrl && p.profileUrl.trim() !== '')?.profileUrl || '';
+                const displayName = userPrompts[0].uploadedBy;
+
+                // Update page title & meta
+                document.title = `@${displayName} - AI Prompt Hub`;
+
+                // Build stats
+                const totalViews   = userPrompts.reduce((s, p) => s + (p.analytics?.views   || 0), 0);
+                const totalCopies  = userPrompts.reduce((s, p) => s + (p.analytics?.copies  || 0), 0);
+
+                // Render avatar
+                const avatarContainer = document.getElementById('avatarContainer');
+                if (profileUrl) {
+                    avatarContainer.innerHTML = `<img src="${profileUrl}" class="profile-avatar" alt="${displayName}">`;
+                } else {
+                    avatarContainer.innerHTML = `<div class="profile-avatar-placeholder"><i class="fa-solid fa-user text-2xl" style="color:var(--text-muted)"></i></div>`;
+                }
+
+                document.getElementById('profileName').textContent = displayName;
+                document.getElementById('profileHandle').textContent = `@${displayName}`;
+                document.getElementById('statPrompts').textContent = formatNumber(userPrompts.length);
+                document.getElementById('statViews').textContent   = formatNumber(totalViews);
+                document.getElementById('statCopies').textContent  = formatNumber(totalCopies);
+                document.getElementById('promptCount').textContent = `${userPrompts.length} prompt`;
+
+                // Render prompt cards
+                const list = document.getElementById('promptsList');
+                list.innerHTML = userPrompts.map(p => {
+                    const lockIcon = p.isProtected
+                        ? `<i class="fa-solid fa-lock text-yellow-500 text-[10px] ml-1"></i>` : '';
+                    const previewText = p.isProtected
+                        ? '🔒 Konten ini diproteksi dengan password.'
+                        : (p.description && p.description.trim() !== '' ? p.description : p.isi);
+
+                    return `<a href="/prompt/${p.id}" class="prompt-card p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="cat-badge">${toTitleCase(p.kategori)}</span>
+                            <span class="time-ago text-[10px] font-mono font-bold uppercase" style="color:var(--text-muted)"
+                                data-timestamp="${p.timestamp}" data-created-at="${p.createdAt || '-'}">-</span>
+                        </div>
+                        <h4 class="font-bold text-sm uppercase tracking-tight mb-1 flex items-center" style="color:var(--text-primary)">
+                            ${p.judul}${lockIcon}
+                        </h4>
+                        <p class="text-xs line-clamp-2 leading-relaxed mb-3 ${p.isProtected ? 'protected-badge italic' : ''}"
+                            style="${p.isProtected ? '' : 'color:var(--text-secondary)'}">
+                            ${previewText}
+                        </p>
+                        <div class="flex items-center gap-3 text-xs pt-2.5" style="border-top:1px solid var(--border)">
+                            <span class="flex items-center gap-1" title="Views">
+                                <i class="fa-solid fa-eye text-[10px]" style="color:var(--text-muted)"></i>
+                                <span class="font-bold" style="color:var(--text-secondary)">${formatNumber(p.analytics?.views || 0)}</span>
+                            </span>
+                            <span class="flex items-center gap-1" title="Copies">
+                                <i class="fa-solid fa-copy text-[10px]" style="color:var(--text-muted)"></i>
+                                <span class="font-bold" style="color:var(--text-secondary)">${formatNumber(p.analytics?.copies || 0)}</span>
+                            </span>
+                            <span class="flex items-center gap-1" title="Downloads">
+                                <i class="fa-solid fa-download text-[10px]" style="color:var(--text-muted)"></i>
+                                <span class="font-bold" style="color:var(--text-secondary)">${formatNumber(p.analytics?.downloads || 0)}</span>
+                            </span>
+                        </div>
+                    </a>`;
+                }).join('');
+
+                document.getElementById('loadingSection').classList.add('hidden');
+                document.getElementById('profileSection').classList.remove('hidden');
+                updateAllTimeAgo();
+
+            } catch (err) {
+                console.error(err);
+                showNotFound();
+            }
+        }
+
+        function showNotFound() {
+            document.getElementById('loadingSection').classList.add('hidden');
+            document.getElementById('notFoundSection').classList.remove('hidden');
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>
