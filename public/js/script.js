@@ -235,9 +235,9 @@ function renderPrompts(data) {
             </div>
             <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected ? 'protected-text italic' : ''}" style="${item.isProtected ? '' : 'color: var(--text-secondary)'}">${previewText}</p>
             <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top: 1px solid var(--border)">
-                <span onclick="goToProfile('${item.uploadedBy}', event)" class="flex items-center gap-2 cursor-pointer hover-author">
+                <span onclick="goToProfile('${item.uploadedBy}', event)" class="flex items-center gap-2 cursor-pointer" style="transition:opacity 0.2s" onmouseenter="this.style.opacity='0.7'" onmouseleave="this.style.opacity='1'">
                     ${profilePicHtml}
-                    <span class="text-xs font-semibold card-author" style="color:var(--text-secondary)">@${item.uploadedBy}</span>
+                    <span class="text-xs font-semibold card-author" style="color:var(--text-secondary);text-decoration:underline;text-underline-offset:2px">@${item.uploadedBy}</span>
                 </span>
                 <div class="flex items-center gap-3 text-xs">
                     <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.views)}</span></div>
