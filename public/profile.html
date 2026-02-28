@@ -111,12 +111,10 @@
         <!-- Profile -->
         <div id="profileSection" class="hidden space-y-4">
             <div class="profile-hero rounded-lg p-4">
-                <div class="flex items-center gap-3 mb-4">
-                    <div id="avatarContainer"></div>
-                    <div>
-                        <h2 id="profileName" class="font-bold text-base uppercase tracking-tight" style="color:var(--text-primary)"></h2>
-                        <p id="profileHandle" class="text-xs font-mono mt-0.5" style="color:var(--text-muted)"></p>
-                    </div>
+                <div class="flex flex-col items-center text-center mb-4">
+                    <div id="avatarContainer" class="mb-3"></div>
+                    <h2 id="profileName" class="font-bold text-base uppercase tracking-tight" style="color:var(--text-primary)"></h2>
+                    <p id="profileHandle" class="text-xs font-mono mt-0.5" style="color:var(--text-muted)"></p>
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p id="statPrompts" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
@@ -124,9 +122,8 @@
                     <div class="stat-box"><p id="statCopies" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Copies</p></div>
                 </div>
             </div>
-            <div class="flex items-center justify-between pt-1">
-                <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)"><i class="fa-solid fa-layer-group mr-1.5"></i>Prompt yang di-upload</p>
-                <span id="promptCount" class="text-[10px] font-bold px-2 py-0.5 rounded" style="background:var(--bg-surface3);color:var(--text-secondary);border:1px solid var(--border)">0 prompt</span>
+            <div class="flex items-center pt-1">
+                <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)"><i class="fa-solid fa-layer-group mr-1.5"></i>Total Prompt</p>
             </div>
             <div id="promptsList" class="space-y-4"></div>
         </div>
@@ -210,7 +207,7 @@
                 document.getElementById('statPrompts').textContent=formatNumber(userPrompts.length);
                 document.getElementById('statViews').textContent=formatNumber(totalViews);
                 document.getElementById('statCopies').textContent=formatNumber(totalCopies);
-                document.getElementById('promptCount').textContent=`${userPrompts.length} prompt`;
+                
                 const list=document.getElementById('promptsList');
                 list.innerHTML=userPrompts.map(item=>{
                     const pp=item.profileUrl&&item.profileUrl.trim()!==''
