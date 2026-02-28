@@ -78,221 +78,11 @@ const THEME_CSS = `
 
 const THEME_INIT = `(function(){var t=localStorage.getItem('prompthub-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`;
 
-function fmtNum(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000)    return (num / 1000).toFixed(1) + 'K';
-  return num.toString();
-}
-
 export default async function handler(req, res) {
-  const { slug, username } = req.query;
+  const { slug } = req.query;
 
-  // ─── PROFILE PAGE ───────────────────────────────────────────────────────────
-  if (username) {
-    try {
-      const decodedUsername = decodeURIComponent(username);
-
-      // Fetch user data for profile pic
-      const userData = await redis.hgetall(`user:${decodedUsername}`);
-      const profileUrl = userData?.profileUrl || '';
-
-      // Fetch all prompts and filter by uploadedBy
-      const keys = await redis.keys('prompt:*');
-      const allPrompts = [];
-      for (const key of keys) {
-        const p = await redis.hgetall(key);
-        if (p && p.uploadedBy === decodedUsername) {
-          allPrompts.push(p);
-        }
-      }
-
-      const totalPrompts   = allPrompts.length;
-      let totalViews     = 0;
-      let totalCopies    = 0;
-
-      for (const p of allPrompts) {
-        const a = await redis.hgetall(`analytics:${p.slug}`);
-        if (a) {
-          totalViews  += parseInt(a.views  || 0);
-          totalCopies += parseInt(a.copies || 0);
-        }
-      }
-
-      const ogTitle = `@${decodedUsername} - AI Prompt Hub`;
-      const ogDesc  = `${totalPrompts} prompt • ${fmtNum(totalViews)} views • ${fmtNum(totalCopies)} copies`;
-      const ogImage = profileUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
-
-      return res.status(200).send(`<!DOCTYPE html>
-<html lang="id" data-theme="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${ogTitle}</title>
-    <meta property="og:type" content="profile">
-    <meta property="og:site_name" content="AI Prompt Hub">
-    <meta property="og:title" content="${ogTitle}">
-    <meta property="og:description" content="${ogDesc}">
-    <meta property="og:image" content="${ogImage}">
-    <meta name="description" content="${ogDesc}">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="${ogTitle}">
-    <meta name="twitter:description" content="${ogDesc}">
-    <meta name="twitter:image" content="${ogImage}">
-    <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script>${THEME_INIT}</script>
-    <style>
-        ${THEME_CSS}
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(to bottom,var(--bg-base) 0%,var(--bg-surface) 100%);color:var(--text-primary);min-height:100vh;transition:background 0.25s ease,color 0.25s ease;}
-        .skeleton{background:linear-gradient(90deg,var(--skeleton-from,#1a1a1a) 25%,var(--skeleton-to,#252525) 50%,var(--skeleton-from,#1a1a1a) 75%);background-size:200% 100%;animation:pulse 1.5s ease-in-out infinite;}
-        @keyframes pulse{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-        .card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-surface) 0%,var(--bg-surface2) 100%);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
-        .card:hover{border-color:var(--border-hover);background:linear-gradient(135deg,var(--bg-surface2) 0%,var(--bg-surface3) 100%);box-shadow:0 4px 16px rgba(0,0,0,0.5);transform:translateY(-2px);}
-        header{background:var(--header-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
-        footer{background:var(--header-bg);backdrop-filter:blur(10px);border-top:1px solid var(--border);}
-        .stat-box{background:var(--bg-base);border:1px solid var(--border);border-radius:0.5rem;text-align:center;padding:0.6rem 0.75rem;flex:1;min-width:0;}
-        .sidebar-link{color:var(--text-muted);transition:background 0.2s,color 0.2s;}
-        .sidebar-link:hover{background:var(--bg-surface2);color:var(--text-primary);}
-        .sidebar-link.active{background:var(--bg-surface2);color:var(--text-primary);border:1px solid var(--border);}
-        #sidebar-right{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);}
-        #overlay{transition:opacity 0.3s cubic-bezier(0.4,0,0.2,1),visibility 0.3s;}
-        #overlay.show{opacity:1!important;visibility:visible!important;}
-        .author-btn{transition:opacity 0.15s;}
-        .author-btn:active{opacity:0.6;}
-        .author-btn:active .card-author{text-decoration:underline;text-underline-offset:2px;}
-        @media(max-width:767px){#sidebar-right{transform:translateX(100%);}#sidebar-right.open{transform:translateX(0);}}
-        @media(min-width:768px){#sidebar-right{transform:translateX(0);}}
-    </style>
-</head>
-<body>
-    <header class="sticky top-0 z-10 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <h1 class="font-bold flex items-center gap-3" style="font-size:1.375rem;line-height:1.2;color:var(--text-primary)">
-                    <img src="/assets/prompt_hub.png" alt="Logo" style="width:48px;height:48px;object-fit:contain;">
-                    <span>AI Prompt Hub</span>
-                </h1>
-                <div class="flex items-center gap-2">
-                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch Theme" style="background:none;border:none;padding:0;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                    </button>
-                    <button id="sidebarToggleRight" style="color:var(--text-primary)">
-                        <i class="material-icons text-2xl">notes</i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto px-4 py-4">
-        <!-- Profile card -->
-        <div class="rounded-xl p-5 mb-5" style="background:linear-gradient(135deg,var(--bg-surface) 0%,var(--bg-surface2) 100%);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.3)">
-            <div class="flex flex-col items-center text-center mb-4">
-                ${profileUrl
-                  ? `<img src="${profileUrl}" class="mb-3 object-cover" style="width:72px;height:72px;border-radius:50%;border:2px solid var(--border-hover)" alt="${decodedUsername}">`
-                  : `<div class="mb-3 flex items-center justify-center" style="width:72px;height:72px;border-radius:50%;background:var(--bg-surface3);border:2px solid var(--border-hover)"><i class="fa-solid fa-user text-2xl" style="color:var(--text-muted)"></i></div>`
-                }
-                <p class="font-bold text-sm" style="color:var(--text-primary)">@${decodedUsername}</p>
-            </div>
-            <div class="flex gap-2">
-                <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmtNum(totalPrompts)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
-                <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmtNum(totalViews)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Views</p></div>
-                <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmtNum(totalCopies)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Copies</p></div>
-            </div>
-            <div class="flex items-center pt-4">
-                <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)"><i class="fa-solid fa-layer-group mr-1.5"></i>Total Prompt</p>
-            </div>
-        </div>
-
-        <!-- Prompt list -->
-        <div id="promptList" class="space-y-3">
-            ${allPrompts.length === 0
-              ? `<p class="text-center text-sm py-8" style="color:var(--text-muted)">Belum ada prompt dari @${decodedUsername}.</p>`
-              : allPrompts.sort((a,b) => (parseInt(b.timestamp)||0) - (parseInt(a.timestamp)||0)).map(p => {
-                  const profilePicHtml = profileUrl
-                    ? `<img src="${profileUrl}" class="w-7 h-7 rounded-full object-cover flex-shrink-0" style="border:1px solid var(--border-hover)" alt="${decodedUsername}">`
-                    : `<div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background:var(--bg-surface3);border:1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color:var(--text-muted)"></i></div>`;
-                  return `<a href="/prompt/${p.slug}" class="card rounded-xl p-4 block" style="text-decoration:none">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-2 flex-wrap">
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide" style="background:var(--text-primary);color:var(--bg-base)">${p.kategori || 'Lainnya'}</span>
-                                ${p.isProtected === 'true' ? `<i class="fa-solid fa-lock text-yellow-500 text-xs"></i>` : ''}
-                            </div>
-                            <h3 class="font-bold text-sm uppercase tracking-tight leading-snug mb-3" style="color:var(--text-primary)">${p.judul || ''}</h3>
-                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                <div class="flex items-center gap-2">
-                                    ${profilePicHtml}
-                                    <span class="text-xs font-semibold card-author" style="color:var(--text-secondary)">@${decodedUsername}</span>
-                                </div>
-                                <span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="${p.timestamp || 0}" data-created-at="${p.createdAt || '-'}">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                  </a>`;
-                }).join('')
-            }
-        </div>
-    </main>
-
-    <footer class="py-4 text-center mt-8">
-        <p class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-muted)">© 2026 Prompt Hub</p>
-    </footer>
-
-    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col" style="background:var(--bg-surface);border-color:var(--border);">
-        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
-            <h1 class="text-xl font-medium" style="color:var(--text-primary)">#AIPromptHub</h1>
-            <button id="sidebarCloseRight" style="color:var(--text-primary)" class="flex items-center justify-center md:hidden"><i class="material-icons text-2xl">close</i></button>
-        </div>
-        <div class="flex-1 overflow-y-auto px-5 pb-7">
-            <nav>
-                <p class="font-medium text-sm mb-4 px-4" style="color:var(--text-secondary)">Dashboard</p>
-                <div class="space-y-1 pl-2">
-                    <a href="/" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
-                    <a href="/leaderboard" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Leaderboard</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
-                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
-                </div>
-            </nav>
-            <nav class="mt-8">
-                <p class="font-medium text-sm mb-4 px-4" style="color:var(--text-secondary)">Management Menu</p>
-                <div class="space-y-1 pl-2">
-                    <a href="/admin" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
-                </div>
-            </nav>
-        </div>
-        <div class="px-5 py-8 flex-shrink-0" style="border-top:1px solid var(--border);background:var(--bg-surface)">
-            <p class="font-medium text-sm mb-4 px-4" style="color:var(--text-secondary)">Other Links</p>
-            <div class="space-y-1">
-                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer" class="sidebar-link flex items-center py-1 px-4 text-sm transition-colors"><span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span></a>
-            </div>
-        </div>
-    </aside>
-    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background:rgba(0,0,0,0.8)"></div>
-
-    <script src="/js/timeago.js"></script>
-    <script>
-        (function(){var S='prompthub-theme';function g(){return localStorage.getItem(S)||'dark';}function a(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeToggleBtn');if(!b)return;if(t==='light'){b.innerHTML='<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';b.title='Switch to Dark Mode';}else{b.innerHTML='<svg xmlns=\\"http://www.w3.org/2000/svg\\" class=\\"w-5 h-5\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" style=\\"color:var(--text-primary)\\"><circle cx=\\"12\\" cy=\\"12\\" r=\\"5\\"></circle><line x1=\\"12\\" y1=\\"1\\" x2=\\"12\\" y2=\\"3\\"></line><line x1=\\"12\\" y1=\\"21\\" x2=\\"12\\" y2=\\"23\\"></line></svg>';b.title='Switch to Light Mode';}}window.toggleTheme=function(){var n=g()==='dark'?'light':'dark';localStorage.setItem(S,n);a(n);};document.addEventListener('DOMContentLoaded',function(){a(g());});})();
-
-        const str=document.getElementById('sidebarToggleRight'),scr=document.getElementById('sidebarCloseRight'),sr=document.getElementById('sidebar-right'),ov=document.getElementById('overlay');
-        function openSR(){sr.classList.add('open');ov.classList.add('show');ov.classList.remove('opacity-0','invisible');document.body.style.overflow='hidden';}
-        function closeSR(){sr.classList.remove('open');ov.classList.remove('show');ov.classList.add('opacity-0','invisible');document.body.style.overflow='';}
-        str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
-    </script>
-</body>
-</html>`);
-
-    } catch (error) {
-      console.error('Error in profile page:', error);
-      return res.status(500).send('Internal Server Error');
-    }
-  }
-
-  // ─── PROMPT PAGE ────────────────────────────────────────────────────────────
   if (!slug) {
-    return res.status(404).send('Not found');
+    return res.status(404).send('Slug not found');
   }
 
   try {
@@ -337,7 +127,7 @@ export default async function handler(req, res) {
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
 
-      const sessionKey     = `session:${slug}:${sessionToken}`;
+      const sessionKey    = `session:${slug}:${sessionToken}`;
       const isValidSession = await redis.get(sessionKey);
 
       if (isValidSession === 'valid') {
@@ -358,7 +148,31 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error in get-prompt-page:', error);
-    res.status(500).send(`<!DOCTYPE html><html lang="id" data-theme="dark"><head><meta charset="UTF-8"><title>Error</title><script src="https://cdn.tailwindcss.com"></script><script>${THEME_INIT}</script><style>${THEME_CSS} body{font-family:'Inter',sans-serif;background:linear-gradient(to bottom,var(--bg-base),var(--bg-surface));color:var(--text-primary);min-height:100vh;display:flex;align-items:center;justify-content:center;}</style></head><body><div class="text-center p-8"><i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i><h2 class="font-bold text-xl mb-2" style="color:#f87171">Error</h2><p class="text-sm mb-4" style="color:var(--text-muted)">${error.message}</p><a href="/" class="px-6 py-3 rounded-lg text-sm font-bold" style="background:var(--text-primary);color:var(--bg-base)">Back to Home</a></div></body></html>`);
+    res.status(500).send(`<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - AI Prompt Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>${THEME_INIT}</script>
+    <style>
+        ${THEME_CSS}
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom, var(--bg-base), var(--bg-surface)); color: var(--text-primary); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="max-w-lg mx-auto p-8 rounded-xl text-center shadow-xl" style="background:linear-gradient(135deg,var(--bg-surface),var(--bg-surface2));border:1px solid var(--border)">
+        <i class="fa-solid fa-exclamation-triangle text-red-500 text-5xl mb-4 block"></i>
+        <h2 class="font-bold text-2xl uppercase mb-4" style="color:#f87171">Internal Server Error</h2>
+        <p class="text-sm mb-6 font-mono" style="color:var(--text-muted)">${error.message}</p>
+        <a href="/" class="inline-block px-6 py-3 rounded-lg text-sm font-bold uppercase" style="background:var(--text-primary);color:var(--bg-base)">
+            <i class="fa-solid fa-home mr-2"></i>Back to Home
+        </a>
+    </div>
+</body>
+</html>`);
   }
 }
 
