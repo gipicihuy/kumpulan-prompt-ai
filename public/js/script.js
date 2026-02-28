@@ -235,7 +235,7 @@ function renderPrompts(data) {
             </div>
             <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected ? 'protected-text italic' : ''}" style="${item.isProtected ? '' : 'color: var(--text-secondary)'}">${previewText}</p>
             <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top: 1px solid var(--border)">
-                <span onclick="goToProfile('${item.uploadedBy}', event)" class="flex items-center gap-2 cursor-pointer" style="transition:opacity 0.2s" onmouseenter="this.style.opacity='0.7'" onmouseleave="this.style.opacity='1'">
+                <span onclick="goToProfile('${item.uploadedBy}', event)" class="flex items-center gap-2 cursor-pointer" onmousedown="this.querySelector('.card-author').style.textDecoration='underline'" onmouseup="this.querySelector('.card-author').style.textDecoration='none'" onmouseleave="this.querySelector('.card-author').style.textDecoration='none'" ontouchstart="this.querySelector('.card-author').style.textDecoration='underline'" ontouchend="this.querySelector('.card-author').style.textDecoration='none'">
                     ${profilePicHtml}
                     <span class="text-xs font-semibold card-author" style="color:var(--text-secondary)">@${item.uploadedBy}</span>
                 </span>
