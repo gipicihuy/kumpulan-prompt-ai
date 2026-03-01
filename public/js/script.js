@@ -97,6 +97,7 @@ function renderCategoryPills() {
     // Map kategori → logo (sama seperti di getCategoryBadgeHtml)
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
+        'jailbreak': '/assets/jb.jpg',
     };
 
     pillsContainer.innerHTML = categories.map(cat => {
