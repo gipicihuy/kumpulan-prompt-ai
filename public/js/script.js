@@ -21,12 +21,33 @@ function toTitleCase(str) {
         'llm': 'LLM', 'nft': 'NFT', 'pdf': 'PDF', 'json': 'JSON',
         'xml': 'XML', 'sql': 'SQL', 'php': 'PHP', 'csharp': 'C#',
         'cplusplus': 'C++', 'vscode': 'VSCode', 'figma': 'Figma',
-        'photoshop': 'Photoshop', 'excel': 'Excel', 'powerpoint': 'PowerPoint'
+        'photoshop': 'Photoshop', 'excel': 'Excel', 'powerpoint': 'PowerPoint',
+        'gemini': 'Gemini'
     };
     return str.split(' ').map(word => {
         const lw = word.toLowerCase();
         return specialCases[lw] || (word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     }).join(' ');
+}
+
+// Helper: render badge kategori dengan logo khusus jika ada
+function getCategoryBadgeHtml(kategori, extraClass = '') {
+    const label = toTitleCase(kategori);
+    const key = kategori.toLowerCase().trim();
+
+    // Map kategori → logo asset
+    const categoryLogos = {
+        'gemini': '/assets/gemini-color.svg',
+        // tambah kategori lain di sini kalau nanti ada logo baru
+        // 'chatgpt': '/assets/chatgpt.svg',
+    };
+
+    const logoUrl = categoryLogos[key];
+    const logoHtml = logoUrl
+        ? `<img src="${logoUrl}" alt="${label}" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">`
+        : '';
+
+    return `<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${extraClass}" style="display:inline-flex;">${logoHtml}${label}</span>`;
 }
 
 async function fetchPrompts() {
@@ -74,12 +95,22 @@ function renderCategoryPills() {
     const totalCount = allPrompts.length;
     const categories = ['all', ...Object.keys(categoriesMap)];
 
+    // Map kategori → logo (sama seperti di getCategoryBadgeHtml)
+    const categoryLogos = {
+        'gemini': '/assets/gemini-color.svg',
+    };
+
     pillsContainer.innerHTML = categories.map(cat => {
         const label = cat === 'all' ? 'All' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
-        return `<button class="cat-pill ${isActive ? 'active' : ''}" data-category="${cat}" onclick="setCategory('${cat}')">
-            ${label}
+        const logoUrl = cat !== 'all' ? categoryLogos[cat] : null;
+        const logoHtml = logoUrl
+            ? `<img src="${logoUrl}" alt="${label}" style="width:11px;height:11px;object-fit:contain;flex-shrink:0;${isActive ? '' : 'opacity:0.7'}">`
+            : '';
+
+        return `<button class="cat-pill ${isActive ? 'active' : ''}" data-category="${cat}" onclick="setCategory('${cat}')" style="display:inline-flex;align-items:center;gap:0.3rem;">
+            ${logoHtml}${label}
             <span class="count-badge">${count}</span>
         </button>`;
     }).join('');
@@ -226,7 +257,7 @@ function renderPrompts(data) {
 
         return `<a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
             <div class="flex justify-between items-start mb-1.5">
-                <span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase">${toTitleCase(item.kategori)}</span>
+                ${getCategoryBadgeHtml(item.kategori)}
                 <span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp}" data-created-at="${item.createdAt || '-'}">Loading...</span>
             </div>
             <div class="flex justify-between items-center mb-1">
