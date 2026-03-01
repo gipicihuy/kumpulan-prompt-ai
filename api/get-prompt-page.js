@@ -35,7 +35,7 @@ function fmt(num) {
 
 const CATEGORY_LOGOS = {
         'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.jpg',
+        'jailbreak': '/assets/jb.svg',
     };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
