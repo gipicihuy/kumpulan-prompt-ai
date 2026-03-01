@@ -38,7 +38,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
     // Map kategori → logo asset
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
-        'jailbreak': 'assets/puppeteer-puppet-master.gif',
+        'jailbreak': '/assets/puppeteer-puppet-master.gif',
     };
 
     const logoUrl = categoryLogos[key];
