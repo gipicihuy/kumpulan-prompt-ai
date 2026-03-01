@@ -36,6 +36,7 @@ function fmt(num) {
 // Map kategori → logo path (tambah di sini kalau ada logo baru)
 const CATEGORY_LOGOS = {
   'gemini': '/assets/gemini-color.svg',
+  'jailbreak': 'assets/puppeteer-puppet-master.gif'
 };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
