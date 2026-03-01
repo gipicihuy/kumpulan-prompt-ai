@@ -38,8 +38,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
     // Map kategori → logo asset
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
-        // tambah kategori lain di sini kalau nanti ada logo baru
-        // 'chatgpt': '/assets/chatgpt.svg',
+        'jailbreak': 'assets/puppeteer-puppet-master.gif',
     };
 
     const logoUrl = categoryLogos[key];
