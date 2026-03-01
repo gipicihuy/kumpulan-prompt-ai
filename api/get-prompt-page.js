@@ -33,6 +33,42 @@ function fmt(num) {
   return num.toString();
 }
 
+// Map kategori → logo path (tambah di sini kalau ada logo baru)
+const CATEGORY_LOGOS = {
+  'gemini': '/assets/gemini-color.svg',
+};
+
+function categoryBadgeHtml(kategori, extraStyle = '') {
+  const key   = (kategori || '').toLowerCase().trim();
+  const label = toTitleCase(kategori || 'Lainnya');
+  const logo  = CATEGORY_LOGOS[key];
+  const logoHtml = logo
+    ? `<img src="${logo}" alt="${label}" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">`
+    : '';
+  return `<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase" style="display:inline-flex;align-items:center;gap:4px;${extraStyle}">${logoHtml}${label}</span>`;
+}
+
+function toTitleCase(str) {
+  const specialCases = {
+    'chatgpt': 'ChatGPT', 'openai': 'OpenAI', 'ai': 'AI', 'api': 'API',
+    'ui': 'UI', 'ux': 'UX', 'seo': 'SEO', 'html': 'HTML', 'css': 'CSS',
+    'javascript': 'JavaScript', 'nodejs': 'Node.js', 'reactjs': 'React.js',
+    'vuejs': 'Vue.js', 'ios': 'iOS', 'macos': 'macOS', 'iphone': 'iPhone',
+    'ipad': 'iPad', 'youtube': 'YouTube', 'tiktok': 'TikTok',
+    'linkedin': 'LinkedIn', 'github': 'GitHub', 'wordpress': 'WordPress',
+    'midjourney': 'Midjourney', 'dalle': 'DALL-E', 'gpt': 'GPT',
+    'llm': 'LLM', 'nft': 'NFT', 'pdf': 'PDF', 'json': 'JSON',
+    'xml': 'XML', 'sql': 'SQL', 'php': 'PHP', 'csharp': 'C#',
+    'cplusplus': 'C++', 'vscode': 'VSCode', 'figma': 'Figma',
+    'photoshop': 'Photoshop', 'excel': 'Excel', 'powerpoint': 'PowerPoint',
+    'gemini': 'Gemini',
+  };
+  return (str || '').split(' ').map(word => {
+    const lw = word.toLowerCase();
+    return specialCases[lw] || (word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  }).join(' ');
+}
+
 const THEME_CSS = `
     :root, [data-theme="dark"] {
         --bg-base:        #0f0f0f;
@@ -413,7 +449,9 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
         function formatNumber(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
-        function toTitleCase(str){const s={'chatgpt':'ChatGPT','openai':'OpenAI','ai':'AI','api':'API','ui':'UI','ux':'UX','seo':'SEO','html':'HTML','css':'CSS','javascript':'JavaScript','nodejs':'Node.js','reactjs':'React.js','vuejs':'Vue.js','ios':'iOS','macos':'macOS','iphone':'iPhone','ipad':'iPad','youtube':'YouTube','tiktok':'TikTok','linkedin':'LinkedIn','github':'GitHub','wordpress':'WordPress','midjourney':'Midjourney','dalle':'DALL-E','gpt':'GPT','llm':'LLM','nft':'NFT','pdf':'PDF','json':'JSON','xml':'XML','sql':'SQL','php':'PHP','csharp':'C#','cplusplus':'C++','vscode':'VSCode','figma':'Figma','photoshop':'Photoshop','excel':'Excel','powerpoint':'PowerPoint'};return str.split(' ').map(w=>{const l=w.toLowerCase();return s[l]||(w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).join(' ');}
+        function toTitleCase(str){const s={'chatgpt':'ChatGPT','openai':'OpenAI','ai':'AI','api':'API','ui':'UI','ux':'UX','seo':'SEO','html':'HTML','css':'CSS','javascript':'JavaScript','nodejs':'Node.js','reactjs':'React.js','vuejs':'Vue.js','ios':'iOS','macos':'macOS','iphone':'iPhone','ipad':'iPad','youtube':'YouTube','tiktok':'TikTok','linkedin':'LinkedIn','github':'GitHub','wordpress':'WordPress','midjourney':'Midjourney','dalle':'DALL-E','gpt':'GPT','llm':'LLM','nft':'NFT','pdf':'PDF','json':'JSON','xml':'XML','sql':'SQL','php':'PHP','csharp':'C#','cplusplus':'C++','vscode':'VSCode','figma':'Figma','photoshop':'Photoshop','excel':'Excel','powerpoint':'PowerPoint','gemini':'Gemini'};return str.split(' ').map(w=>{const l=w.toLowerCase();return s[l]||(w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).join(' ');}
+        const CLIENT_CAT_LOGOS={'gemini':'/assets/gemini-color.svg'};
+        function clientCatBadge(kat){const key=(kat||'').toLowerCase().trim();const label=toTitleCase(kat||'Lainnya');const logo=CLIENT_CAT_LOGOS[key];const logoHtml=logo?'<img src="'+logo+'" alt="'+label+'" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">':'';return '<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase" style="display:inline-flex;align-items:center;gap:4px;">'+logoHtml+label+'</span>';}
 
         async function loadProfile(){
             const path=window.location.pathname;
@@ -446,7 +484,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
                     const lock=item.isProtected?'<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>':'';
                     const preview=item.isProtected?'🔒 This content is password protected. Click to unlock.':item.isi;
                     const ana=item.analytics||{views:0,copies:0,downloads:0};
-                    return '<a href="/prompt/'+item.id+'" class="block card rounded-lg p-3 shadow-sm group"><div class="flex justify-between items-start mb-1.5"><span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase">'+toTitleCase(item.kategori)+'</span><span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="'+item.timestamp+'" data-created-at="'+(item.createdAt||'-')+'">Loading...</span></div><div class="flex justify-between items-center mb-1"><h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color:var(--text-primary)">'+item.judul+lock+'</h3><i class="fa-solid fa-chevron-right text-xs transition-colors" style="color:var(--text-muted)"></i></div><p class="text-xs line-clamp-2 leading-relaxed mb-2 '+(item.isProtected?'protected-text italic':'')+'" style="'+(item.isProtected?'':'color:var(--text-secondary)')+'">'+preview+'</p><div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)"><div class="flex items-center gap-2">'+pp+'<span class="text-xs font-semibold card-author">@'+item.uploadedBy+'</span></div><div class="flex items-center gap-3 text-xs"><div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.views)+'</span></div><div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.copies)+'</span></div><div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.downloads)+'</span></div></div></div></a>';
+                    return '<a href="/prompt/'+item.id+'" class="block card rounded-lg p-3 shadow-sm group"><div class="flex justify-between items-start mb-1.5">'+clientCatBadge(item.kategori)+'<span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="'+item.timestamp+'" data-created-at="'+(item.createdAt||'-')+'">Loading...</span></div><div class="flex justify-between items-center mb-1"><h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color:var(--text-primary)">'+item.judul+lock+'</h3><i class="fa-solid fa-chevron-right text-xs transition-colors" style="color:var(--text-muted)"></i></div><p class="text-xs line-clamp-2 leading-relaxed mb-2 '+(item.isProtected?'protected-text italic':'')+'" style="'+(item.isProtected?'':'color:var(--text-secondary)')+'">'+preview+'</p><div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)"><div class="flex items-center gap-2">'+pp+'<span class="text-xs font-semibold card-author">@'+item.uploadedBy+'</span></div><div class="flex items-center gap-3 text-xs"><div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.views)+'</span></div><div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.copies)+'</span></div><div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.downloads)+'</span></div></div></div></a>';
                 }).join('');
                 document.getElementById('loadingSection').classList.add('hidden');
                 document.getElementById('profileSection').classList.remove('hidden');
@@ -529,7 +567,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
-            <span class="text-xs font-bold px-2 py-0.5 rounded uppercase" style="background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover)">${promptData.kategori || 'Lainnya'}</span>
+            ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
             <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
                 ${promptData.judul}
                 <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
@@ -713,7 +751,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div id="detailContent">
             <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
-                <span class="text-xs font-bold px-2 py-0.5 rounded uppercase" style="background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover)">${promptData.kategori || 'Lainnya'}</span>
+                ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
                 <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight" style="color:var(--text-primary)">${promptData.judul}</h2>
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                     <div class="flex items-center gap-2">
