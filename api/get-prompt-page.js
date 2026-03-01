@@ -33,11 +33,10 @@ function fmt(num) {
   return num.toString();
 }
 
-// Map kategori → logo path (tambah di sini kalau ada logo baru)
-const CATEGORY_LOGOS = {
-  'gemini': '/assets/gemini-color.svg',
-  'jailbreak': '/assets/puppeteer-puppet-master.gif'
-};
+const categoryLogos = {
+        'gemini': '/assets/gemini-color.svg',
+        'jailbreak': '/assets/jb.jpg',
+    };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
   const key   = (kategori || '').toLowerCase().trim();
