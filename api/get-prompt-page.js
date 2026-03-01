@@ -33,7 +33,7 @@ function fmt(num) {
   return num.toString();
 }
 
-const categoryLogos = {
+const CATEGORY_LOGOS = {
         'gemini': '/assets/gemini-color.svg',
         'jailbreak': '/assets/jb.jpg',
     };
