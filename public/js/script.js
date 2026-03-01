@@ -38,7 +38,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
     // Map kategori → logo asset
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.jpg',
+        'jailbreak': '/assets/jb.svg',
     };
 
     const logoUrl = categoryLogos[key];
@@ -97,7 +97,7 @@ function renderCategoryPills() {
     // Map kategori → logo (sama seperti di getCategoryBadgeHtml)
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.jpg',
+        'jailbreak': '/assets/jb.svg',
     };
 
     pillsContainer.innerHTML = categories.map(cat => {
