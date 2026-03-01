@@ -50,7 +50,7 @@ function categoryBadgeHtml(kategori, extraStyle = '') {
 
 function toTitleCase(str) {
   const specialCases = {
-    'chatgpt': 'ChatGPT', 'openai': 'OpenAI', 'ai': 'AI', 'api': 'API',
+    'chatgpt': 'ChatGPT', 'jailbreak': 'Jailbreak', 'openai': 'OpenAI', 'ai': 'AI', 'api': 'API',
     'ui': 'UI', 'ux': 'UX', 'seo': 'SEO', 'html': 'HTML', 'css': 'CSS',
     'javascript': 'JavaScript', 'nodejs': 'Node.js', 'reactjs': 'React.js',
     'vuejs': 'Vue.js', 'ios': 'iOS', 'macos': 'macOS', 'iphone': 'iPhone',
