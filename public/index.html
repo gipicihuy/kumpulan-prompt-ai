@@ -317,6 +317,11 @@
         .time-chip { color: var(--text-primary); }
         .card-author { color: var(--text-secondary); }
 
+        .author-chip { transition: opacity 0.15s; }
+        .author-chip:hover .card-author { text-decoration: underline; text-underline-offset: 2px; }
+        .author-chip:active { opacity: 0.7; }
+        .author-chip:active .card-author { text-decoration: underline; text-underline-offset: 2px; }
+
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
             #sidebar-right.open { transform: translateX(0); }
@@ -440,8 +445,8 @@
                         <span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
                     <a href="/leaderboard" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
-    <span>Leaderboard</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
-</a>
+                        <span>Leaderboard</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
+                    </a>
                     <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl">
                         <span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i>
                     </a>
