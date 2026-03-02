@@ -34,20 +34,21 @@ function fmt(num) {
 }
 
 const CATEGORY_LOGOS = {
-        'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.svg',
-        'art': '/assets/art.svg',
-        'chatgpt': '/assets/chatgpt-icon.svg',
-    };
+  'gemini': '/assets/gemini-color.svg',
+  'jailbreak': '/assets/jb.svg',
+  'art': '/assets/art.svg',
+  'chatgpt': '/assets/chatgpt-icon.svg',
+};
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
   const key   = (kategori || '').toLowerCase().trim();
   const label = toTitleCase(kategori || 'Lainnya');
   const logo  = CATEGORY_LOGOS[key];
   const logoHtml = logo
-    ? `<img src="${logo}" alt="${label}" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">`
+    ? `<img src="${logo}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">`
     : '';
   return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;${extraStyle}">${logoHtml}${label}</span>`;
+}
 
 function toTitleCase(str) {
   const specialCases = {
@@ -124,12 +125,10 @@ const THEME_INIT = `(function(){var t=localStorage.getItem('prompthub-theme')||'
 export default async function handler(req, res) {
   const { slug, username } = req.query;
 
-  // ─── PROFILE PAGE HANDLER ───────────────────────────────────────────────────
   if (username) {
     return handleProfilePage(req, res, username);
   }
 
-  // ─── PROMPT PAGE HANDLER ────────────────────────────────────────────────────
   if (!slug) {
     return res.status(404).send('Slug not found');
   }
@@ -176,7 +175,7 @@ export default async function handler(req, res) {
         return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
       }
 
-      const sessionKey    = `session:${slug}:${sessionToken}`;
+      const sessionKey     = `session:${slug}:${sessionToken}`;
       const isValidSession = await redis.get(sessionKey);
 
       if (isValidSession === 'valid') {
@@ -201,10 +200,8 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── PROFILE PAGE SERVER-SIDE RENDERER ────────────────────────────────────────
 async function handleProfilePage(req, res, username) {
   try {
-    // Ambil semua prompt untuk cari yang milik user ini
     const keys = await redis.keys('prompt:*');
     if (!keys || keys.length === 0) {
       return renderProfileHtml(res, username, null, [], {});
@@ -227,7 +224,6 @@ async function handleProfilePage(req, res, username) {
       })
     );
 
-    // Filter prompt milik user ini (case-insensitive)
     const userPrompts = allPrompts.filter(
       p => p.uploadedBy && p.uploadedBy.toLowerCase() === username.toLowerCase()
     );
@@ -236,12 +232,10 @@ async function handleProfilePage(req, res, username) {
       return renderProfileHtml(res, username, null, [], {});
     }
 
-    // Ambil data user (profile pic dll)
     const displayName = userPrompts[0].uploadedBy;
     const userData = await redis.hgetall(`user:${displayName}`);
     const profileUrl = userData?.profileUrl || '';
 
-    // Hitung stats
     const stats = {
       prompts:   userPrompts.length,
       views:     userPrompts.reduce((s, p) => s + (p.analytics?.views     || 0), 0),
@@ -262,37 +256,27 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
   const metaImage    = profileUrl && profileUrl.trim() !== '' ? profileUrl : defaultImage;
   const pageTitle    = `@${username} - AI Prompt Hub`;
 
-  // Buat deskripsi OG yang kaya info
   const metaDesc = prompts.length > 0
     ? `${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
     : `Profil @${username} di AI Prompt Hub`;
 
-  // Render HTML profile (konten sama seperti profile.html tapi meta OG sudah diisi server-side)
-  // Halaman ini tetap pakai client-side fetch untuk render daftar prompt
   return res.status(200).send(`<!DOCTYPE html>
 <html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
-
-    <!-- Open Graph (WhatsApp, Telegram, dll) -->
     <meta property="og:type"        content="profile">
     <meta property="og:site_name"   content="AI Prompt Hub">
     <meta property="og:title"       content="${pageTitle}">
     <meta property="og:description" content="${metaDesc}">
     <meta property="og:image"       content="${metaImage}">
     <meta property="og:url"         content="https://prompthub.yupra.my.id/@${encodeURIComponent(username)}">
-
-    <!-- Twitter Card -->
     <meta name="twitter:card"        content="summary">
     <meta name="twitter:title"       content="${pageTitle}">
     <meta name="twitter:description" content="${metaDesc}">
     <meta name="twitter:image"       content="${metaImage}">
-
-    <!-- Meta description biasa -->
     <meta name="description" content="${metaDesc}">
-
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -360,7 +344,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
             <i class="fa-solid fa-arrow-left text-xs"></i> Kembali
         </a>
 
-        <!-- Loading -->
         <div id="loadingSection" class="space-y-4">
             <div class="profile-hero rounded-lg p-4">
                 <div class="flex items-center gap-4 mb-4">
@@ -378,7 +361,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
             </div>
         </div>
 
-        <!-- Profile -->
         <div id="profileSection" class="hidden space-y-4">
             <div class="profile-hero rounded-lg p-4">
                 <div class="flex flex-col items-center text-center mb-4">
@@ -397,7 +379,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
             <div id="promptsList" class="space-y-4"></div>
         </div>
 
-        <!-- Not found -->
         <div id="notFoundSection" class="hidden text-center py-10 text-sm font-bold uppercase" style="color:var(--text-muted)">
             <i class="fa-solid fa-user-slash text-2xl mb-2 block"></i>
             User tidak ditemukan atau belum upload prompt apapun.
@@ -442,7 +423,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 
     <script src="/js/timeago.js"></script>
     <script>
-        (function(){var S='prompthub-theme';function g(){return localStorage.getItem(S)||'dark';}function a(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeToggleBtn');if(!b)return;if(t==='light'){b.innerHTML='<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';b.title='Switch to Dark Mode';}else{b.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></i></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';b.title='Switch to Light Mode';}}window.toggleTheme=function(){var n=g()==='dark'?'light':'dark';localStorage.setItem(S,n);a(n);};document.addEventListener('DOMContentLoaded',function(){a(g());});})();
+        (function(){var S='prompthub-theme';function g(){return localStorage.getItem(S)||'dark';}function a(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeToggleBtn');if(!b)return;if(t==='light'){b.innerHTML='<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';b.title='Switch to Dark Mode';}else{b.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';b.title='Switch to Light Mode';}}window.toggleTheme=function(){var n=g()==='dark'?'light':'dark';localStorage.setItem(S,n);a(n);};document.addEventListener('DOMContentLoaded',function(){a(g());});})();
 
         const str=document.getElementById('sidebarToggleRight'),scr=document.getElementById('sidebarCloseRight'),sr=document.getElementById('sidebar-right'),ov=document.getElementById('overlay');
         function openSR(){sr.classList.add('open');ov.classList.add('show');ov.classList.remove('opacity-0','invisible');document.body.style.overflow='hidden';}
@@ -451,12 +432,12 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 
         function formatNumber(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
         function toTitleCase(str){const s={'chatgpt':'ChatGPT','openai':'OpenAI','ai':'AI','api':'API','ui':'UI','ux':'UX','seo':'SEO','html':'HTML','css':'CSS','javascript':'JavaScript','nodejs':'Node.js','reactjs':'React.js','vuejs':'Vue.js','ios':'iOS','macos':'macOS','iphone':'iPhone','ipad':'iPad','youtube':'YouTube','tiktok':'TikTok','linkedin':'LinkedIn','github':'GitHub','wordpress':'WordPress','midjourney':'Midjourney','dalle':'DALL-E','gpt':'GPT','llm':'LLM','nft':'NFT','pdf':'PDF','json':'JSON','xml':'XML','sql':'SQL','php':'PHP','csharp':'C#','cplusplus':'C++','vscode':'VSCode','figma':'Figma','photoshop':'Photoshop','excel':'Excel','powerpoint':'PowerPoint','gemini':'Gemini'};return str.split(' ').map(w=>{const l=w.toLowerCase();return s[l]||(w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).join(' ');}
-        const CLIENT_CAT_LOGOS={'gemini':'/assets/gemini-color.svg'};
-        function clientCatBadge(kat){const key=(kat||'').toLowerCase().trim();const label=toTitleCase(kat||'Lainnya');const logo=CLIENT_CAT_LOGOS[key];const logoHtml=logo?'<img src="'+logo+'" alt="'+label+'" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">':'';return '<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase" style="display:inline-flex;align-items:center;gap:4px;">'+logoHtml+label+'</span>';}
+        const CLIENT_CAT_LOGOS={'gemini':'/assets/gemini-color.svg','jailbreak':'/assets/jb.svg','art':'/assets/art.svg','chatgpt':'/assets/chatgpt-icon.svg'};
+        function clientCatBadge(kat){const key=(kat||'').toLowerCase().trim();const label=toTitleCase(kat||'Lainnya');const logo=CLIENT_CAT_LOGOS[key];const logoHtml=logo?'<img src="'+logo+'" alt="'+label+'" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">':'';return '<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;">'+logoHtml+label+'</span>';}
 
         async function loadProfile(){
             const path=window.location.pathname;
-            const match=path.match(/^\\/\\@(.+)/);
+            const match=path.match(/^\/@(.+)/);
             if(!match){showNotFound();return;}
             const username=decodeURIComponent(match[1]);
             try{
@@ -503,8 +484,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 </body>
 </html>`);
 }
-
-// ─── PROMPT PAGE RENDERERS (tidak berubah dari versi asli) ────────────────────
 
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
