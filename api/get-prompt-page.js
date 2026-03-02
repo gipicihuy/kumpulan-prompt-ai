@@ -47,8 +47,7 @@ function categoryBadgeHtml(kategori, extraStyle = '') {
   const logoHtml = logo
     ? `<img src="${logo}" alt="${label}" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">`
     : '';
-  return `<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase" style="display:inline-flex;align-items:center;gap:4px;${extraStyle}">${logoHtml}${label}</span>`;
-}
+  return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;${extraStyle}">${logoHtml}${label}</span>`;
 
 function toTitleCase(str) {
   const specialCases = {
