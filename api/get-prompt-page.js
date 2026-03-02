@@ -37,6 +37,7 @@ const CATEGORY_LOGOS = {
         'gemini': '/assets/gemini-color.svg',
         'jailbreak': '/assets/jb.svg',
         'art': '/assets/art.svg',
+        'chatgpt': '/assets/chatgpt-icon.svg',
     };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
