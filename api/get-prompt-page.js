@@ -39,6 +39,7 @@ const CATEGORY_LOGOS = {
   'art': '/assets/art.svg',
   'chatgpt': '/assets/chatgpt-icon.svg',
   'coding': '/assets/coding.svg',
+  'combined': '/assets/images.svg',
 };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
