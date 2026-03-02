@@ -38,6 +38,7 @@ const CATEGORY_LOGOS = {
   'jailbreak': '/assets/jb.svg',
   'art': '/assets/art.svg',
   'chatgpt': '/assets/chatgpt-icon.svg',
+  'coding': '/assets/coding.svg',
 };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
