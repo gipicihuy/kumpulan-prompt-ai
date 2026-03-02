@@ -40,6 +40,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
         'art': '/assets/art.svg',
         'chatgpt': '/assets/chatgpt-icon.svg',
         'coding': '/assets/coding.svg',
+        'combined': '/assets/images.svg',
     };
 
     const logoUrl = categoryLogos[key];
@@ -101,6 +102,7 @@ function renderCategoryPills() {
         'art': '/assets/art.svg',
         'chatgpt': '/assets/chatgpt-icon.svg',
         'coding': '/assets/coding.svg',
+        'combined': '/assets/images.svg',
     };
 
     pillsContainer.innerHTML = categories.map(cat => {
