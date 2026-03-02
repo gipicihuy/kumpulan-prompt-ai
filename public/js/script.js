@@ -30,12 +30,10 @@ function toTitleCase(str) {
     }).join(' ');
 }
 
-// Helper: render badge kategori dengan logo khusus jika ada
 function getCategoryBadgeHtml(kategori, extraClass = '') {
     const label = toTitleCase(kategori);
     const key = kategori.toLowerCase().trim();
 
-    // Map kategori → logo asset
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
         'jailbreak': '/assets/jb.svg',
@@ -45,10 +43,10 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
 
     const logoUrl = categoryLogos[key];
     const logoHtml = logoUrl
-        ? `<img src="${logoUrl}" alt="${label}" style="width:12px;height:12px;object-fit:contain;flex-shrink:0;">`
+        ? `<img src="${logoUrl}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">`
         : '';
 
-    return `<span class="cat-badge text-[10px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1 ${extraClass}" style="display:inline-flex;">${logoHtml}${label}</span>`;
+    return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase flex items-center gap-1.5 ${extraClass}" style="display:inline-flex;">${logoHtml}${label}</span>`;
 }
 
 async function fetchPrompts() {
@@ -96,7 +94,6 @@ function renderCategoryPills() {
     const totalCount = allPrompts.length;
     const categories = ['all', ...Object.keys(categoriesMap)];
 
-    // Map kategori → logo (sama seperti di getCategoryBadgeHtml)
     const categoryLogos = {
         'gemini': '/assets/gemini-color.svg',
         'jailbreak': '/assets/jb.svg',
