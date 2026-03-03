@@ -34,18 +34,18 @@ function fmt(num) {
 }
 
 const CATEGORY_LOGOS = {
-  'gemini': '/assets/gemini-color.svg',
+  'gemini':    '/assets/gemini-color.svg',
   'jailbreak': '/assets/jb.svg',
-  'art': '/assets/art.svg',
-  'chatgpt': '/assets/chatgpt-icon.svg',
-  'coding': '/assets/coding.svg',
-  'combined': '/assets/images.svg',
+  'art':       '/assets/art.svg',
+  'chatgpt':   '/assets/chatgpt-icon.svg',
+  'coding':    '/assets/coding.svg',
+  'combined':  '/assets/images.svg',
 };
 
 function categoryBadgeHtml(kategori, extraStyle = '') {
-  const key   = (kategori || '').toLowerCase().trim();
-  const label = toTitleCase(kategori || 'Lainnya');
-  const logo  = CATEGORY_LOGOS[key];
+  const key      = (kategori || '').toLowerCase().trim();
+  const label    = toTitleCase(kategori || 'Lainnya');
+  const logo     = CATEGORY_LOGOS[key];
   const logoHtml = logo
     ? `<img src="${logo}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">`
     : '';
@@ -212,7 +212,7 @@ async function handleProfilePage(req, res, username) {
     const allPrompts = await Promise.all(
       keys.map(async (key) => {
         const item = await redis.hgetall(key);
-        const id = key.replace(/^prompt:/, '');
+        const id   = key.replace(/^prompt:/, '');
         const analyticsData = await redis.hgetall(`analytics:${id}`);
         return {
           ...item,
@@ -235,14 +235,10 @@ async function handleProfilePage(req, res, username) {
     }
 
     const displayName = userPrompts[0].uploadedBy;
-    const userData = await redis.hgetall(`user:${displayName}`);
-    const profileUrl = userData?.profileUrl || '';
+    const userData    = await redis.hgetall(`user:${displayName}`);
+    const profileUrl  = userData?.profileUrl || '';
 
-    // Fetch profileUrl for each prompt's author too
-    const promptsWithProfile = userPrompts.map(p => ({
-      ...p,
-      profileUrl: profileUrl // same user so same profileUrl
-    }));
+    const promptsWithProfile = userPrompts.map(p => ({ ...p, profileUrl }));
 
     const stats = {
       prompts:   userPrompts.length,
@@ -251,7 +247,6 @@ async function handleProfilePage(req, res, username) {
       downloads: userPrompts.reduce((s, p) => s + (p.analytics?.downloads || 0), 0),
     };
 
-    // Sort by newest first
     promptsWithProfile.sort((a, b) => (parseInt(b.timestamp) || 0) - (parseInt(a.timestamp) || 0));
 
     return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats);
@@ -271,7 +266,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
     ? `${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
     : `Profil @${username} di AI Prompt Hub`;
 
-  // ✅ FIX: Build cards HTML server-side, no client-side fetch needed
   const hasPrompts = prompts.length > 0;
 
   const promptCardsHtml = hasPrompts ? prompts.map(item => {
@@ -280,21 +274,18 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
       : `<div class="w-7 h-7 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color:var(--text-muted)"></i></div>`;
 
     const isProtected = item.isProtected === 'true' || item.isProtected === true;
-    const lock = isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>' : '';
-    const preview = isProtected ? '🔒 This content is password protected. Click to unlock.' : (item.isi || '');
-    const ana = item.analytics || { views: 0, copies: 0, downloads: 0 };
-    const catKey = (item.kategori || '').toLowerCase().trim();
-    const catLogos = {
-      'gemini': '/assets/gemini-color.svg',
-      'jailbreak': '/assets/jb.svg',
-      'art': '/assets/art.svg',
-      'chatgpt': '/assets/chatgpt-icon.svg',
-      'coding': '/assets/coding.svg',
-      'combined': '/assets/images.svg',
+    const lock        = isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>' : '';
+    const preview     = isProtected ? '🔒 This content is password protected. Click to unlock.' : (item.isi || '');
+    const ana         = item.analytics || { views: 0, copies: 0, downloads: 0 };
+    const catKey      = (item.kategori || '').toLowerCase().trim();
+    const catLogos    = {
+      'gemini': '/assets/gemini-color.svg', 'jailbreak': '/assets/jb.svg',
+      'art': '/assets/art.svg', 'chatgpt': '/assets/chatgpt-icon.svg',
+      'coding': '/assets/coding.svg', 'combined': '/assets/images.svg',
     };
-    const catLogo = catLogos[catKey];
+    const catLogo     = catLogos[catKey];
     const catLogoHtml = catLogo ? `<img src="${catLogo}" alt="${item.kategori}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">` : '';
-    const catLabel = toTitleCase(item.kategori || 'Lainnya');
+    const catLabel    = toTitleCase(item.kategori || 'Lainnya');
 
     return `<a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
       <div class="flex justify-between items-start mb-1.5">
@@ -302,7 +293,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
         <span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp || 0}" data-created-at="${item.createdAt || '-'}">-</span>
       </div>
       <div class="flex justify-between items-center mb-1">
-        <h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color:var(--text-primary)">${item.judul || ''}${lock}</h3>
+        <h3 class="font-bold text-sm transition-colors flex items-center" style="color:var(--text-primary)">${item.judul || ''}${lock}</h3>
         <i class="fa-solid fa-chevron-right text-xs transition-colors" style="color:var(--text-muted)"></i>
       </div>
       <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${isProtected ? 'protected-text italic' : ''}" style="${isProtected ? '' : 'color:var(--text-secondary)'}">${preview}</p>
@@ -347,8 +338,8 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
     <script>${THEME_INIT}</script>
     <style>
         ${THEME_CSS}
-        :root,[data-theme="dark"]{--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--cat-badge-bg:#252525;--cat-badge-text:#9ca3af;--cat-badge-bdr:#333;--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--protected-text:#eab308;--profile-bg:#252525;--skeleton-from:#1a1a1a;--skeleton-to:#252525;--footer-bg:rgba(26,26,26,0.95);}
-        [data-theme="light"]{--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--cat-badge-bg:#f4f4f5;--cat-badge-text:#52525b;--cat-badge-bdr:#d4d4d8;--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--protected-text:#b45309;--profile-bg:#e4e4e7;--skeleton-from:#e4e4e7;--skeleton-to:#f4f4f5;--footer-bg:rgba(255,255,255,0.95);}
+        :root,[data-theme="dark"]{--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--cat-badge-bg:#252525;--cat-badge-text:#9ca3af;--cat-badge-bdr:#333;--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--protected-text:#eab308;--profile-bg:#252525;--footer-bg:rgba(26,26,26,0.95);}
+        [data-theme="light"]{--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--cat-badge-bg:#f4f4f5;--cat-badge-text:#52525b;--cat-badge-bdr:#d4d4d8;--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--protected-text:#b45309;--profile-bg:#e4e4e7;--footer-bg:rgba(255,255,255,0.95);}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(to bottom,var(--bg-base) 0%,var(--bg-surface) 100%);color:var(--text-primary);min-height:100vh;transition:background 0.25s ease,color 0.25s ease;}
         .card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card-from) 0%,var(--bg-card-to) 100%);box-shadow:0 2px 8px var(--shadow-card);}
@@ -475,7 +466,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
         function closeSR(){sr.classList.remove('open');ov.classList.remove('show');ov.classList.add('opacity-0','invisible');document.body.style.overflow='';}
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
-        // ✅ FIX: Data sudah di-render server-side, tinggal jalankan timeago
         document.addEventListener('DOMContentLoaded', function() {
             updateAllTimeAgo();
         });
@@ -547,7 +537,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
             ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
-            <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
+            <h2 class="text-xl font-bold mt-3 tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
                 ${promptData.judul}
                 <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
             </h2>
@@ -731,7 +721,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         <div id="detailContent">
             <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
                 ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
-                <h2 class="text-xl font-bold mt-3 uppercase tracking-tight leading-tight" style="color:var(--text-primary)">${promptData.judul}</h2>
+                <h2 class="text-xl font-bold mt-3 tracking-tight leading-tight" style="color:var(--text-primary)">${promptData.judul}</h2>
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                     <div class="flex items-center gap-2">
                         <div>
