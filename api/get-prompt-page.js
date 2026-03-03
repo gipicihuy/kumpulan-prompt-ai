@@ -482,7 +482,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
   const profilePicHtml = profileUrl && profileUrl.trim() !== ''
     ? `<img src="${profileUrl}" class="profile-pic" alt="${promptData.uploadedBy}">`
-    : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div>`;
+    : `<div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-xs" style="color:var(--text-muted)"></i></div>`;
 
   return `<!DOCTYPE html>
 <html lang="id" data-theme="dark">
@@ -506,7 +506,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         * { box-sizing: border-box; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%); color: var(--text-primary); min-height: 100vh; transition: background 0.25s, color 0.25s; }
         header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-        .password-container { background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
+        .password-container { background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface2) 100%); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow); }
         input { background-color: var(--input-bg) !important; border-color: var(--border) !important; color: var(--text-primary) !important; transition: all 0.3s ease; }
         input:focus { border-color: var(--border-hover) !important; background-color: var(--input-focus) !important; box-shadow: 0 0 0 3px rgba(128,128,128,0.1); }
         input::placeholder { color: var(--text-muted) !important; }
@@ -515,10 +515,10 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
         .back-btn { transition: all 0.3s ease; color: var(--text-muted); }
         .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
-        .profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
-        .profile-pic-placeholder { width: 32px; height: 32px; }
-        .lock-icon-large { width: 80px; height: 80px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 2px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-        .toggle-password-btn { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; transition: color 0.2s ease; background: none; border: none; color: var(--text-muted); }
+        .profile-pic { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hover); }
+        .profile-pic-placeholder { width: 24px; height: 24px; }
+        .lock-icon-wrap { width: 48px; height: 48px; background: linear-gradient(135deg, var(--bg-surface3) 0%, var(--bg-surface2) 100%); border: 1px solid var(--border-hover); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; }
+        .toggle-password-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; transition: color 0.2s ease; background: none; border: none; color: var(--text-muted); }
         .toggle-password-btn:hover { color: var(--text-primary); }
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
@@ -526,7 +526,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </head>
 <body>
     <header class="sticky top-0 z-10 shadow-lg">
-        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" class="back-btn font-bold text-xs flex items-center gap-2">
                 <i class="fa-solid fa-arrow-left text-xs"></i> KEMBALI
             </a>
@@ -534,63 +534,61 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 py-6">
-        <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
+    <main class="max-w-3xl mx-auto px-4 py-4">
+        <div class="mb-4 border-l-2 pl-3" style="border-color:var(--border-hover)">
             ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
-            <h2 class="text-xl font-bold mt-3 tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
+            <h2 class="text-base font-bold mt-2 tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
                 ${promptData.judul}
-                <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
+                <i class="fa-solid fa-lock text-yellow-500 text-xs"></i>
             </h2>
-            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
-                <div class="flex items-center gap-2">
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-xs" style="color:var(--text-muted)">
+                <div class="flex items-center gap-1.5">
                     ${profilePicHtml}
-                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
+                    <span class="font-semibold" style="color:var(--text-primary)">by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
                 </div>
                 <div class="flex items-center gap-1">
                     <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
-                    <span class="text-[11px]" style="color:var(--text-primary)">${promptData.createdAt || '-'}</span>
+                    <span class="time-ago text-[11px]" style="color:var(--text-primary)" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">-</span>
                 </div>
             </div>
         </div>
 
         <div class="password-container rounded-lg overflow-hidden">
-            <div class="p-8 text-center" style="border-bottom:1px solid var(--border)">
-                <div class="lock-icon-large rounded-full">
-                    <i class="fa-solid fa-lock text-3xl text-yellow-500"></i>
+            <div class="p-5 text-center" style="border-bottom:1px solid var(--border)">
+                <div class="lock-icon-wrap rounded-full">
+                    <i class="fa-solid fa-lock text-lg text-yellow-500"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-2 uppercase tracking-tight" style="color:var(--text-primary)">Password Required</h3>
-                <p class="text-sm leading-relaxed max-w-md mx-auto" style="color:var(--text-secondary)">
-                    This content is password protected. Please enter the password to view the full prompt.
+                <h3 class="text-sm font-bold mb-1 uppercase tracking-tight" style="color:var(--text-primary)">Password Required</h3>
+                <p class="text-xs leading-relaxed max-w-xs mx-auto" style="color:var(--text-secondary)">
+                    Konten ini diproteksi. Masukkan password untuk melihat prompt.
                 </p>
             </div>
-            <div class="p-8">
-                <form id="passwordForm" class="space-y-5 max-w-md mx-auto">
+            <div class="p-5">
+                <form id="passwordForm" class="space-y-3 max-w-sm mx-auto">
                     <div>
-                        <label class="text-sm font-bold uppercase mb-2 flex items-center gap-2" style="color:var(--text-muted)">
-                            <i class="fa-solid fa-key text-xs"></i> Enter Password
+                        <label class="text-[10px] font-bold uppercase mb-1.5 flex items-center gap-1.5" style="color:var(--text-muted)">
+                            <i class="fa-solid fa-key text-[10px]"></i> Password
                         </label>
                         <div class="relative">
                             <input type="password" id="passwordInput" placeholder="••••••••" required
-                                class="w-full p-4 pr-12 rounded-xl border outline-none text-base" autocomplete="off">
+                                class="w-full p-2.5 pr-10 rounded-lg border outline-none text-sm" autocomplete="off">
                             <button type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()"
-                                class="toggle-password-btn absolute right-4 top-1/2 -translate-y-1/2"
+                                class="toggle-password-btn absolute right-2 top-1/2 -translate-y-1/2"
                                 title="Show/Hide Password">
-                                <i class="fa-solid fa-eye text-sm"></i>
+                                <i class="fa-solid fa-eye text-xs"></i>
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="w-full btn-primary font-bold py-4 rounded-xl uppercase tracking-widest text-sm">
-                        <i class="fa-solid fa-unlock mr-2"></i>Unlock Prompt
+                    <button type="submit" class="w-full btn-primary font-bold py-2.5 rounded-lg uppercase tracking-widest text-xs">
+                        <i class="fa-solid fa-unlock mr-1.5"></i>Unlock Prompt
                     </button>
                 </form>
             </div>
-            <div class="px-8 pb-8 pt-4" style="border-top:1px solid var(--border)">
-                <div class="rounded-lg p-4" style="background:var(--bg-base);border:1px solid var(--border)">
-                    <p class="text-xs text-center mb-2" style="color:var(--text-muted)">
-                        <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i> Don't have the password?
-                    </p>
-                    <p class="text-xs text-center font-semibold" style="color:var(--text-primary)">
-                        Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a> for access
+            <div class="px-5 pb-5 pt-3" style="border-top:1px solid var(--border)">
+                <div class="rounded-lg p-3" style="background:var(--bg-base);border:1px solid var(--border)">
+                    <p class="text-[10px] text-center" style="color:var(--text-muted)">
+                        <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i>
+                        Tidak punya password? Hubungi <a href="${authorUrl}" class="author-link font-semibold">@${promptData.uploadedBy}</a>
                     </p>
                 </div>
             </div>
@@ -598,21 +596,24 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="/js/timeago.js"></script>
     <script>
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         function togglePasswordVisibility() {
             const pi   = document.getElementById('passwordInput');
             const icon = document.getElementById('togglePasswordBtn').querySelector('i');
-            if (pi.type === 'password') { pi.type = 'text';     icon.className = 'fa-solid fa-eye-slash text-sm'; }
-            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye text-sm'; }
+            if (pi.type === 'password') { pi.type = 'text';     icon.className = 'fa-solid fa-eye-slash text-xs'; }
+            else                        { pi.type = 'password'; icon.className = 'fa-solid fa-eye text-xs'; }
         }
+
+        document.addEventListener('DOMContentLoaded', function() { updateAllTimeAgo(); });
 
         document.getElementById('passwordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn  = this.querySelector('button[type="submit"]');
             const orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Verifying...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';
             btn.disabled  = true;
             const password = document.getElementById('passwordInput').value;
             try {
