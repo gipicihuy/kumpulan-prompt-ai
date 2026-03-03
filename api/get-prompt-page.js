@@ -238,6 +238,12 @@ async function handleProfilePage(req, res, username) {
     const userData = await redis.hgetall(`user:${displayName}`);
     const profileUrl = userData?.profileUrl || '';
 
+    // Fetch profileUrl for each prompt's author too
+    const promptsWithProfile = userPrompts.map(p => ({
+      ...p,
+      profileUrl: profileUrl // same user so same profileUrl
+    }));
+
     const stats = {
       prompts:   userPrompts.length,
       views:     userPrompts.reduce((s, p) => s + (p.analytics?.views     || 0), 0),
@@ -245,7 +251,10 @@ async function handleProfilePage(req, res, username) {
       downloads: userPrompts.reduce((s, p) => s + (p.analytics?.downloads || 0), 0),
     };
 
-    return renderProfileHtml(res, displayName, profileUrl, userPrompts, stats);
+    // Sort by newest first
+    promptsWithProfile.sort((a, b) => (parseInt(b.timestamp) || 0) - (parseInt(a.timestamp) || 0));
+
+    return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats);
 
   } catch (error) {
     console.error('Error in handleProfilePage:', error);
@@ -261,6 +270,56 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
   const metaDesc = prompts.length > 0
     ? `${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
     : `Profil @${username} di AI Prompt Hub`;
+
+  // ✅ FIX: Build cards HTML server-side, no client-side fetch needed
+  const hasPrompts = prompts.length > 0;
+
+  const promptCardsHtml = hasPrompts ? prompts.map(item => {
+    const pp = item.profileUrl && item.profileUrl.trim() !== ''
+      ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover" style="border:1px solid var(--border)" alt="${item.uploadedBy}">`
+      : `<div class="w-7 h-7 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color:var(--text-muted)"></i></div>`;
+
+    const isProtected = item.isProtected === 'true' || item.isProtected === true;
+    const lock = isProtected ? '<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>' : '';
+    const preview = isProtected ? '🔒 This content is password protected. Click to unlock.' : (item.isi || '');
+    const ana = item.analytics || { views: 0, copies: 0, downloads: 0 };
+    const catKey = (item.kategori || '').toLowerCase().trim();
+    const catLogos = {
+      'gemini': '/assets/gemini-color.svg',
+      'jailbreak': '/assets/jb.svg',
+      'art': '/assets/art.svg',
+      'chatgpt': '/assets/chatgpt-icon.svg',
+      'coding': '/assets/coding.svg',
+      'combined': '/assets/images.svg',
+    };
+    const catLogo = catLogos[catKey];
+    const catLogoHtml = catLogo ? `<img src="${catLogo}" alt="${item.kategori}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">` : '';
+    const catLabel = toTitleCase(item.kategori || 'Lainnya');
+
+    return `<a href="/prompt/${item.id}" class="block card rounded-lg p-3 shadow-sm group">
+      <div class="flex justify-between items-start mb-1.5">
+        <span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;">${catLogoHtml}${catLabel}</span>
+        <span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="${item.timestamp || 0}" data-created-at="${item.createdAt || '-'}">-</span>
+      </div>
+      <div class="flex justify-between items-center mb-1">
+        <h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color:var(--text-primary)">${item.judul || ''}${lock}</h3>
+        <i class="fa-solid fa-chevron-right text-xs transition-colors" style="color:var(--text-muted)"></i>
+      </div>
+      <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${isProtected ? 'protected-text italic' : ''}" style="${isProtected ? '' : 'color:var(--text-secondary)'}">${preview}</p>
+      <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
+        <div class="flex items-center gap-2">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span></div>
+        <div class="flex items-center gap-3 text-xs">
+          <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.views)}</span></div>
+          <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.copies)}</span></div>
+          <div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.downloads)}</span></div>
+        </div>
+      </div>
+    </a>`;
+  }).join('') : '';
+
+  const avatarHtml = profileUrl && profileUrl.trim() !== ''
+    ? `<img src="${profileUrl}" class="w-14 h-14 rounded-full object-cover" style="border:1px solid var(--border-hover)" alt="${username}">`
+    : `<div class="w-14 h-14 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-xl" style="color:var(--text-muted)"></i></div>`;
 
   return res.status(200).send(`<!DOCTYPE html>
 <html lang="id" data-theme="dark">
@@ -292,9 +351,6 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
         [data-theme="light"]{--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--cat-badge-bg:#f4f4f5;--cat-badge-text:#52525b;--cat-badge-bdr:#d4d4d8;--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--protected-text:#b45309;--profile-bg:#e4e4e7;--skeleton-from:#e4e4e7;--skeleton-to:#f4f4f5;--footer-bg:rgba(255,255,255,0.95);}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(to bottom,var(--bg-base) 0%,var(--bg-surface) 100%);color:var(--text-primary);min-height:100vh;transition:background 0.25s ease,color 0.25s ease;}
-        .skeleton{background:linear-gradient(90deg,var(--skeleton-from) 25%,var(--skeleton-to) 50%,var(--skeleton-from) 75%);background-size:200% 100%;animation:pulse 1.5s ease-in-out infinite;}
-        @keyframes pulse{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-        .skeleton-text{height:10px;border-radius:4px;}.skeleton-title{height:14px;border-radius:4px;width:70%;}.skeleton-badge{height:18px;width:60px;border-radius:4px;}
         .card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card-from) 0%,var(--bg-card-to) 100%);box-shadow:0 2px 8px var(--shadow-card);}
         .card:active{transform:scale(0.98);}
         .card:hover{border-color:var(--border-hover);background:linear-gradient(135deg,var(--bg-surface2) 0%,var(--bg-surface3) 100%);box-shadow:0 4px 16px var(--shadow-hover);transform:translateY(-2px);}
@@ -346,47 +402,34 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
             <i class="fa-solid fa-arrow-left text-xs"></i> Kembali
         </a>
 
-        <div id="loadingSection" class="space-y-4">
-            <div class="profile-hero rounded-lg p-4">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="skeleton" style="width:56px;height:56px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="flex-1">
-                        <div class="skeleton skeleton-title mb-2"></div>
-                        <div class="skeleton skeleton-text" style="width:80px"></div>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <div class="stat-box skeleton" style="height:48px"></div>
-                    <div class="stat-box skeleton" style="height:48px"></div>
-                    <div class="stat-box skeleton" style="height:48px"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="profileSection" class="hidden space-y-4">
-            <div class="profile-hero rounded-lg p-4">
-                <div class="flex flex-col items-center text-center mb-4">
-                    <div id="avatarContainer" class="mb-3"></div>
-                    <p id="profileHandle" class="text-sm font-bold mt-0.5" style="color:var(--text-primary)"></p>
-                </div>
-                <div class="flex gap-2">
-                    <div class="stat-box"><p id="statPrompts" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
-                    <div class="stat-box"><p id="statViews" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Views</p></div>
-                    <div class="stat-box"><p id="statCopies" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Copies</p></div>
-                </div>
-            </div>
-            <div class="flex items-center pt-1">
-                <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)"><i class="fa-solid fa-layer-group mr-1.5"></i>Total Prompt</p>
-            </div>
-            <div id="promptsList" class="space-y-4"></div>
-        </div>
-
-        <div id="notFoundSection" class="hidden text-center py-10 text-sm font-bold uppercase" style="color:var(--text-muted)">
+        ${!hasPrompts ? `
+        <div class="text-center py-10 text-sm font-bold uppercase" style="color:var(--text-muted)">
             <i class="fa-solid fa-user-slash text-2xl mb-2 block"></i>
             User tidak ditemukan atau belum upload prompt apapun.
             <br><br>
             <a href="/" class="text-xs underline" style="color:var(--text-secondary)">Kembali ke Home</a>
         </div>
+        ` : `
+        <div class="space-y-4">
+            <div class="profile-hero rounded-lg p-4">
+                <div class="flex flex-col items-center text-center mb-4">
+                    <div class="mb-3">${avatarHtml}</div>
+                    <p class="text-sm font-bold mt-0.5" style="color:var(--text-primary)">@${username}</p>
+                </div>
+                <div class="flex gap-2">
+                    <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.prompts || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
+                    <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.views || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Views</p></div>
+                    <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.copies || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Copies</p></div>
+                </div>
+            </div>
+            <div class="flex items-center pt-1">
+                <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--text-muted)"><i class="fa-solid fa-layer-group mr-1.5"></i>Total Prompt</p>
+            </div>
+            <div class="space-y-4">
+                ${promptCardsHtml}
+            </div>
+        </div>
+        `}
     </main>
 
     <footer class="py-4 text-center mt-8">
@@ -432,56 +475,10 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
         function closeSR(){sr.classList.remove('open');ov.classList.remove('show');ov.classList.add('opacity-0','invisible');document.body.style.overflow='';}
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
-        function formatNumber(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
-        function toTitleCase(str){const s={'chatgpt':'ChatGPT','openai':'OpenAI','ai':'AI','api':'API','ui':'UI','ux':'UX','seo':'SEO','html':'HTML','css':'CSS','javascript':'JavaScript','nodejs':'Node.js','reactjs':'React.js','vuejs':'Vue.js','ios':'iOS','macos':'macOS','iphone':'iPhone','ipad':'iPad','youtube':'YouTube','tiktok':'TikTok','linkedin':'LinkedIn','github':'GitHub','wordpress':'WordPress','midjourney':'Midjourney','dalle':'DALL-E','gpt':'GPT','llm':'LLM','nft':'NFT','pdf':'PDF','json':'JSON','xml':'XML','sql':'SQL','php':'PHP','csharp':'C#','cplusplus':'C++','vscode':'VSCode','figma':'Figma','photoshop':'Photoshop','excel':'Excel','powerpoint':'PowerPoint','gemini':'Gemini'};return str.split(' ').map(w=>{const l=w.toLowerCase();return s[l]||(w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).join(' ');}
-        const CLIENT_CAT_LOGOS={'gemini':'/assets/gemini-color.svg','jailbreak':'/assets/jb.svg','art':'/assets/art.svg','chatgpt':'/assets/chatgpt-icon.svg'};
-        function clientCatBadge(kat){const key=(kat||'').toLowerCase().trim();const label=toTitleCase(kat||'Lainnya');const logo=CLIENT_CAT_LOGOS[key];const logoHtml=logo?'<img src="'+logo+'" alt="'+label+'" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">':'';return '<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;">'+logoHtml+label+'</span>';}
-
-        async function loadProfile(){
-            const path=window.location.pathname;
-            const match=path.match(/^\/@(.+)/);
-            if(!match){showNotFound();return;}
-            const username=decodeURIComponent(match[1]);
-            try{
-                const res=await fetch('/api/get-prompts');
-                const json=await res.json();
-                if(!json.success||!json.data){showNotFound();return;}
-                const userPrompts=json.data.filter(p=>p.uploadedBy&&p.uploadedBy.toLowerCase()===username.toLowerCase());
-                if(userPrompts.length===0){showNotFound();return;}
-                const profileUrl=userPrompts.find(p=>p.profileUrl&&p.profileUrl.trim()!=='')?.profileUrl||'';
-                const displayName=userPrompts[0].uploadedBy;
-                document.title='@'+displayName+' - AI Prompt Hub';
-                const totalViews=userPrompts.reduce((s,p)=>s+(p.analytics?.views||0),0);
-                const totalCopies=userPrompts.reduce((s,p)=>s+(p.analytics?.copies||0),0);
-                const ac=document.getElementById('avatarContainer');
-                if(profileUrl){ac.innerHTML='<img src="'+profileUrl+'" class="w-14 h-14 rounded-full object-cover" style="border:1px solid var(--border-hover)" alt="'+displayName+'">';}
-                else{ac.innerHTML='<div class="w-14 h-14 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-xl" style="color:var(--text-muted)"></i></div>';}
-                document.getElementById('profileHandle').textContent='@'+displayName;
-                document.getElementById('statPrompts').textContent=formatNumber(userPrompts.length);
-                document.getElementById('statViews').textContent=formatNumber(totalViews);
-                document.getElementById('statCopies').textContent=formatNumber(totalCopies);
-                const list=document.getElementById('promptsList');
-                list.innerHTML=userPrompts.map(item=>{
-                    const pp=item.profileUrl&&item.profileUrl.trim()!==''
-                        ?'<img src="'+item.profileUrl+'" class="w-7 h-7 rounded-full object-cover" style="border:1px solid var(--border)" alt="'+item.uploadedBy+'">'
-                        :'<div class="w-7 h-7 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border)"><i class="fa-solid fa-user text-xs" style="color:var(--text-muted)"></i></div>';
-                    const lock=item.isProtected?'<i class="fa-solid fa-lock text-yellow-500 text-xs ml-2" title="Protected"></i>':'';
-                    const preview=item.isProtected?'🔒 This content is password protected. Click to unlock.':item.isi;
-                    const ana=item.analytics||{views:0,copies:0,downloads:0};
-                    return '<a href="/prompt/'+item.id+'" class="block card rounded-lg p-3 shadow-sm group"><div class="flex justify-between items-start mb-1.5">'+clientCatBadge(item.kategori)+'<span class="time-ago time-chip text-[10px] font-mono font-bold uppercase tracking-wide" data-timestamp="'+item.timestamp+'" data-created-at="'+(item.createdAt||'-')+'">Loading...</span></div><div class="flex justify-between items-center mb-1"><h3 class="font-bold text-sm uppercase transition-colors flex items-center" style="color:var(--text-primary)">'+item.judul+lock+'</h3><i class="fa-solid fa-chevron-right text-xs transition-colors" style="color:var(--text-muted)"></i></div><p class="text-xs line-clamp-2 leading-relaxed mb-2 '+(item.isProtected?'protected-text italic':'')+'" style="'+(item.isProtected?'':'color:var(--text-secondary)')+'">'+preview+'</p><div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)"><div class="flex items-center gap-2">'+pp+'<span class="text-xs font-semibold card-author">@'+item.uploadedBy+'</span></div><div class="flex items-center gap-3 text-xs"><div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.views)+'</span></div><div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.copies)+'</span></div><div class="flex items-center gap-1.5" title="Downloads"><i class="fa-solid fa-download text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">'+formatNumber(ana.downloads)+'</span></div></div></div></a>';
-                }).join('');
-                document.getElementById('loadingSection').classList.add('hidden');
-                document.getElementById('profileSection').classList.remove('hidden');
-                updateAllTimeAgo();
-            }catch(err){console.error(err);showNotFound();}
-        }
-
-        function showNotFound(){
-            document.getElementById('loadingSection').classList.add('hidden');
-            document.getElementById('notFoundSection').classList.remove('hidden');
-        }
-
-        loadProfile();
+        // ✅ FIX: Data sudah di-render server-side, tinggal jalankan timeago
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllTimeAgo();
+        });
     </script>
 </body>
 </html>`);
@@ -747,7 +744,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
-                        <span class="time-ago text-[11px]" style="color:var(--text-primary)" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">Loading...</span>
+                        <span class="time-ago text-[11px]" style="color:var(--text-primary)" data-timestamp="${promptData.timestamp || 0}" data-created-at="${promptData.createdAt || '-'}">-</span>
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-3">
