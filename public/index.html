@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Prompt Hub</title>
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PromptHub">
+    <link rel="apple-touch-icon" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
+    <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f4f4f5" media="(prefers-color-scheme: light)">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="PromptHub">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -322,6 +331,21 @@
         .author-chip:active { opacity: 0.7; }
         .author-chip:active .card-author { text-decoration: underline; text-underline-offset: 2px; }
 
+        #installBtn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #installBtn:hover { border-color: var(--border-hover); }
+
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
             #sidebar-right.open { transform: translateX(0); }
@@ -341,6 +365,9 @@
                     <span>AI Prompt Hub</span>
                 </h1>
                 <div class="flex items-center gap-2">
+                    <button id="installBtn" class="hidden" title="Install App">
+                        <i class="fa-solid fa-download" style="margin-right:4px;"></i>Install
+                    </button>
                     <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                     </button>
@@ -530,6 +557,44 @@
             clearTimeout(searchDebounceTimer);
             applyFilters();
             searchInput.focus();
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => {
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('[PWA] Update tersedia');
+                                }
+                            });
+                        });
+                    })
+                    .catch((err) => console.error('[PWA] SW registration failed:', err));
+            });
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+                installBtn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choice) => {
+                        deferredPrompt = null;
+                        installBtn.classList.add('hidden');
+                    });
+                });
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
         });
     </script>
 </body>
