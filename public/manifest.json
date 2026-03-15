@@ -1,0 +1,50 @@
+{
+  "name": "AI Prompt Hub",
+  "short_name": "PromptHub",
+  "description": "Koleksi prompt AI berkualitas untuk berbagai keperluan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "https://cdn.yupra.my.id/yp/xihcb4th.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn.yupra.my.id/yp/xihcb4th.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lihat Semua Prompt",
+      "short_name": "Home",
+      "description": "Buka halaman utama",
+      "url": "/",
+      "icons": [{ "src": "https://cdn.yupra.my.id/yp/xihcb4th.jpg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Request Prompt",
+      "short_name": "Request",
+      "description": "Kirim request prompt baru",
+      "url": "/request",
+      "icons": [{ "src": "https://cdn.yupra.my.id/yp/xihcb4th.jpg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Leaderboard",
+      "short_name": "Ranking",
+      "description": "Lihat ranking creator",
+      "url": "/leaderboard",
+      "icons": [{ "src": "https://cdn.yupra.my.id/yp/xihcb4th.jpg", "sizes": "96x96" }]
+    }
+  ]
+}
