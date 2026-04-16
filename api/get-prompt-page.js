@@ -15,16 +15,67 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
-function linkify(text) {
+function renderDescription(text) {
   if (!text) return '';
+
   const escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-  return escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
-  });
+
+  const lines = escaped.split('\n');
+  const result = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (olMatch) {
+      const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^(\d+)\.\s+(.*)$/);
+        if (m) { items.push(inlineMarkdown(m[2])); i++; }
+        else break;
+      }
+      result.push(`<ol style="margin:0.4rem 0 0.4rem 1.2rem;padding:0;list-style:decimal;">${items.map(it => `<li style="margin-bottom:0.15rem;">${it}</li>`).join('')}</ol>`);
+      continue;
+    }
+
+    const ulMatch = line.match(/^[-*]\s+(.*)$/);
+    if (ulMatch) {
+      const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^[-*]\s+(.*)$/);
+        if (m) { items.push(inlineMarkdown(m[2])); i++; }
+        else break;
+      }
+      result.push(`<ul style="margin:0.4rem 0 0.4rem 1.2rem;padding:0;list-style:disc;">${items.map(it => `<li style="margin-bottom:0.15rem;">${it}</li>`).join('')}</ul>`);
+      continue;
+    }
+
+    if (line.trim() === '') {
+      result.push('<br>');
+    } else {
+      result.push(`<span style="display:block;">${inlineMarkdown(line)}</span>`);
+    }
+    i++;
+  }
+
+  return result.join('');
+}
+
+function inlineMarkdown(text) {
+  return text
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    .replace(/~~(.+?)~~/g, '<del>$1</del>')
+    .replace(/`(.+?)`/g, '<code style="background:var(--bg-surface3);padding:0.1rem 0.35rem;border-radius:4px;font-size:0.8em;font-family:monospace;">$1</code>')
+    .replace(/(https?:\/\/[^\s<>"&]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="description-link">$1</a>');
 }
 
 function fmt(num) {
@@ -712,6 +763,11 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .fullscreen-close:hover { transform: scale(1.1); }
         .description-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; transition: color 0.2s ease; }
         .description-link:hover { color: var(--text-secondary); }
+        .description-body { font-size: 0.875rem; line-height: 1.65; color: var(--text-secondary); }
+        .description-body strong { color: var(--text-primary); font-weight: 700; }
+        .description-body em { font-style: italic; }
+        .description-body del { opacity: 0.6; }
+        .description-body ol, .description-body ul { color: var(--text-secondary); }
         pre code { color: var(--text-secondary) !important; }
         .fullscreen-icon-btn { filter: var(--fullscreen-filter); }
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
@@ -769,7 +825,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="mb-5">
                 <h3 class="text-base font-extrabold mb-2" style="color:var(--text-primary)">Description</h3>
                 <hr style="border:0;height:1px;background:var(--border);margin-bottom:0.5rem">
-                <p class="text-sm leading-relaxed mb-3" style="color:var(--text-secondary);white-space:pre-line">${linkify(promptData.description)}</p>
+                <div class="description-body mb-3">${renderDescription(promptData.description)}</div>
                 <hr style="border:0;height:1px;background:var(--border)">
             </div>
             ` : ''}
