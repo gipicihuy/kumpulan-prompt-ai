@@ -42,14 +42,14 @@ const CATEGORY_LOGOS = {
   'combined':  '/assets/images.svg',
 };
 
-function categoryBadgeHtml(kategori, extraStyle = '') {
+function categoryBadgeHtml(kategori) {
   const key      = (kategori || '').toLowerCase().trim();
   const label    = toTitleCase(kategori || 'Lainnya');
   const logo     = CATEGORY_LOGOS[key];
   const logoHtml = logo
     ? `<img src="${logo}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">`
     : '';
-  return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;${extraStyle}">${logoHtml}${label}</span>`;
+  return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase" style="display:inline-flex;align-items:center;gap:6px;">${logoHtml}${label}</span>`;
 }
 
 function toTitleCase(str) {
@@ -96,6 +96,9 @@ const THEME_CSS = `
         --fullscreen-filter: none;
         --btn-bg:         #ffffff;
         --btn-text:       #0f0f0f;
+        --cat-badge-bg:   #252525;
+        --cat-badge-text: #9ca3af;
+        --cat-badge-bdr:  #333;
     }
     [data-theme="light"] {
         --bg-base:        #f4f4f5;
@@ -119,6 +122,9 @@ const THEME_CSS = `
         --fullscreen-filter: invert(1);
         --btn-bg:         #18181b;
         --btn-text:       #ffffff;
+        --cat-badge-bg:   #f4f4f5;
+        --cat-badge-text: #52525b;
+        --cat-badge-bdr:  #d4d4d8;
     }
 `;
 
@@ -338,8 +344,8 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
     <script>${THEME_INIT}</script>
     <style>
         ${THEME_CSS}
-        :root,[data-theme="dark"]{--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--cat-badge-bg:#252525;--cat-badge-text:#9ca3af;--cat-badge-bdr:#333;--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--protected-text:#eab308;--profile-bg:#252525;--footer-bg:rgba(26,26,26,0.95);}
-        [data-theme="light"]{--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--cat-badge-bg:#f4f4f5;--cat-badge-text:#52525b;--cat-badge-bdr:#d4d4d8;--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--protected-text:#b45309;--profile-bg:#e4e4e7;--footer-bg:rgba(255,255,255,0.95);}
+        :root,[data-theme="dark"]{--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--protected-text:#eab308;--profile-bg:#252525;--footer-bg:rgba(26,26,26,0.95);}
+        [data-theme="light"]{--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--protected-text:#b45309;--profile-bg:#e4e4e7;--footer-bg:rgba(255,255,255,0.95);}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(to bottom,var(--bg-base) 0%,var(--bg-surface) 100%);color:var(--text-primary);min-height:100vh;transition:background 0.25s ease,color 0.25s ease;}
         .card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card-from) 0%,var(--bg-card-to) 100%);box-shadow:0 2px 8px var(--shadow-card);}
@@ -521,6 +527,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
         .toggle-password-btn:hover { color: var(--text-primary); }
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
+        .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
     </style>
 </head>
 <body>
@@ -535,7 +542,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div class="mb-4 border-l-2 pl-3" style="border-color:var(--border-hover)">
-            ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
+            ${categoryBadgeHtml(promptData.kategori || 'Lainnya')}
             <h2 class="text-xl font-bold mt-2 tracking-tight leading-tight flex items-center gap-2" style="color:var(--text-primary)">
                 ${promptData.judul}
                 <i class="fa-solid fa-lock text-yellow-500 text-base"></i>
@@ -709,6 +716,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .fullscreen-icon-btn { filter: var(--fullscreen-filter); }
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
+        .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
     </style>
 </head>
 <body>
@@ -724,7 +732,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <main class="max-w-3xl mx-auto px-4 py-6">
         <div id="detailContent">
             <div class="mb-5 border-l-2 pl-3" style="border-color:var(--border-hover)">
-                ${categoryBadgeHtml(promptData.kategori || 'Lainnya', 'background:var(--text-primary);color:var(--bg-base);border:1px solid var(--border-hover);')}
+                ${categoryBadgeHtml(promptData.kategori || 'Lainnya')}
                 <h2 class="text-xl font-bold mt-3 tracking-tight leading-tight" style="color:var(--text-primary)">${promptData.judul}</h2>
                 <div class="mt-3 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                     <div class="flex items-center gap-2">
