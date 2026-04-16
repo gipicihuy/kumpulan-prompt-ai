@@ -15,16 +15,78 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
-function linkify(text) {
+function escapeHtml(text) {
   if (!text) return '';
-  const escaped = text
+  return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-  return escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+}
+
+function parseMarkdown(text) {
+  if (!text) return '';
+
+  const lines = text.split('\n');
+  const resultLines = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    const olMatch = line.match(/^(\d+)\.\s+(.*)/);
+    if (olMatch) {
+      const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^(\d+)\.\s+(.*)/);
+        if (!m) break;
+        items.push(`<li>${inlineMarkdown(m[2])}</li>`);
+        i++;
+      }
+      resultLines.push(`<ol class="desc-ol">${items.join('')}</ol>`);
+      continue;
+    }
+
+    const ulMatch = line.match(/^[-*]\s+(.*)/);
+    if (ulMatch) {
+      const items = [];
+      while (i < lines.length) {
+        const m = lines[i].match(/^[-*]\s+(.*)/);
+        if (!m) break;
+        items.push(`<li>${inlineMarkdown(m[2])}</li>`);
+        i++;
+      }
+      resultLines.push(`<ul class="desc-ul">${items.join('')}</ul>`);
+      continue;
+    }
+
+    if (line.trim() === '') {
+      resultLines.push('<br>');
+    } else {
+      resultLines.push(`<span class="desc-line">${inlineMarkdown(line)}</span>`);
+    }
+    i++;
+  }
+
+  return resultLines.join('\n');
+}
+
+function inlineMarkdown(text) {
+  let t = escapeHtml(text);
+
+  t = t.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/__(.*?)__/g, '<strong>$1</strong>');
+  t = t.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  t = t.replace(/_(.*?)_/g, '<em>$1</em>');
+  t = t.replace(/~~(.*?)~~/g, '<del>$1</del>');
+  t = t.replace(/`(.*?)`/g, '<code class="desc-code">$1</code>');
+
+  t = t.replace(/(https?:\/\/[^\s&lt;&gt;&quot;]+)/g, (url) => {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
   });
+
+  return t;
 }
 
 function fmt(num) {
@@ -668,6 +730,10 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     return num.toString();
   };
 
+  const descriptionHtml = promptData.description && promptData.description.trim() !== ''
+    ? parseMarkdown(promptData.description)
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="id" data-theme="dark">
 <head>
@@ -677,12 +743,12 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="AI Prompt Hub">
     <meta property="og:title" content="${pageTitle}">
-    <meta property="og:description" content="${metaDesc}">
+    <meta property="og:description" content="${escapeHtml(metaDesc)}">
     <meta property="og:image" content="${metaImage}">
-    <meta name="description" content="${metaDesc}">
+    <meta name="description" content="${escapeHtml(metaDesc)}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${pageTitle}">
-    <meta name="twitter:description" content="${metaDesc}">
+    <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
     <meta name="twitter:image" content="${metaImage}">
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -717,6 +783,15 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
         .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
+        .desc-body { font-size: 0.875rem; line-height: 1.75; color: var(--text-secondary); }
+        .desc-line { display: block; }
+        .desc-ul { list-style: disc; padding-left: 1.25rem; margin: 0.35rem 0; display: flex; flex-direction: column; gap: 0.2rem; }
+        .desc-ol { list-style: decimal; padding-left: 1.25rem; margin: 0.35rem 0; display: flex; flex-direction: column; gap: 0.2rem; }
+        .desc-ul li, .desc-ol li { font-size: 0.875rem; line-height: 1.6; color: var(--text-secondary); }
+        .desc-code { background: var(--bg-surface3); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: monospace; font-size: 0.8rem; color: var(--text-primary); }
+        .desc-body strong { color: var(--text-primary); font-weight: 700; }
+        .desc-body em { font-style: italic; }
+        .desc-body del { text-decoration: line-through; opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -765,12 +840,12 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                 </div>
             </div>
 
-            ${promptData.description && promptData.description.trim() !== '' ? `
+            ${descriptionHtml ? `
             <div class="mb-5">
                 <h3 class="text-base font-extrabold mb-2" style="color:var(--text-primary)">Description</h3>
                 <hr style="border:0;height:1px;background:var(--border);margin-bottom:0.5rem">
-                <p class="text-sm leading-relaxed mb-3" style="color:var(--text-secondary);white-space:pre-line">${linkify(promptData.description)}</p>
-                <hr style="border:0;height:1px;background:var(--border)">
+                <div class="desc-body">${descriptionHtml}</div>
+                <hr style="border:0;height:1px;background:var(--border);margin-top:0.75rem">
             </div>
             ` : ''}
 
@@ -795,7 +870,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto">
-                    <pre><code class="leading-relaxed whitespace-pre-wrap text-xs block font-mono">${promptData.isi || ''}</code></pre>
+                    <pre><code class="leading-relaxed whitespace-pre-wrap text-xs block font-mono">${escapeHtml(promptData.isi || '')}</code></pre>
                 </div>
             </div>
         </div>
