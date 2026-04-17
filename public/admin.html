@@ -198,6 +198,50 @@
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
         .tab-btn-active   { border-bottom: 3px solid var(--text-primary) !important; color: var(--text-primary) !important; }
         .tab-btn-inactive { border-bottom: 3px solid transparent !important; color: var(--text-muted) !important; }
+        
+        .markdown-preview { 
+            margin-top: 0.5rem; 
+            padding: 0.75rem; 
+            border-radius: 0.5rem; 
+            background: var(--bg-base); 
+            border: 1px solid var(--border); 
+            font-size: 0.8rem; 
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .markdown-preview strong { color: var(--text-primary); font-weight: 700; }
+        .markdown-preview em { font-style: italic; }
+        .markdown-preview del { text-decoration: line-through; opacity: 0.7; }
+        .markdown-preview code { 
+            background: var(--bg-surface3); 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-family: 'Courier New', monospace; 
+            font-size: 0.85em; 
+            color: var(--text-primary); 
+            border: 1px solid var(--border); 
+        }
+        .markdown-preview ol { 
+            margin: 0.5rem 0; 
+            padding-left: 1.5rem; 
+            list-style: decimal; 
+        }
+        .markdown-preview ul { 
+            margin: 0.5rem 0; 
+            padding-left: 1.5rem; 
+            list-style: disc; 
+        }
+        .markdown-preview li { 
+            margin: 0.25rem 0; 
+        }
+        .markdown-preview blockquote { 
+            margin: 0.5rem 0; 
+            padding: 0.5rem 0.75rem; 
+            border-left: 3px solid var(--border-hover); 
+            background: var(--bg-surface2); 
+            font-style: italic; 
+            border-radius: 0 4px 4px 0; 
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -275,8 +319,9 @@
                         <input type="text" id="kategori" placeholder="Coding / Art / dll" class="w-full p-3 rounded-lg border outline-none text-sm">
                     </div>
                     <div>
-                        <label class="uppercase block mb-1.5">Description (Opsional)</label>
-                        <textarea id="description" rows="2" placeholder="Deskripsi singkat..." class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
+                        <label class="uppercase block mb-1.5">Description (Opsional) - Markdown Supported</label>
+                        <textarea id="description" rows="2" placeholder="*bold* _italic_ ~strike~ ```code``` > quote 1. list - bullet" class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
+                        <div id="descriptionPreview" class="markdown-preview hidden"></div>
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
@@ -370,8 +415,9 @@
                     <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-sm" required>
                 </div>
                 <div>
-                    <label class="uppercase block mb-1">Description</label>
+                    <label class="uppercase block mb-1">Description - Markdown Supported</label>
                     <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm"></textarea>
+                    <div id="editDescriptionPreview" class="markdown-preview hidden"></div>
                 </div>
                 <div>
                     <div class="flex items-center justify-between mb-1">
@@ -515,6 +561,124 @@
         let slugExists = false;
         let allPrompts = [];
         let promptToDelete = null;
+
+        function parseMarkdown(text) {
+            if (!text) return '';
+            
+            let escaped = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+            
+            const lines = escaped.split('\n');
+            const processed = [];
+            let inList = false;
+            let inNumberedList = false;
+            let inQuote = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                if (line.match(/^\d+\.\s+/)) {
+                    if (!inNumberedList) {
+                        processed.push('<ol>');
+                        inNumberedList = true;
+                    }
+                    const content = line.replace(/^\d+\.\s+/, '');
+                    processed.push(`<li>${processInlineMarkdown(content)}</li>`);
+                    
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^\d+\.\s+/)) {
+                        processed.push('</ol>');
+                        inNumberedList = false;
+                    }
+                    continue;
+                } else if (inNumberedList) {
+                    processed.push('</ol>');
+                    inNumberedList = false;
+                }
+                
+                if (line.match(/^-\s+/)) {
+                    if (!inList) {
+                        processed.push('<ul>');
+                        inList = true;
+                    }
+                    const content = line.replace(/^-\s+/, '');
+                    processed.push(`<li>${processInlineMarkdown(content)}</li>`);
+                    
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^-\s+/)) {
+                        processed.push('</ul>');
+                        inList = false;
+                    }
+                    continue;
+                } else if (inList) {
+                    processed.push('</ul>');
+                    inList = false;
+                }
+                
+                if (line.match(/^>\s+/)) {
+                    if (!inQuote) {
+                        processed.push('<blockquote>');
+                        inQuote = true;
+                    }
+                    const content = line.replace(/^>\s+/, '');
+                    processed.push(processInlineMarkdown(content));
+                    
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^>\s+/)) {
+                        processed.push('</blockquote>');
+                        inQuote = false;
+                    }
+                    continue;
+                } else if (inQuote) {
+                    processed.push('</blockquote>');
+                    inQuote = false;
+                }
+                
+                if (line.trim() === '') {
+                    processed.push('<br>');
+                } else {
+                    processed.push(processInlineMarkdown(line));
+                }
+            }
+            
+            if (inList) processed.push('</ul>');
+            if (inNumberedList) processed.push('</ol>');
+            if (inQuote) processed.push('</blockquote>');
+            
+            return processed.join('\n');
+        }
+
+        function processInlineMarkdown(text) {
+            text = text.replace(/\*_([^*_]+)_\*/g, '<strong><em>$1</em></strong>');
+            text = text.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+            text = text.replace(/_([^_]+)_/g, '<em>$1</em>');
+            text = text.replace(/~([^~]+)~/g, '<del>$1</del>');
+            text = text.replace(/```([^`]+)```/g, '<code>$1</code>');
+            
+            return text;
+        }
+
+        function updateMarkdownPreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const text = input.value;
+            
+            if (text.trim() === '') {
+                preview.classList.add('hidden');
+                preview.innerHTML = '';
+            } else {
+                preview.classList.remove('hidden');
+                preview.innerHTML = parseMarkdown(text);
+            }
+        }
+
+        document.getElementById('description').addEventListener('input', function() {
+            updateMarkdownPreview('description', 'descriptionPreview');
+        });
+
+        document.getElementById('editDescription').addEventListener('input', function() {
+            updateMarkdownPreview('editDescription', 'editDescriptionPreview');
+        });
 
         function togglePasswordVisibilityAdmin() {
             const pi = document.getElementById('password');
@@ -715,6 +879,9 @@
             document.getElementById('editKategori').value = prompt.kategori;
             document.getElementById('editDescription').value = prompt.description;
             document.getElementById('editIsi').value = prompt.isi;
+            
+            updateMarkdownPreview('editDescription', 'editDescriptionPreview');
+            
             editPasswordEnabled = prompt.isProtected;
             const epf = document.getElementById('editPasswordField');
             const etb = document.getElementById('editTogglePassword');
