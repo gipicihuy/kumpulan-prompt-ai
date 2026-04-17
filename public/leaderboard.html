@@ -37,11 +37,11 @@
         .rank-card:hover{border-color:var(--border-hover);background:linear-gradient(135deg,var(--bg-surface2) 0%,var(--bg-surface3) 100%);box-shadow:0 4px 16px var(--shadow-hover);transform:translateY(-2px);}
 
         .podium-section{position:relative;padding:1.5rem 1rem 0;overflow:hidden;}
-        .podium-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 70%);pointer-events:none;}
+        .podium-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.1) 0%, transparent 70%);pointer-events:none;}
 
         .podium-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;align-items:flex-end;max-width:500px;margin:0 auto;}
 
-        .podium-player{display:flex;flex-direction:column;align-items:center;text-decoration:none;position:relative;cursor:pointer;}
+        .podium-player{display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;}
         .podium-player:hover .podium-avatar-wrap{transform:translateY(-4px);}
         .podium-player:hover .podium-block{opacity:0.9;}
 
@@ -53,27 +53,27 @@
         .podium-medal-badge{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;border:2px solid var(--bg-base);}
 
         .podium-name{font-size:0.65rem;font-weight:700;text-align:center;color:var(--text-primary);margin-bottom:0.15rem;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .podium-count{font-size:0.55rem;font-weight:600;color:var(--text-muted);text-align:center;margin-bottom:0.4rem;}
+        .podium-count{font-size:0.55rem;font-weight:600;color:var(--text-muted);text-align:center;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:center;gap:0.25rem;}
 
         .podium-block{border-radius:8px 8px 0 0;width:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:opacity 0.2s;}
         .podium-block::before{content:'';position:absolute;inset:0;background:var(--podium-shine);pointer-events:none;}
         .podium-block-num{font-size:1.1rem;font-weight:900;opacity:0.25;}
 
-        .p1 .podium-block{height:90px;background:linear-gradient(180deg,rgba(245,158,11,0.25) 0%,rgba(245,158,11,0.08) 100%);border:1px solid rgba(245,158,11,0.3);border-bottom:none;}
-        .p1 .podium-avatar,.p1 .podium-avatar-placeholder{width:60px;height:60px;border:2px solid #f59e0b;box-shadow:0 0 16px rgba(245,158,11,0.3);}
+        .p1 .podium-block{height:90px;background:linear-gradient(180deg,rgba(245,158,11,0.5) 0%,rgba(245,158,11,0.2) 100%);border:2px solid rgba(245,158,11,0.6);border-bottom:none;}
+        .p1 .podium-avatar,.p1 .podium-avatar-placeholder{width:60px;height:60px;border:3px solid #f59e0b;box-shadow:0 0 20px rgba(245,158,11,0.5);}
         .p1 .podium-medal-badge{background:#f59e0b;color:#000;}
         .p1 .podium-block-num{color:#f59e0b;}
         .p1 .podium-name{font-size:0.7rem;}
 
-        .p2 .podium-block{height:65px;background:linear-gradient(180deg,rgba(156,163,175,0.2) 0%,rgba(156,163,175,0.06) 100%);border:1px solid rgba(156,163,175,0.25);border-bottom:none;}
-        .p2 .podium-avatar,.p2 .podium-avatar-placeholder{width:50px;height:50px;border:2px solid #9ca3af;box-shadow:0 0 12px rgba(156,163,175,0.2);}
+        .p2 .podium-block{height:65px;background:linear-gradient(180deg,rgba(156,163,175,0.45) 0%,rgba(156,163,175,0.15) 100%);border:2px solid rgba(156,163,175,0.5);border-bottom:none;}
+        .p2 .podium-avatar,.p2 .podium-avatar-placeholder{width:50px;height:50px;border:3px solid #9ca3af;box-shadow:0 0 16px rgba(156,163,175,0.4);}
         .p2 .podium-medal-badge{background:#9ca3af;color:#000;}
         .p2 .podium-block-num{color:#9ca3af;}
 
-        .p3 .podium-block{height:48px;background:linear-gradient(180deg,rgba(180,83,9,0.2) 0%,rgba(180,83,9,0.06) 100%);border:1px solid rgba(180,83,9,0.25);border-bottom:none;}
-        .p3 .podium-avatar,.p3 .podium-avatar-placeholder{width:44px;height:44px;border:2px solid #b45309;box-shadow:0 0 10px rgba(180,83,9,0.2);}
-        .p3 .podium-medal-badge{background:#b45309;color:#fff;}
-        .p3 .podium-block-num{color:#b45309;}
+        .p3 .podium-block{height:48px;background:linear-gradient(180deg,rgba(205,127,50,0.45) 0%,rgba(205,127,50,0.15) 100%);border:2px solid rgba(205,127,50,0.5);border-bottom:none;}
+        .p3 .podium-avatar,.p3 .podium-avatar-placeholder{width:44px;height:44px;border:3px solid #cd7f32;box-shadow:0 0 14px rgba(205,127,50,0.4);}
+        .p3 .podium-medal-badge{background:#cd7f32;color:#fff;}
+        .p3 .podium-block-num{color:#cd7f32;}
 
         .podium-base-bar{height:3px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 0 1.5rem;}
 
@@ -187,16 +187,16 @@
                 ? `<img src="${c.profileUrl}" class="podium-avatar" alt="${c.name}">`
                 : `<div class="podium-avatar-placeholder"><i class="fa-solid fa-user" style="color:var(--text-muted);font-size:${posClass==='p1'?'1.2rem':posClass==='p2'?'1rem':'0.9rem'}"></i></div>`;
             const crown = crownVisible ? `<span class="podium-crown">👑</span>` : '';
-            return `<a href="/@${encodeURIComponent(c.name)}" class="podium-player ${posClass}">
+            return `<div class="podium-player ${posClass}" onclick="window.location.href='/@${encodeURIComponent(c.name)}'">
                 <div class="podium-avatar-wrap">
                     ${crown}
                     ${avatarHtml}
                     <span class="podium-medal-badge">${rankNum}</span>
                 </div>
                 <p class="podium-name">@${c.name}</p>
-                <p class="podium-count">${fmt(c.prompts)} prompt</p>
+                <p class="podium-count"><i class="fa-solid fa-layer-group" style="font-size:0.5rem;color:var(--text-muted)"></i>${fmt(c.prompts)}</p>
                 <div class="podium-block"><span class="podium-block-num">${rankNum}</span></div>
-            </a>`;
+            </div>`;
         }
 
         async function loadLeaderboard() {
@@ -255,9 +255,6 @@
                                     <div class="flex items-center gap-1.5 mt-0.5 text-xs">
                                         <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
                                         <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.prompts)} Prompt</span>
-                                        <span style="color:var(--border-hover)">·</span>
-                                        <i class="fa-solid fa-eye text-[10px]" style="color:var(--text-muted)"></i>
-                                        <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.views)}</span>
                                     </div>
                                 </div>
                                 <i class="fa-solid fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-muted)"></i>
