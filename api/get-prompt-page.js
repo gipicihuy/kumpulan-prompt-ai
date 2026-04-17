@@ -24,10 +24,6 @@ function parseMarkdown(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
   
-  escaped = escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
-  });
-  
   const lines = escaped.split('\n');
   const processed = [];
   let inList = false;
@@ -111,6 +107,10 @@ function processInlineMarkdown(text) {
   text = text.replace(/_([^_]+)_/g, '<em>$1</em>');
   text = text.replace(/~([^~]+)~/g, '<del>$1</del>');
   text = text.replace(/```([^`]+)```/g, '<code class="markdown-code">$1</code>');
+  
+  text = text.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
+  });
   
   return text;
 }
