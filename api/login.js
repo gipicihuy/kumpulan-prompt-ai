@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   if (userData && userData.password === password) {
     // Di dunia nyata pakai JWT, tapi ini versi simpel:
-    return res.status(200).json({ success: true, token: 'admin-secret-key' })
+    return res.status(200).json({ success: true, token: 'RgumiU6yl%SX29I2' })
   }
   
   res.status(401).json({ success: false, message: 'Gagal Login' })
