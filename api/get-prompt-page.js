@@ -15,16 +15,104 @@ function parseCookies(cookieHeader) {
   return cookies
 }
 
-function linkify(text) {
+function parseMarkdown(text) {
   if (!text) return '';
-  const escaped = text
+  
+  let escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-  return escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+  
+  escaped = escaped.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
     return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="description-link">${url}</a>`;
   });
+  
+  const lines = escaped.split('\n');
+  const processed = [];
+  let inList = false;
+  let inNumberedList = false;
+  let inQuote = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    
+    if (line.match(/^\d+\.\s+/)) {
+      if (!inNumberedList) {
+        processed.push('<ol class="markdown-ol">');
+        inNumberedList = true;
+      }
+      const content = line.replace(/^\d+\.\s+/, '');
+      processed.push(`<li>${processInlineMarkdown(content)}</li>`);
+      
+      if (i === lines.length - 1 || !lines[i + 1].match(/^\d+\.\s+/)) {
+        processed.push('</ol>');
+        inNumberedList = false;
+      }
+      continue;
+    } else if (inNumberedList) {
+      processed.push('</ol>');
+      inNumberedList = false;
+    }
+    
+    if (line.match(/^-\s+/)) {
+      if (!inList) {
+        processed.push('<ul class="markdown-ul">');
+        inList = true;
+      }
+      const content = line.replace(/^-\s+/, '');
+      processed.push(`<li>${processInlineMarkdown(content)}</li>`);
+      
+      if (i === lines.length - 1 || !lines[i + 1].match(/^-\s+/)) {
+        processed.push('</ul>');
+        inList = false;
+      }
+      continue;
+    } else if (inList) {
+      processed.push('</ul>');
+      inList = false;
+    }
+    
+    if (line.match(/^>\s+/)) {
+      if (!inQuote) {
+        processed.push('<blockquote class="markdown-quote">');
+        inQuote = true;
+      }
+      const content = line.replace(/^>\s+/, '');
+      processed.push(processInlineMarkdown(content));
+      
+      if (i === lines.length - 1 || !lines[i + 1].match(/^>\s+/)) {
+        processed.push('</blockquote>');
+        inQuote = false;
+      }
+      continue;
+    } else if (inQuote) {
+      processed.push('</blockquote>');
+      inQuote = false;
+    }
+    
+    if (line.trim() === '') {
+      processed.push('<br>');
+    } else {
+      processed.push(processInlineMarkdown(line));
+    }
+  }
+  
+  if (inList) processed.push('</ul>');
+  if (inNumberedList) processed.push('</ol>');
+  if (inQuote) processed.push('</blockquote>');
+  
+  return processed.join('\n');
+}
+
+function processInlineMarkdown(text) {
+  text = text.replace(/\*_([^*_]+)_\*/g, '<strong><em>$1</em></strong>');
+  text = text.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+  text = text.replace(/_([^_]+)_/g, '<em>$1</em>');
+  text = text.replace(/~([^~]+)~/g, '<del>$1</del>');
+  text = text.replace(/```([^`]+)```/g, '<code class="markdown-code">$1</code>');
+  
+  return text;
 }
 
 function fmt(num) {
@@ -717,6 +805,13 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
         .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
+        
+        .markdown-ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style: decimal; color: var(--text-secondary); }
+        .markdown-ol li { margin: 0.25rem 0; line-height: 1.6; }
+        .markdown-ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style: disc; color: var(--text-secondary); }
+        .markdown-ul li { margin: 0.25rem 0; line-height: 1.6; }
+        .markdown-quote { margin: 0.5rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--border-hover); background: var(--bg-surface2); font-style: italic; color: var(--text-secondary); border-radius: 0 4px 4px 0; }
+        .markdown-code { background: var(--bg-surface3); padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.85em; color: var(--text-primary); border: 1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -769,7 +864,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
             <div class="mb-5">
                 <h3 class="text-base font-extrabold mb-2" style="color:var(--text-primary)">Description</h3>
                 <hr style="border:0;height:1px;background:var(--border);margin-bottom:0.5rem">
-                <p class="text-sm leading-relaxed mb-3" style="color:var(--text-secondary);white-space:pre-line">${linkify(promptData.description)}</p>
+                <div class="text-sm leading-relaxed mb-3" style="color:var(--text-secondary)">${parseMarkdown(promptData.description)}</div>
                 <hr style="border:0;height:1px;background:var(--border)">
             </div>
             ` : ''}
