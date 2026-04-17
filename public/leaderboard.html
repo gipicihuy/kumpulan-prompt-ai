@@ -15,14 +15,12 @@
         })();
     </script>
     <style>
-        :root,[data-theme="dark"]{--bg-base:#0f0f0f;--bg-surface:#1a1a1a;--bg-surface2:#1f1f1f;--bg-surface3:#252525;--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--border:#2a2a2a;--border-hover:#444;--text-primary:#e5e5e5;--text-secondary:#9ca3af;--text-muted:#6b7280;--header-bg:rgba(26,26,26,0.8);--skeleton-from:#1a1a1a;--skeleton-to:#252525;--footer-bg:rgba(26,26,26,0.95);--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--profile-bg:#252525;}
-        [data-theme="light"]{--bg-base:#f4f4f5;--bg-surface:#ffffff;--bg-surface2:#f9f9f9;--bg-surface3:#f0f0f0;--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--border:#e4e4e7;--border-hover:#a1a1aa;--text-primary:#18181b;--text-secondary:#52525b;--text-muted:#71717a;--header-bg:rgba(255,255,255,0.9);--skeleton-from:#e4e4e7;--skeleton-to:#f4f4f5;--footer-bg:rgba(255,255,255,0.95);--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--profile-bg:#e4e4e7;}
+        :root,[data-theme="dark"]{--bg-base:#0f0f0f;--bg-surface:#1a1a1a;--bg-surface2:#1f1f1f;--bg-surface3:#252525;--bg-card-from:#1a1a1a;--bg-card-to:#1f1f1f;--border:#2a2a2a;--border-hover:#444;--text-primary:#e5e5e5;--text-secondary:#9ca3af;--text-muted:#6b7280;--header-bg:rgba(26,26,26,0.8);--skeleton-from:#1a1a1a;--skeleton-to:#252525;--footer-bg:rgba(26,26,26,0.95);--shadow-card:rgba(0,0,0,0.3);--shadow-hover:rgba(0,0,0,0.5);--sidebar-bg:#1a1a1a;--sidebar-border:#2a2a2a;--overlay-bg:rgba(0,0,0,0.8);--profile-bg:#252525;--podium-shine:rgba(255,255,255,0.04);}
+        [data-theme="light"]{--bg-base:#f4f4f5;--bg-surface:#ffffff;--bg-surface2:#f9f9f9;--bg-surface3:#f0f0f0;--bg-card-from:#ffffff;--bg-card-to:#f9f9f9;--border:#e4e4e7;--border-hover:#a1a1aa;--text-primary:#18181b;--text-secondary:#52525b;--text-muted:#71717a;--header-bg:rgba(255,255,255,0.9);--skeleton-from:#e4e4e7;--skeleton-to:#f4f4f5;--footer-bg:rgba(255,255,255,0.95);--shadow-card:rgba(0,0,0,0.06);--shadow-hover:rgba(0,0,0,0.12);--sidebar-bg:#ffffff;--sidebar-border:#e4e4e7;--overlay-bg:rgba(0,0,0,0.5);--profile-bg:#e4e4e7;--podium-shine:rgba(0,0,0,0.03);}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:linear-gradient(to bottom,var(--bg-base) 0%,var(--bg-surface) 100%);color:var(--text-primary);min-height:100vh;transition:background 0.25s ease,color 0.25s ease;}
         .skeleton{background:linear-gradient(90deg,var(--skeleton-from) 25%,var(--skeleton-to) 50%,var(--skeleton-from) 75%);background-size:200% 100%;animation:pulse 1.5s ease-in-out infinite;}
         @keyframes pulse{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-        .card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card-from) 0%,var(--bg-card-to) 100%);box-shadow:0 2px 8px var(--shadow-card);}
-        .card:hover{border-color:var(--border-hover);background:linear-gradient(135deg,var(--bg-surface2) 0%,var(--bg-surface3) 100%);box-shadow:0 4px 16px var(--shadow-hover);transform:translateY(-2px);}
         header{background:var(--header-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
         footer{background:var(--footer-bg);backdrop-filter:blur(10px);border-top:1px solid var(--border);}
         #themeToggleBtn{background:none;border:none;padding:0;color:var(--text-primary);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
@@ -34,15 +32,61 @@
         .sidebar-link:hover{background:var(--bg-surface2);color:var(--text-primary);}
         .sidebar-link.active{background:var(--bg-surface2);color:var(--text-primary);border:1px solid var(--border);}
         .profile-placeholder{background:var(--profile-bg);}
+
         .rank-card{transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid var(--border);background:linear-gradient(135deg,var(--bg-card-from) 0%,var(--bg-card-to) 100%);box-shadow:0 2px 8px var(--shadow-card);text-decoration:none;display:block;}
         .rank-card:hover{border-color:var(--border-hover);background:linear-gradient(135deg,var(--bg-surface2) 0%,var(--bg-surface3) 100%);box-shadow:0 4px 16px var(--shadow-hover);transform:translateY(-2px);}
-        .rank-1{border-color:#f59e0b!important;box-shadow:0 2px 12px rgba(245,158,11,0.2)!important;}
-        .rank-1:hover{border-color:#f59e0b!important;box-shadow:0 4px 20px rgba(245,158,11,0.3)!important;}
-        .rank-2{border-color:#9ca3af!important;box-shadow:0 2px 12px rgba(156,163,175,0.15)!important;}
-        .rank-2:hover{border-color:#9ca3af!important;}
-        .rank-3{border-color:#b45309!important;box-shadow:0 2px 12px rgba(180,83,9,0.15)!important;}
-        .rank-3:hover{border-color:#b45309!important;}
-        @media(max-width:767px){#sidebar-right{transform:translateX(100%);}#sidebar-right.open{transform:translateX(0);}.title-text{font-size:1.125rem;}.logo-img{width:40px;height:40px;}}
+
+        .podium-section{position:relative;padding:1.5rem 1rem 0;overflow:hidden;}
+        .podium-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 70%);pointer-events:none;}
+
+        .podium-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;align-items:flex-end;max-width:500px;margin:0 auto;}
+
+        .podium-player{display:flex;flex-direction:column;align-items:center;text-decoration:none;position:relative;cursor:pointer;}
+        .podium-player:hover .podium-avatar-wrap{transform:translateY(-4px);}
+        .podium-player:hover .podium-block{opacity:0.9;}
+
+        .podium-avatar-wrap{position:relative;transition:transform 0.3s ease;margin-bottom:0.5rem;}
+        .podium-avatar{border-radius:50%;object-fit:cover;display:block;}
+        .podium-avatar-placeholder{border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--profile-bg);}
+
+        .podium-crown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:1.2rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));}
+        .podium-medal-badge{position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;border:2px solid var(--bg-base);}
+
+        .podium-name{font-size:0.65rem;font-weight:700;text-align:center;color:var(--text-primary);margin-bottom:0.15rem;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .podium-count{font-size:0.55rem;font-weight:600;color:var(--text-muted);text-align:center;margin-bottom:0.4rem;}
+
+        .podium-block{border-radius:8px 8px 0 0;width:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:opacity 0.2s;}
+        .podium-block::before{content:'';position:absolute;inset:0;background:var(--podium-shine);pointer-events:none;}
+        .podium-block-num{font-size:1.1rem;font-weight:900;opacity:0.25;}
+
+        .p1 .podium-block{height:90px;background:linear-gradient(180deg,rgba(245,158,11,0.25) 0%,rgba(245,158,11,0.08) 100%);border:1px solid rgba(245,158,11,0.3);border-bottom:none;}
+        .p1 .podium-avatar,.p1 .podium-avatar-placeholder{width:60px;height:60px;border:2px solid #f59e0b;box-shadow:0 0 16px rgba(245,158,11,0.3);}
+        .p1 .podium-medal-badge{background:#f59e0b;color:#000;}
+        .p1 .podium-block-num{color:#f59e0b;}
+        .p1 .podium-name{font-size:0.7rem;}
+
+        .p2 .podium-block{height:65px;background:linear-gradient(180deg,rgba(156,163,175,0.2) 0%,rgba(156,163,175,0.06) 100%);border:1px solid rgba(156,163,175,0.25);border-bottom:none;}
+        .p2 .podium-avatar,.p2 .podium-avatar-placeholder{width:50px;height:50px;border:2px solid #9ca3af;box-shadow:0 0 12px rgba(156,163,175,0.2);}
+        .p2 .podium-medal-badge{background:#9ca3af;color:#000;}
+        .p2 .podium-block-num{color:#9ca3af;}
+
+        .p3 .podium-block{height:48px;background:linear-gradient(180deg,rgba(180,83,9,0.2) 0%,rgba(180,83,9,0.06) 100%);border:1px solid rgba(180,83,9,0.25);border-bottom:none;}
+        .p3 .podium-avatar,.p3 .podium-avatar-placeholder{width:44px;height:44px;border:2px solid #b45309;box-shadow:0 0 10px rgba(180,83,9,0.2);}
+        .p3 .podium-medal-badge{background:#b45309;color:#fff;}
+        .p3 .podium-block-num{color:#b45309;}
+
+        .podium-base-bar{height:3px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 0 1.5rem;}
+
+        @keyframes podiumRise{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        .podium-player{animation:podiumRise 0.5s ease both;}
+        .p2{animation-delay:0.05s;}
+        .p1{animation-delay:0.15s;}
+        .p3{animation-delay:0.25s;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        .rest-item{animation:fadeUp 0.4s ease both;}
+
+        @media(max-width:767px){#sidebar-right{transform:translateX(100%);}#sidebar-right.open{transform:translateX(0);}.title-text{font-size:1.125rem;}.logo-img{width:40px;height:40px;}.podium-grid{gap:0.35rem;}}
         @media(min-width:768px){#sidebar-right{transform:translateX(0);}}
     </style>
 </head>
@@ -69,50 +113,28 @@
 
     <main class="max-w-4xl mx-auto px-4 py-4">
 
-        <!-- Header section -->
-        <div class="mb-5">
+        <div class="mb-4">
             <h2 class="text-base font-black uppercase tracking-widest mb-0.5" style="color:var(--text-primary)">
                 <i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Leaderboard
             </h2>
             <p class="text-xs" style="color:var(--text-muted)">Ranking creator berdasarkan total prompt yang di-upload</p>
         </div>
 
-        <!-- Loading skeletons -->
         <div id="loadingSection" class="space-y-3">
-            <div class="rank-card rounded-lg p-4" style="pointer-events:none">
-                <div class="flex items-center gap-3">
-                    <div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="flex-1">
-                        <div class="skeleton" style="height:13px;width:100px;border-radius:4px;margin-bottom:6px"></div>
-                        <div class="skeleton" style="height:10px;width:160px;border-radius:4px"></div>
-                    </div>
-                </div>
+            <div class="flex justify-center items-end gap-3 py-6">
+                <div class="skeleton rounded-lg" style="width:90px;height:80px"></div>
+                <div class="skeleton rounded-lg" style="width:100px;height:110px"></div>
+                <div class="skeleton rounded-lg" style="width:90px;height:65px"></div>
             </div>
-            <div class="rank-card rounded-lg p-4" style="pointer-events:none">
-                <div class="flex items-center gap-3">
-                    <div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="flex-1">
-                        <div class="skeleton" style="height:13px;width:80px;border-radius:4px;margin-bottom:6px"></div>
-                        <div class="skeleton" style="height:10px;width:140px;border-radius:4px"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="rank-card rounded-lg p-4" style="pointer-events:none">
-                <div class="flex items-center gap-3">
-                    <div class="skeleton" style="width:24px;height:24px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></div>
-                    <div class="flex-1">
-                        <div class="skeleton" style="height:13px;width:120px;border-radius:4px;margin-bottom:6px"></div>
-                        <div class="skeleton" style="height:10px;width:150px;border-radius:4px"></div>
-                    </div>
-                </div>
-            </div>
+            <div class="rank-card rounded-lg p-3" style="pointer-events:none"><div class="flex items-center gap-3"><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></div><div class="flex-1"><div class="skeleton" style="height:12px;width:100px;border-radius:4px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:70px;border-radius:4px"></div></div></div></div>
+            <div class="rank-card rounded-lg p-3" style="pointer-events:none"><div class="flex items-center gap-3"><div class="skeleton" style="width:36px;height:36px;border-radius:50%;flex-shrink:0"></div><div class="flex-1"><div class="skeleton" style="height:12px;width:80px;border-radius:4px;margin-bottom:6px"></div><div class="skeleton" style="height:10px;width:60px;border-radius:4px"></div></div></div></div>
         </div>
 
-        <!-- Leaderboard list -->
-        <div id="leaderboardList" class="hidden space-y-3"></div>
+        <div id="leaderboardContent" class="hidden">
+            <div class="podium-section" id="podiumSection"></div>
+            <div class="podium-base-bar"></div>
+            <div id="restList" class="space-y-2.5"></div>
+        </div>
 
     </main>
 
@@ -160,8 +182,22 @@
 
         function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
 
-        const rankMedal = ['🥇','🥈','🥉'];
-        const rankClass = ['rank-1','rank-2','rank-3'];
+        function buildPodiumPlayer(c, posClass, rankNum, medalEmoji, crownVisible) {
+            const avatarHtml = c.profileUrl
+                ? `<img src="${c.profileUrl}" class="podium-avatar" alt="${c.name}">`
+                : `<div class="podium-avatar-placeholder"><i class="fa-solid fa-user" style="color:var(--text-muted);font-size:${posClass==='p1'?'1.2rem':posClass==='p2'?'1rem':'0.9rem'}"></i></div>`;
+            const crown = crownVisible ? `<span class="podium-crown">👑</span>` : '';
+            return `<a href="/@${encodeURIComponent(c.name)}" class="podium-player ${posClass}">
+                <div class="podium-avatar-wrap">
+                    ${crown}
+                    ${avatarHtml}
+                    <span class="podium-medal-badge">${rankNum}</span>
+                </div>
+                <p class="podium-name">@${c.name}</p>
+                <p class="podium-count">${fmt(c.prompts)} prompt</p>
+                <div class="podium-block"><span class="podium-block-num">${rankNum}</span></div>
+            </a>`;
+        }
 
         async function loadLeaderboard() {
             try {
@@ -169,19 +205,11 @@
                 const json = await res.json();
                 if (!json.success || !json.data) throw new Error('Failed to load');
 
-                // Group by uploadedBy
                 const creatorsMap = {};
                 json.data.forEach(p => {
                     const name = p.uploadedBy || 'Admin';
                     if (!creatorsMap[name]) {
-                        creatorsMap[name] = {
-                            name,
-                            profileUrl: '',
-                            prompts: 0,
-                            views: 0,
-                            copies: 0,
-                            downloads: 0
-                        };
+                        creatorsMap[name] = { name, profileUrl: '', prompts: 0, views: 0, copies: 0, downloads: 0 };
                     }
                     const c = creatorsMap[name];
                     if (!c.profileUrl && p.profileUrl) c.profileUrl = p.profileUrl;
@@ -191,38 +219,55 @@
                     c.downloads += p.analytics?.downloads || 0;
                 });
 
-                // Sort by prompts desc, then views
                 const creators = Object.values(creatorsMap).sort((a, b) =>
                     b.prompts !== a.prompts ? b.prompts - a.prompts : b.views - a.views
                 );
 
-                const list = document.getElementById('leaderboardList');
-                list.innerHTML = creators.map((c, i) => {
-                    const rank = i + 1;
-                    const medal = rankMedal[i] || `<span class="text-sm font-black" style="color:var(--text-muted)">#${rank}</span>`;
-                    const cardCls = rankClass[i] || '';
-                    const avatarHtml = c.profileUrl
-                        ? `<img src="${c.profileUrl}" class="w-9 h-9 rounded-full object-cover flex-shrink-0" style="border:1px solid var(--border-hover)" alt="${c.name}">`
-                        : `<div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 profile-placeholder" style="border:1px solid var(--border-hover)"><i class="fa-solid fa-user" style="color:var(--text-muted)"></i></div>`;
+                const podiumSection = document.getElementById('podiumSection');
+                const restList = document.getElementById('restList');
 
-                    return `<a href="/@${encodeURIComponent(c.name)}" class="rank-card ${cardCls} rounded-lg p-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 text-center flex-shrink-0 text-lg">${medal}</div>
-                            ${avatarHtml}
-                            <div class="flex-1 min-w-0">
-                                <p class="font-bold text-xs truncate" style="color:var(--text-primary)">@${c.name}</p>
-                                <div class="flex items-center gap-1.5 mt-1 text-xs">
-                                    <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
-                                    <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.prompts)} Prompt</span>
+                const top3 = creators.slice(0, 3);
+                const rest = creators.slice(3);
+
+                const podiumOrder = [];
+                if (top3[1]) podiumOrder.push({ c: top3[1], pos: 'p2', rank: 2, medal: '🥈', crown: false });
+                if (top3[0]) podiumOrder.push({ c: top3[0], pos: 'p1', rank: 1, medal: '🥇', crown: true });
+                if (top3[2]) podiumOrder.push({ c: top3[2], pos: 'p3', rank: 3, medal: '🥉', crown: false });
+
+                if (podiumOrder.length > 0) {
+                    podiumSection.innerHTML = `<div class="podium-grid">${podiumOrder.map(p => buildPodiumPlayer(p.c, p.pos, p.rank, p.medal, p.crown)).join('')}</div>`;
+                } else {
+                    podiumSection.innerHTML = '';
+                }
+
+                if (rest.length > 0) {
+                    restList.innerHTML = rest.map((c, i) => {
+                        const rank = i + 4;
+                        const avatarHtml = c.profileUrl
+                            ? `<img src="${c.profileUrl}" class="w-9 h-9 rounded-full object-cover flex-shrink-0" style="border:1px solid var(--border-hover)" alt="${c.name}">`
+                            : `<div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 profile-placeholder" style="border:1px solid var(--border-hover)"><i class="fa-solid fa-user" style="color:var(--text-muted)"></i></div>`;
+                        return `<a href="/@${encodeURIComponent(c.name)}" class="rank-card rest-item rounded-lg p-3" style="animation-delay:${i*0.05}s">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 text-center flex-shrink-0 text-sm font-black" style="color:var(--text-muted)">#${rank}</div>
+                                ${avatarHtml}
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-xs truncate" style="color:var(--text-primary)">@${c.name}</p>
+                                    <div class="flex items-center gap-1.5 mt-0.5 text-xs">
+                                        <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
+                                        <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.prompts)} Prompt</span>
+                                        <span style="color:var(--border-hover)">·</span>
+                                        <i class="fa-solid fa-eye text-[10px]" style="color:var(--text-muted)"></i>
+                                        <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.views)}</span>
+                                    </div>
                                 </div>
+                                <i class="fa-solid fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-muted)"></i>
                             </div>
-                            <i class="fa-solid fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-muted)"></i>
-                        </div>
-                    </a>`;
-                }).join('');
+                        </a>`;
+                    }).join('');
+                }
 
                 document.getElementById('loadingSection').classList.add('hidden');
-                document.getElementById('leaderboardList').classList.remove('hidden');
+                document.getElementById('leaderboardContent').classList.remove('hidden');
 
             } catch(err) {
                 console.error(err);
