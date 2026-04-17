@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   const authHeader = req.headers.authorization
-  if (authHeader !== 'admin-secret-key') {
+  if (authHeader !== 'RgumiU6yl%SX29I2') {
     return res.status(403).json({ message: 'Tidak diizinkan' })
   }
 
