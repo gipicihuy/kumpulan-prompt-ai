@@ -138,6 +138,9 @@
         .markdown-preview ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style: disc; }
         .markdown-preview li { margin: 0.25rem 0; }
         .markdown-preview blockquote { margin: 0.5rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--border-hover); background: var(--bg-surface2); font-style: italic; border-radius: 0 4px 4px 0; }
+        .role-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+        .role-admin { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .role-contributor { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -190,9 +193,15 @@
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex gap-4" style="border-bottom: 1px solid var(--border)">
                         <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 pl-3 pb-3 tab-btn-active" style="border-left-color: var(--text-secondary)">New Prompt</button>
-                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 pb-3 tab-btn-inactive hover:text-gray-300 transition-colors">Manage</button>
+                        <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="text-sm font-bold uppercase tracking-tight border-l-4 border-transparent pl-3 pb-3 tab-btn-inactive hover:text-gray-300 transition-colors">My Prompts</button>
                     </div>
-                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <span id="usernameDisplay" class="text-xs font-semibold" style="color:var(--text-secondary)"></span>
+                            <span id="roleBadge" class="role-badge"></span>
+                        </div>
+                        <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 hover:underline transition-colors uppercase">Logout</button>
+                    </div>
                 </div>
             </div>
 
@@ -442,8 +451,6 @@
         overlay.onclick = closeSidebarRight;
 
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
-        const token = localStorage.getItem('adminToken');
-        if (token) showAdmin();
 
         const DAILY_LIMIT = 10;
         let passwordEnabled = false;
@@ -451,18 +458,24 @@
         let slugExists = false;
         let allPrompts = [];
         let promptToDelete = null;
+        let currentRole = 'contributor';
+        let currentUsername = '';
+
+        (function init() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            currentRole     = localStorage.getItem('adminRole') || 'contributor';
+            currentUsername = localStorage.getItem('adminUser') || '';
+            showAdmin();
+        })();
 
         function updateQuotaUI(used) {
-            const quotaInfo = document.getElementById('quotaInfo');
-            const quotaText = document.getElementById('quotaText');
-            const quotaBarFill = document.getElementById('quotaBarFill');
             const pct = (used / DAILY_LIMIT) * 100;
-            quotaInfo.classList.remove('hidden');
-            quotaText.textContent = `${used} / ${DAILY_LIMIT}`;
-            quotaBarFill.style.width = pct + '%';
-            if (pct >= 100) { quotaBarFill.style.background = '#ef4444'; }
-            else if (pct >= 70) { quotaBarFill.style.background = '#f59e0b'; }
-            else { quotaBarFill.style.background = '#4ade80'; }
+            document.getElementById('quotaInfo').classList.remove('hidden');
+            document.getElementById('quotaText').textContent = `${used} / ${DAILY_LIMIT}`;
+            const fill = document.getElementById('quotaBarFill');
+            fill.style.width = pct + '%';
+            fill.style.background = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#4ade80';
         }
 
         function parseMarkdown(text) {
@@ -619,29 +632,35 @@
         }
 
         async function login() {
-            const userVal = document.getElementById('user').value;
+            const userVal = document.getElementById('user').value.trim();
+            const passVal = document.getElementById('pass').value;
+            if (!userVal || !passVal) { notyf.error('Username dan password wajib diisi'); return; }
             const btn = event.target;
-            const originalText = btn.innerText;
+            const orig = btn.innerText;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';
             btn.disabled = true;
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: userVal, password: document.getElementById('pass').value })
+                    body: JSON.stringify({ username: userVal, password: passVal })
                 });
                 const data = await res.json();
                 if (data.success) {
                     localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminRole', data.role);
+                    localStorage.setItem('adminUser', data.username);
+                    currentRole     = data.role;
+                    currentUsername = data.username;
                     notyf.success('Login berhasil!');
                     showAdmin();
                 } else {
-                    notyf.error('Kredensial salah!');
+                    notyf.error(data.message || 'Kredensial salah!');
                 }
             } catch(e) {
                 notyf.error('Server error!');
             } finally {
-                btn.innerText = originalText;
+                btn.innerText = orig;
                 btn.disabled = false;
             }
         }
@@ -649,6 +668,18 @@
         function showAdmin() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('adminSection').classList.remove('hidden');
+            document.getElementById('usernameDisplay').textContent = `@${currentUsername}`;
+            const badge = document.getElementById('roleBadge');
+            if (currentRole === 'admin') {
+                badge.textContent = 'Admin';
+                badge.className = 'role-badge role-admin';
+                document.getElementById('tabManagePrompt').textContent = 'Manage All';
+            } else {
+                badge.textContent = 'Contributor';
+                badge.className = 'role-badge role-contributor';
+                document.getElementById('tabManagePrompt').textContent = 'My Prompts';
+                document.getElementById('quotaInfo').classList.remove('hidden');
+            }
         }
 
         function switchAdminTab(tab) {
@@ -669,12 +700,18 @@
         }
 
         async function loadManagePrompts() {
+            document.getElementById('manageContent').classList.add('hidden');
+            document.getElementById('manageLoading').classList.remove('hidden');
             try {
                 const res = await fetch('/api/get-all-prompts', {
                     headers: { 'Authorization': localStorage.getItem('adminToken') }
                 });
                 const result = await res.json();
-                if (!result.success) { notyf.error('Gagal load prompts'); return; }
+                if (!result.success) {
+                    if (res.status === 403) { notyf.error('Sesi tidak valid, silakan login ulang'); logout(); }
+                    else notyf.error('Gagal load prompts');
+                    return;
+                }
                 allPrompts = result.data;
                 renderManagePrompts();
             } catch(e) {
@@ -690,11 +727,14 @@
             const manageContent = document.getElementById('manageContent');
             const manageLoading = document.getElementById('manageLoading');
             if (filtered.length === 0) {
-                manageContent.innerHTML = `<p class="text-center text-sm font-bold uppercase py-8" style="color:var(--text-muted)">No prompts found</p>`;
+                manageContent.innerHTML = `<p class="text-center text-sm font-bold uppercase py-8" style="color:var(--text-muted)">${allPrompts.length === 0 ? 'Belum ada prompt' : 'No prompts found'}</p>`;
                 manageContent.classList.remove('hidden'); manageLoading.classList.add('hidden'); return;
             }
-            manageContent.innerHTML = filtered.map(prompt => `
-                <div class="prompt-item rounded-lg p-3">
+            manageContent.innerHTML = filtered.map(prompt => {
+                const deleteBtn = currentRole === 'admin'
+                    ? `<button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg"><i class="fa-solid fa-trash mr-1"></i>Delete</button>`
+                    : '';
+                return `<div class="prompt-item rounded-lg p-3">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <h4 class="font-bold text-sm" style="color:var(--text-primary)">${prompt.judul}</h4>
@@ -709,10 +749,10 @@
                     </div>
                     <div class="flex gap-2">
                         <button onclick="openEditModal('${prompt.slug}')" class="flex-1 btn-small edit rounded-lg"><i class="fa-solid fa-pencil mr-1"></i>Edit</button>
-                        <button onclick="openDeleteModal('${prompt.slug}')" class="flex-1 btn-small delete rounded-lg"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                        ${deleteBtn}
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
             manageContent.classList.remove('hidden'); manageLoading.classList.add('hidden');
         }
 
@@ -842,6 +882,7 @@
         });
 
         function openDeleteModal(slug) {
+            if (currentRole !== 'admin') { notyf.error('Hanya admin yang bisa menghapus prompt'); return; }
             const prompt = allPrompts.find(p => p.slug === slug);
             if (!prompt) return;
             promptToDelete = slug;
@@ -907,13 +948,11 @@
                     notyf.error('Password kosong!'); btn.innerHTML = orig; btn.disabled = false; return;
                 }
                 const body = {
-                    slug,
-                    judul,
+                    slug, judul,
                     kategori: document.getElementById('kategori').value,
                     description: document.getElementById('description').value,
                     isi: document.getElementById('isi').value,
-                    imageUrl,
-                    password,
+                    imageUrl, password,
                     clientTimestamp: Date.now(),
                 };
                 const res = await fetch('/api/add-prompt', {
@@ -922,9 +961,7 @@
                     body: JSON.stringify(body)
                 });
                 const result = await res.json();
-                if (res.status === 429) {
-                    notyf.error(result.message || 'Batas upload harian tercapai!'); return;
-                }
+                if (res.status === 429) { notyf.error(result.message || 'Batas upload harian tercapai!'); return; }
                 if (res.ok && result.success) {
                     if (result.remaining !== undefined) {
                         updateQuotaUI(DAILY_LIMIT - result.remaining);
@@ -944,8 +981,16 @@
             }
         }
 
-        function logout() {
+        async function logout() {
+            try {
+                await fetch('/api/login', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': localStorage.getItem('adminToken') }
+                });
+            } catch(e) {}
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminRole');
+            localStorage.removeItem('adminUser');
             location.reload();
         }
     </script>
