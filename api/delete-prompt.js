@@ -13,27 +13,29 @@ export default async function handler(req, res) {
     return res.status(403).json({ success: false, message: 'Tidak diizinkan' })
   }
 
-  const { slug } = req.body
+  const { slug, deleterName } = req.body
 
   if (!slug) {
     return res.status(400).json({ success: false, message: 'Slug diperlukan' })
   }
 
   try {
-    // Check if prompt exists
     const promptData = await redis.hgetall(`prompt:${slug}`)
-    
+
     if (!promptData || !promptData.judul) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    // Delete prompt data
+    const userData = await redis.hgetall(`user:${deleterName}`)
+    const role = userData?.role || 'contributor'
+
+    if (role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Hanya admin yang bisa menghapus prompt' })
+    }
+
     await redis.del(`prompt:${slug}`)
-    
-    // Delete associated analytics
     await redis.del(`analytics:${slug}`)
-    
-    // Delete session tokens if any
+
     const sessionKeys = await redis.keys(`session:${slug}:*`)
     if (sessionKeys && sessionKeys.length > 0) {
       for (const key of sessionKeys) {
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: 'Prompt berhasil dihapus!',
       deletedTitle: promptData.judul
