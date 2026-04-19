@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — AI Prompt Hub</title>
+    <title>Admin Panel - AI Library</title>
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         (function() {
             var t = localStorage.getItem('prompthub-theme') || 'dark';
@@ -18,1570 +17,806 @@
     </script>
     <style>
         :root, [data-theme="dark"] {
-            --bg:         #0a0a0a;
-            --bg2:        #111111;
-            --bg3:        #1a1a1a;
-            --border:     #2a2a2a;
-            --border2:    #3a3a3a;
-            --text:       #f0f0f0;
-            --text2:      #888;
-            --text3:      #555;
-            --accent:     #e8ff00;
-            --accent-dim: rgba(232,255,0,0.08);
-            --red:        #ff3333;
-            --green:      #00ff88;
-            --blue:       #4488ff;
-            --header-bg:  #0a0a0a;
-            --overlay:    rgba(0,0,0,0.9);
-            --inv-bg:     #f0f0f0;
-            --inv-text:   #0a0a0a;
+            --bg-base:        #0f0f0f;
+            --bg-surface:     #1a1a1a;
+            --bg-surface2:    #1f1f1f;
+            --bg-surface3:    #252525;
+            --border:         #2a2a2a;
+            --border-hover:   #444;
+            --text-primary:   #e5e5e5;
+            --text-secondary: #9ca3af;
+            --text-muted:     #6b7280;
+            --header-bg:      rgba(26,26,26,0.8);
+            --input-bg:       #1a1a1a;
+            --input-focus:    #1f1f1f;
+            --footer-bg:      rgba(26,26,26,0.95);
+            --sidebar-bg:     #1a1a1a;
+            --overlay-bg:     rgba(0,0,0,0.8);
+            --card-from:      #1a1a1a;
+            --card-to:        #1f1f1f;
+            --modal-bg-from:  #1a1a1a;
+            --modal-bg-to:    #1f1f1f;
+            --slug-bg:        #0f0f0f;
+            --prompt-item-from: #1a1a1a;
+            --prompt-item-to:   #1f1f1f;
+            --prompt-item-hover-from: #1f1f1f;
+            --prompt-item-hover-to:   #242424;
+            --shadow:         rgba(0,0,0,0.4);
+            --btn-bg:         #ffffff;
+            --btn-text:       #0f0f0f;
         }
         [data-theme="light"] {
-            --bg:         #f5f5f0;
-            --bg2:        #ebebeb;
-            --bg3:        #e0e0e0;
-            --border:     #cccccc;
-            --border2:    #aaaaaa;
-            --text:       #0a0a0a;
-            --text2:      #555;
-            --text3:      #888;
-            --accent:     #1a1aff;
-            --accent-dim: rgba(26,26,255,0.06);
-            --red:        #cc0000;
-            --green:      #006633;
-            --blue:       #0044cc;
-            --header-bg:  #f5f5f0;
-            --overlay:    rgba(0,0,0,0.7);
-            --inv-bg:     #0a0a0a;
-            --inv-text:   #f0f0f0;
+            --bg-base:        #f4f4f5;
+            --bg-surface:     #ffffff;
+            --bg-surface2:    #f9f9f9;
+            --bg-surface3:    #f0f0f0;
+            --border:         #e4e4e7;
+            --border-hover:   #a1a1aa;
+            --text-primary:   #18181b;
+            --text-secondary: #52525b;
+            --text-muted:     #71717a;
+            --header-bg:      rgba(255,255,255,0.9);
+            --input-bg:       #ffffff;
+            --input-focus:    #f9f9f9;
+            --footer-bg:      rgba(255,255,255,0.95);
+            --sidebar-bg:     #ffffff;
+            --overlay-bg:     rgba(0,0,0,0.5);
+            --card-from:      #ffffff;
+            --card-to:        #f9f9f9;
+            --modal-bg-from:  #ffffff;
+            --modal-bg-to:    #f9f9f9;
+            --slug-bg:        #f4f4f5;
+            --prompt-item-from: #ffffff;
+            --prompt-item-to:   #f9f9f9;
+            --prompt-item-hover-from: #f9f9f9;
+            --prompt-item-hover-to:   #f0f0f0;
+            --shadow:         rgba(0,0,0,0.06);
+            --btn-bg:         #18181b;
+            --btn-text:       #ffffff;
         }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Space Mono', monospace;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        /* ─── HEADER ─── */
-        header {
-            background: var(--header-bg);
-            border-bottom: 2px solid var(--text);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .header-inner {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 0 20px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .site-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .site-title img { width: 32px; height: 32px; object-fit: contain; }
-        .header-actions { display: flex; align-items: center; gap: 6px; }
-        .icon-btn {
-            background: none;
-            border: none;
-            color: var(--text2);
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.15s;
-        }
-        .icon-btn:hover { color: var(--text); }
-
-        /* ─── MAIN ─── */
-        main { flex: 1; max-width: 860px; margin: 0 auto; width: 100%; padding: 32px 20px; }
-
-        /* ─── LOGIN ─── */
-        .login-wrap {
-            max-width: 400px;
-            margin: 40px auto 0;
-            border: 2px solid var(--text);
-        }
-        .login-header {
-            background: var(--text);
-            color: var(--bg);
-            padding: 16px 24px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .login-body { padding: 24px; background: var(--bg2); }
-        .field-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text2);
-            display: block;
-            margin-bottom: 6px;
-        }
-        .field-input {
-            width: 100%;
-            background: var(--bg) !important;
-            border: 1.5px solid var(--border2) !important;
-            color: var(--text) !important;
-            padding: 10px 12px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.8rem;
-            outline: none;
-            transition: border-color 0.15s;
-            border-radius: 0 !important;
-        }
-        .field-input:focus { border-color: var(--accent) !important; }
-        .field-input::placeholder { color: var(--text3) !important; }
-        .field-group { margin-bottom: 16px; }
-        .pw-wrap { position: relative; }
-        .pw-wrap .field-input { padding-right: 40px; }
-        .pw-eye {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text3);
-            cursor: pointer;
-            transition: color 0.15s;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .pw-eye:hover { color: var(--text); }
-
-        .btn-primary {
-            width: 100%;
-            background: var(--text);
-            color: var(--bg);
-            border: none;
-            padding: 12px 24px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            margin-top: 8px;
-        }
-        .btn-primary:hover { background: var(--accent); color: #000; }
-        .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        /* ─── ADMIN NAV ─── */
-        .admin-nav {
-            border-bottom: 2px solid var(--text);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 28px;
-        }
-        .admin-tabs { display: flex; gap: 0; }
-        .tab-btn {
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 12px 20px 10px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text2);
-            cursor: pointer;
-            transition: color 0.15s, border-color 0.15s;
-            margin-bottom: -2px;
-        }
-        .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
-        .tab-btn:hover:not(.active) { color: var(--text); }
-        .admin-user-info { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
-        .user-handle {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text2);
-            letter-spacing: 0.05em;
-        }
-        .role-badge {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.65rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 2px 8px;
-            border: 1.5px solid;
-        }
-        .role-admin    { border-color: var(--red);   color: var(--red); }
-        .role-contributor { border-color: var(--green); color: var(--green); }
-        .btn-logout {
-            background: none;
-            border: none;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--red);
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: opacity 0.15s;
-        }
-        .btn-logout:hover { opacity: 0.7; }
-
-        /* ─── SECTION HEADER ─── */
-        .section-rule {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .section-rule-label {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text3);
-            white-space: nowrap;
-        }
-        .section-rule-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* ─── QUOTA ─── */
-        .quota-block {
-            border: 1.5px solid var(--border2);
-            background: var(--bg2);
-            padding: 14px 16px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .quota-label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--text3);
-            white-space: nowrap;
-        }
-        .quota-track {
-            flex: 1;
-            height: 3px;
-            background: var(--border);
-        }
-        .quota-fill {
-            height: 100%;
-            background: var(--accent);
-            transition: width 0.4s ease, background 0.3s;
-        }
-        .quota-num {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1rem;
-            font-weight: 900;
-            color: var(--text);
-            min-width: 40px;
-            text-align: right;
-        }
-
-        /* ─── FORM ─── */
-        .form-block { margin-bottom: 20px; }
-
-        .slug-preview {
-            background: var(--bg3);
-            border: 1.5px solid var(--border);
-            padding: 10px 12px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--text3);
-            transition: border-color 0.2s, color 0.2s;
-        }
-        .slug-preview.available  { border-color: var(--green); color: var(--green); }
-        .slug-preview.taken      { border-color: var(--red);   color: var(--red); }
-        .slug-preview.checking   { border-color: var(--accent); color: var(--accent); }
-
-        .hint {
-            font-size: 0.6rem;
-            color: var(--text3);
-            margin-top: 5px;
-            letter-spacing: 0.05em;
-        }
-
-        .pw-toggle-btn {
-            background: none;
-            border: 1.5px solid var(--border2);
-            color: var(--text2);
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .pw-toggle-btn.active {
-            border-color: var(--green);
-            color: var(--green);
-        }
-
-        .textarea-field {
-            width: 100%;
-            background: var(--bg) !important;
-            border: 1.5px solid var(--border2) !important;
-            color: var(--text) !important;
-            padding: 10px 12px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.78rem;
-            outline: none;
-            resize: vertical;
-            transition: border-color 0.15s;
-            border-radius: 0 !important;
-            line-height: 1.6;
-        }
-        .textarea-field:focus { border-color: var(--accent) !important; }
-        .textarea-field::placeholder { color: var(--text3) !important; }
-
-        .upload-btn {
-            width: 100%;
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 14px 24px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 900;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: opacity 0.15s;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .upload-btn:hover { opacity: 0.88; }
-        .upload-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        /* ─── MARKDOWN PREVIEW ─── */
-        .md-preview {
-            margin-top: 8px;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            background: var(--bg3);
-            font-size: 0.75rem;
-            line-height: 1.7;
-            color: var(--text2);
-        }
-        .md-preview strong { color: var(--text); font-weight: 700; }
-        .md-preview em { font-style: italic; }
-        .md-preview del { text-decoration: line-through; opacity: 0.6; }
-        .md-preview code { background: var(--bg); padding: 1px 5px; font-family: 'Space Mono', monospace; font-size: 0.85em; color: var(--accent); border: 1px solid var(--border2); }
-        .md-preview ol { margin: 6px 0; padding-left: 20px; list-style: decimal; }
-        .md-preview ul { margin: 6px 0; padding-left: 20px; list-style: disc; }
-        .md-preview li { margin: 3px 0; }
-        .md-preview blockquote { margin: 6px 0; padding: 6px 12px; border-left: 3px solid var(--accent); background: var(--bg2); font-style: italic; }
-        .hidden-el { display: none; }
-
-        /* ─── FILE INPUT ─── */
-        .file-field {
-            width: 100%;
-            background: var(--bg) !important;
-            border: 1.5px solid var(--border2);
-            color: var(--text) !important;
-            padding: 8px 12px;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.72rem;
-            cursor: pointer;
-        }
-        .file-field::file-selector-button {
-            background: var(--bg3);
-            border: 1px solid var(--border2);
-            color: var(--text2);
-            padding: 4px 10px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: background 0.15s;
-        }
-        .file-field::file-selector-button:hover { background: var(--border2); color: var(--text); }
-
-        .img-preview-box {
-            margin-top: 10px;
-            border: 1.5px solid var(--border);
-            padding: 8px;
-            background: var(--bg3);
-        }
-        .img-preview-box img { max-height: 140px; object-fit: cover; display: block; margin: 0 auto; }
-        .btn-remove-img {
-            background: none;
-            border: none;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--red);
-            cursor: pointer;
-            margin-top: 6px;
-            display: block;
-            transition: opacity 0.15s;
-        }
-        .btn-remove-img:hover { opacity: 0.7; }
-
-        /* ─── MANAGE / MY PROMPTS ─── */
-        .search-row { display: flex; gap: 8px; margin-bottom: 20px; }
-        .search-row .field-input { flex: 1; }
-        .btn-refresh {
-            background: var(--bg3);
-            border: 1.5px solid var(--border2);
-            color: var(--text2);
-            width: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-            flex-shrink: 0;
-        }
-        .btn-refresh:hover { background: var(--border2); color: var(--text); }
-
-        .loading-state {
-            padding: 40px 0;
-            text-align: center;
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text3);
-        }
-
-        .prompt-card {
-            border: 1.5px solid var(--border);
-            background: var(--bg2);
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            transition: border-color 0.15s;
-        }
-        .prompt-card:hover { border-color: var(--border2); }
-        .prompt-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-        .prompt-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text);
-        }
-        .prompt-meta {
-            font-size: 0.6rem;
-            color: var(--text3);
-            letter-spacing: 0.05em;
-            margin-top: 2px;
-        }
-        .prompt-time {
-            font-size: 0.6rem;
-            color: var(--text3);
-            font-family: 'Space Mono', monospace;
-            white-space: nowrap;
-            margin-left: 12px;
-            flex-shrink: 0;
-        }
-        .analytics-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-        .stat-pill {
-            font-size: 0.6rem;
-            color: var(--text3);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            letter-spacing: 0.05em;
-        }
-        .card-actions { display: flex; gap: 6px; }
-        .btn-card {
-            flex: 1;
-            border: none;
-            padding: 7px 0;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.15s;
-        }
-        .btn-card:hover { opacity: 0.8; }
-        .btn-card.edit   { background: var(--blue); color: #fff; }
-        .btn-card.delete { background: var(--red);  color: #fff; }
-
-        /* ─── MODAL ─── */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--overlay);
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s, visibility 0.2s;
-        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, var(--bg-base) 0%, var(--bg-surface) 100%); color: var(--text-primary); min-height: 100vh; transition: background 0.25s ease, color 0.25s ease; }
+        input, textarea { background-color: var(--input-bg) !important; border-color: var(--border) !important; color: var(--text-primary) !important; transition: all 0.3s ease; }
+        input:focus, textarea:focus { border-color: var(--border-hover) !important; background-color: var(--input-focus) !important; box-shadow: 0 0 0 3px rgba(128,128,128,0.1); }
+        input::placeholder, textarea::placeholder { color: var(--text-muted) !important; }
+        .image-preview { max-width: 100%; max-height: 160px; object-fit: cover; border-radius: 8px; }
+        header { background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+        .logo-img { width: 48px; height: 48px; object-fit: contain; }
+        .title-text { font-size: 1.375rem; line-height: 1.2; }
+        #sidebar-right { transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+        #overlay { transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s; }
+        #overlay.show { opacity: 1 !important; visibility: visible !important; }
+        @media (max-width: 767px) { #sidebar-right { transform: translateX(100%); } #sidebar-right.open { transform: translateX(0); } .title-text { font-size: 1.125rem; } .logo-img { width: 40px; height: 40px; } }
+        @media (min-width: 768px) { #sidebar-right { transform: translateX(0); } }
+        #themeToggleBtn { background: none; border: none; padding: 0; color: var(--text-primary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .login-card { border: 1px solid var(--border); background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%); box-shadow: 0 20px 60px var(--shadow); }
+        .admin-card { background: linear-gradient(135deg, var(--card-from) 0%, var(--card-to) 100%); border: 1px solid var(--border); box-shadow: 0 8px 24px var(--shadow); }
+        .btn-primary { background: var(--btn-bg); color: var(--btn-text); transition: all 0.3s ease; }
+        .btn-primary:hover { box-shadow: 0 4px 12px rgba(128,128,128,0.2); transform: translateY(-1px); opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .slug-preview { background: var(--slug-bg); border: 1px solid var(--border); color: var(--text-muted); transition: all 0.3s ease; }
+        .slug-preview.text-green-400 { border-color: #4ade80; background: rgba(74,222,128,0.05); }
+        .slug-preview.text-red-400 { border-color: #ef4444; background: rgba(239,68,68,0.05); }
+        .slug-preview.text-yellow-400 { border-color: #facc15; background: rgba(250,204,21,0.05); }
+        .password-toggle { background: var(--bg-surface2); border: 1px solid var(--border); color: var(--text-secondary); transition: all 0.3s ease; }
+        .password-toggle.active { background: rgba(74,222,128,0.1); border-color: #4ade80; color: #4ade80; }
+        label { font-size: 0.7rem; letter-spacing: 0.05em; color: var(--text-muted); }
+        input[type="file"] { font-size: 0.75rem; }
+        input[type="file"]::file-selector-button { padding: 0.4rem 0.8rem; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em; background: var(--text-secondary); color: var(--bg-base); border: none; border-radius: 0.5rem; cursor: pointer; transition: all 0.3s ease; }
+        input[type="file"]::file-selector-button:hover { background: var(--text-primary); }
+        .password-input-wrapper { position: relative; display: flex; align-items: center; }
+        .password-input-wrapper input { padding-right: 40px !important; width: 100%; }
+        .toggle-password-visibility { position: absolute; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; transition: color 0.3s ease; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; }
+        .toggle-password-visibility:hover { color: var(--text-primary); }
+        .toggle-password-visibility i { font-size: 0.875rem; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-box {
-            background: var(--bg);
-            border: 2px solid var(--text);
-            width: 100%;
-            max-width: 580px;
-            max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .modal-header {
-            background: var(--text);
-            color: var(--bg);
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        .modal-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 900;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--bg);
-            cursor: pointer;
-            font-size: 1.1rem;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.15s;
-        }
-        .modal-close:hover { opacity: 0.6; }
-        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-        .modal-footer { padding: 16px 20px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
+        .modal-content { background: linear-gradient(135deg, var(--modal-bg-from) 0%, var(--modal-bg-to) 100%); border: 1px solid var(--border); box-shadow: 0 20px 60px var(--shadow); border-radius: 1rem; max-width: 600px; width: 100%; max-height: 90vh; overflow: hidden; padding: 2rem; display: flex; flex-direction: column; }
+        .prompt-item { background: linear-gradient(135deg, var(--prompt-item-from) 0%, var(--prompt-item-to) 100%); border: 1px solid var(--border); transition: all 0.3s ease; }
+        .prompt-item:hover { border-color: var(--border-hover); background: linear-gradient(135deg, var(--prompt-item-hover-from) 0%, var(--prompt-item-hover-to) 100%); }
+        .btn-small { padding: 0.4rem 0.8rem; font-size: 0.7rem; transition: all 0.3s ease; }
+        .btn-small:hover { transform: translateY(-1px); }
+        .btn-small.edit { background: #3b82f6; border: 1px solid #2563eb; color: white; }
+        .btn-small.delete { background: #ef4444; border: 1px solid #dc2626; color: white; }
+        .btn-small.edit:hover { background: #2563eb; }
+        .btn-small.delete:hover { background: #dc2626; }
+        .sidebar-link { color: var(--text-muted); transition: background 0.2s, color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-surface2); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
+        .quota-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; margin-top: 6px; }
+        .quota-bar-fill { height: 100%; border-radius: 2px; background: #4ade80; transition: width 0.4s ease, background 0.3s ease; }
+        .markdown-preview { margin-top: 0.5rem; padding: 0.75rem; border-radius: 0.5rem; background: var(--bg-base); border: 1px solid var(--border); font-size: 0.8rem; line-height: 1.6; color: var(--text-secondary); }
+        .markdown-preview strong { color: var(--text-primary); font-weight: 700; }
+        .markdown-preview em { font-style: italic; }
+        .markdown-preview del { text-decoration: line-through; opacity: 0.7; }
+        .markdown-preview code { background: var(--bg-surface3); padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.85em; color: var(--text-primary); border: 1px solid var(--border); }
+        .markdown-preview ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style: decimal; }
+        .markdown-preview ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style: disc; }
+        .markdown-preview li { margin: 0.25rem 0; }
+        .markdown-preview blockquote { margin: 0.5rem 0; padding: 0.5rem 0.75rem; border-left: 3px solid var(--border-hover); background: var(--bg-surface2); font-style: italic; border-radius: 0 4px 4px 0; }
+        .role-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+        .role-admin { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .role-contributor { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
 
-        .delete-modal-box {
-            background: var(--bg);
-            border: 2px solid var(--red);
-            max-width: 380px;
-            width: 100%;
-            padding: 28px 24px;
-            text-align: center;
-        }
-        .delete-icon { font-size: 2rem; color: var(--red); margin-bottom: 14px; display: block; }
-        .delete-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
-        }
-        .delete-desc { font-size: 0.75rem; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
-        .delete-actions { display: flex; gap: 8px; }
-        .btn-cancel {
-            flex: 1;
-            background: none;
-            border: 1.5px solid var(--border2);
-            color: var(--text2);
-            padding: 10px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-        .btn-cancel:hover { opacity: 0.7; }
-        .btn-delete-confirm {
-            flex: 1;
-            background: var(--red);
-            border: none;
-            color: #fff;
-            padding: 10px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-        .btn-delete-confirm:hover { opacity: 0.85; }
+        /* ─── LAYOUT IMPROVEMENTS ONLY ─── */
 
-        /* ─── SIDEBAR ─── */
-        #sidebar-right {
-            position: fixed;
-            top: 0; right: 0;
-            height: 100%;
-            width: 240px;
-            background: var(--bg);
-            border-left: 2px solid var(--text);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-        }
-        .sidebar-head {
-            border-bottom: 2px solid var(--border);
-            padding: 18px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .sidebar-logo {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 900;
-            font-size: 1rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .sidebar-close-btn {
-            background: none;
-            border: none;
-            color: var(--text2);
-            cursor: pointer;
-            display: none;
-        }
-        .sidebar-body { flex: 1; overflow-y: auto; padding: 20px; }
-        .sidebar-section-label {
-            font-size: 0.55rem;
+        /* Tab underline style — lebih clean dari border-l */
+        .tab-btn {
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.07em;
             text-transform: uppercase;
-            color: var(--text3);
-            margin-bottom: 8px;
-            padding: 0 4px;
+            padding: 0 4px 10px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
         }
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 8px;
-            font-size: 0.78rem;
-            color: var(--text2);
-            text-decoration: none;
-            border: 1px solid transparent;
-            transition: all 0.15s;
-            margin-bottom: 2px;
-        }
-        .sidebar-link:hover { color: var(--text); border-color: var(--border); }
-        .sidebar-link.active { color: var(--text); border-color: var(--border2); background: var(--bg2); }
-        .sidebar-footer {
-            border-top: 1.5px solid var(--border);
-            padding: 16px 20px;
-        }
-        #overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--overlay);
-            z-index: 90;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.25s, visibility 0.25s;
-        }
-        #overlay.show { opacity: 1; visibility: visible; }
+        .tab-btn.tab-active { color: var(--text-primary); border-bottom-color: var(--text-primary); }
+        .tab-btn:hover:not(.tab-active) { color: var(--text-secondary); }
 
-        @media (max-width: 767px) {
-            #sidebar-right { transform: translateX(100%); }
-            #sidebar-right.open { transform: translateX(0); }
-            .sidebar-close-btn { display: flex; align-items: center; }
-        }
-        @media (min-width: 768px) {
-            #sidebar-right { transform: translateX(0); }
-            main { padding-right: 260px; }
-            .header-inner { padding-right: 260px; }
-        }
+        /* Field label + optional badge pada baris yang sama */
+        .label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+        .label-row label { margin-bottom: 0; }
+        .badge-optional { font-size: 0.58rem; padding: 1px 7px; border-radius: 999px; background: var(--bg-surface3); border: 1px solid var(--border); color: var(--text-muted); font-weight: 500; }
 
-        /* ─── FOOTER ─── */
-        footer {
-            border-top: 2px solid var(--border);
-            padding: 14px 20px;
-            text-align: center;
-        }
-        footer p {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text3);
-        }
+        /* Password protect row */
+        .pw-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+        .pw-label-row label { margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
 
-        /* ─── SPIN ─── */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .fa-spin { animation: spin 1s linear infinite; }
+        /* Form section block */
+        .form-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+        .form-section:last-child { border-bottom: none; }
 
-        /* ─── LABEL ROW ─── */
-        .label-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
+        /* Quota block */
+        .quota-row { display: flex; justify-content: space-between; align-items: center; }
+        .quota-num { font-size: 0.75rem; font-weight: 800; color: var(--text-primary); }
+
+        /* Analytics strip di prompt card */
+        .analytics-strip { display: flex; gap: 14px; padding: 6px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 8px 0; }
+        .analytics-strip span { font-size: 0.63rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+        /* Manage search row */
+        .search-bar-row { display: flex; gap: 8px; }
+        .search-bar-row input { flex: 1; }
+        .btn-sq { width: 40px; height: 40px; flex-shrink: 0; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; background: var(--bg-surface2); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+        .btn-sq:hover { border-color: var(--border-hover); color: var(--text-primary); }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-<header>
-    <div class="header-inner">
-        <div class="site-title">
-            <img src="/assets/prompt_hub.png" alt="">
-            AI Prompt Hub
-        </div>
-        <div class="header-actions">
-            <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            </button>
-            <button class="icon-btn md:hidden" id="sidebarToggleRight">
-                <i class="material-icons" style="font-size:20px">notes</i>
-            </button>
-        </div>
-    </div>
-</header>
-
-<main>
-
-    <!-- ─── LOGIN ─── -->
-    <div id="loginSection">
-        <div class="login-wrap">
-            <div class="login-header">
-                <i class="fa-solid fa-lock" style="font-size:1rem"></i>
-                Restricted Access
-            </div>
-            <div class="login-body">
-                <div class="field-group">
-                    <label class="field-label">Username</label>
-                    <input type="text" id="user" class="field-input" placeholder="your_username" autocomplete="username">
-                </div>
-                <div class="field-group">
-                    <label class="field-label">Password</label>
-                    <div class="pw-wrap">
-                        <input type="password" id="pass" class="field-input" placeholder="••••••••" autocomplete="current-password">
-                        <button class="pw-eye" id="toggleLoginPassword" type="button">
-                            <i class="fa-solid fa-eye" style="font-size:0.8rem"></i>
-                        </button>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="login()">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── ADMIN ─── -->
-    <div id="adminSection" class="hidden-el">
-
-        <div class="admin-nav">
-            <div class="admin-tabs">
-                <button class="tab-btn active" id="tabNew" onclick="switchAdminTab('new')">New Prompt</button>
-                <button class="tab-btn" id="tabManage" onclick="switchAdminTab('manage')">My Prompts</button>
-            </div>
-            <div class="admin-user-info">
-                <span class="user-handle" id="usernameDisplay"></span>
-                <span class="role-badge" id="roleBadge"></span>
-                <button class="btn-logout" onclick="logout()">Logout</button>
-            </div>
-        </div>
-
-        <!-- TAB: NEW PROMPT -->
-        <div id="tab-new">
-
-            <!-- Quota -->
-            <div id="quotaInfo" class="quota-block hidden-el">
-                <span class="quota-label"><i class="fa-solid fa-gauge-high" style="margin-right:4px"></i>Quota</span>
-                <div class="quota-track"><div id="quotaBarFill" class="quota-fill" style="width:0%"></div></div>
-                <span id="quotaText" class="quota-num">— / 10</span>
-            </div>
-
-            <!-- Judul -->
-            <div class="section-rule"><span class="section-rule-label">01 — Judul</span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <input type="text" id="judul" class="field-input" placeholder="Nama Prompt" style="width:100%">
-                <div class="hint" style="margin-top:6px">Slug otomatis di-generate dari judul</div>
-            </div>
-
-            <!-- Slug Preview -->
-            <div class="section-rule"><span class="section-rule-label">02 — URL Preview</span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <div id="slugPreview" class="slug-preview">/prompt/...</div>
-            </div>
-
-            <!-- Kategori -->
-            <div class="section-rule"><span class="section-rule-label">03 — Kategori</span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <input type="text" id="kategori" class="field-input" placeholder="Coding / Art / Writing / dll" style="width:100%">
-            </div>
-
-            <!-- Description -->
-            <div class="section-rule"><span class="section-rule-label">04 — Description <span style="opacity:.5">(opsional)</span></span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <textarea id="description" class="textarea-field" rows="3" placeholder="*bold* _italic_ ~strike~ &#96;&#96;&#96;code&#96;&#96;&#96; > quote 1. list - bullet"></textarea>
-                <div id="descriptionPreview" class="md-preview hidden-el"></div>
-            </div>
-
-            <!-- Password -->
-            <div class="section-rule">
-                <span class="section-rule-label">05 — Password Protection</span>
-                <div class="section-rule-line"></div>
-                <button type="button" id="togglePassword" class="pw-toggle-btn" onclick="togglePasswordField()">
-                    <i class="fa-solid fa-lock" style="margin-right:4px;font-size:.7rem"></i>Enable
-                </button>
-            </div>
-            <div class="form-block">
-                <div id="passwordField" class="hidden-el">
-                    <div class="pw-wrap">
-                        <input type="password" id="password" class="field-input" placeholder="Set password" autocomplete="off" style="width:100%">
-                        <button type="button" class="pw-eye" onclick="togglePasswordVisibilityAdmin()">
-                            <i class="fa-solid fa-eye" id="adminPwIcon" style="font-size:.8rem"></i>
-                        </button>
-                    </div>
-                    <div class="hint" style="color:#f59e0b;margin-top:5px">
-                        <i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>User perlu password untuk akses prompt ini
-                    </div>
-                </div>
-            </div>
-
-            <!-- Image -->
-            <div class="section-rule"><span class="section-rule-label">06 — Preview Image <span style="opacity:.5">(opsional)</span></span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <input type="file" id="imageFile" accept="image/*" class="file-field" style="width:100%">
-                <div id="imagePreviewContainer" class="img-preview-box hidden-el">
-                    <img id="imagePreview" alt="Preview">
-                    <button class="btn-remove-img" onclick="removeImage()">
-                        <i class="fa-solid fa-xmark"></i> Hapus Gambar
+    <header class="sticky top-0 z-10 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="title-text font-bold flex items-center gap-3" style="color: var(--text-primary)">
+                    <img src="/assets/prompt_hub.png" alt="Logo" class="logo-img">
+                    <span>AI Prompt Hub</span>
+                </h1>
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" onclick="toggleTheme()" title="Switch Theme">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </button>
+                    <button id="sidebarToggleRight" style="color: var(--text-primary)">
+                        <i class="material-icons text-2xl">notes</i>
                     </button>
                 </div>
             </div>
+        </div>
+    </header>
 
-            <!-- Isi Prompt -->
-            <div class="section-rule"><span class="section-rule-label">07 — Isi Prompt</span><div class="section-rule-line"></div></div>
-            <div class="form-block">
-                <textarea id="isi" class="textarea-field" rows="8" placeholder="Paste prompt di sini..."></textarea>
+    <main class="flex-grow p-4">
+
+        <!-- ─── LOGIN ─── -->
+        <div id="loginSection" class="max-w-sm mx-auto mt-12">
+            <div class="login-card rounded-xl overflow-hidden">
+                <div class="px-6 py-4" style="border-bottom: 1px solid var(--border)">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-xs" style="color: var(--text-muted)"></i>
+                        <span class="text-xs font-bold uppercase tracking-widest" style="color: var(--text-muted)">Restricted Access</span>
+                    </div>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <div>
+                        <label class="uppercase block mb-1.5">Username</label>
+                        <input type="text" id="user" class="w-full p-3 rounded-lg border outline-none text-sm" autocomplete="username">
+                    </div>
+                    <div>
+                        <label class="uppercase block mb-1.5">Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="pass" class="w-full p-3 rounded-lg border outline-none text-sm" autocomplete="current-password">
+                            <button type="button" id="toggleLoginPassword" class="toggle-password-visibility">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="login()" class="w-full btn-primary font-bold py-3 rounded-lg uppercase tracking-widest text-sm mt-2">Login</button>
+                </div>
             </div>
-
-            <button class="upload-btn" id="uploadBtn" onclick="save()">
-                <i class="fa-solid fa-upload"></i> Upload Prompt
-            </button>
-
         </div>
 
-        <!-- TAB: MY PROMPTS -->
-        <div id="tab-manage" class="hidden-el">
-            <div class="search-row">
-                <input type="text" id="searchManage" class="field-input" placeholder="Cari judul atau kategori...">
-                <button class="btn-refresh" onclick="loadManagePrompts()" title="Refresh">
-                    <i class="fa-solid fa-rotate-right" style="font-size:.85rem"></i>
-                </button>
+        <!-- ─── ADMIN ─── -->
+        <div id="adminSection" class="max-w-4xl mx-auto hidden">
+
+            <!-- Tab bar -->
+            <div class="flex items-end justify-between mb-5" style="border-bottom: 1px solid var(--border)">
+                <div class="flex gap-5">
+                    <button onclick="switchAdminTab('new')" id="tabNewPrompt" class="tab-btn tab-active">New Prompt</button>
+                    <button onclick="switchAdminTab('manage')" id="tabManagePrompt" class="tab-btn">My Prompts</button>
+                </div>
+                <div class="flex items-center gap-3 pb-2">
+                    <span id="usernameDisplay" class="text-xs font-semibold" style="color:var(--text-secondary)"></span>
+                    <span id="roleBadge" class="role-badge"></span>
+                    <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wide">Logout</button>
+                </div>
             </div>
-            <div id="manageLoading" class="loading-state">
-                <i class="fa-solid fa-circle-notch fa-spin"></i><br>Loading prompts...
-            </div>
-            <div id="manageContent" class="hidden-el"></div>
-        </div>
 
-    </div>
-</main>
+            <!-- ─── TAB: NEW PROMPT ─── -->
+            <div id="tab-new" class="tab-content active">
+                <div class="admin-card rounded-xl overflow-hidden">
 
-<footer>
-    <p>© 2026 AI Prompt Hub</p>
-</footer>
+                    <!-- Quota -->
+                    <div id="quotaInfo" class="hidden px-5 pt-4">
+                        <div class="p-3 rounded-lg" style="background: var(--bg-base); border: 1px solid var(--border)">
+                            <div class="quota-row">
+                                <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">
+                                    <i class="fa-solid fa-gauge-high mr-1.5"></i>Upload Quota Hari Ini
+                                </span>
+                                <span id="quotaText" class="quota-num">— / 10</span>
+                            </div>
+                            <div class="quota-bar mt-2">
+                                <div id="quotaBarFill" class="quota-bar-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
 
-<!-- ─── EDIT MODAL ─── -->
-<div id="editModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span class="modal-title">Edit Prompt</span>
-            <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <form id="editForm">
-                <input type="hidden" id="editSlug">
+                    <!-- Judul -->
+                    <div class="form-section">
+                        <label class="uppercase block mb-1.5">Judul Prompt</label>
+                        <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-sm">
+                        <p class="text-xs mt-1.5" style="color: var(--text-muted)">URL slug akan otomatis di-generate dari judul</p>
+                    </div>
 
-                <div class="field-group">
-                    <label class="field-label">Judul</label>
-                    <input type="text" id="editJudul" class="field-input" style="width:100%" required>
-                </div>
-                <div class="field-group">
-                    <label class="field-label">Kategori</label>
-                    <input type="text" id="editKategori" class="field-input" style="width:100%" required>
-                </div>
-                <div class="field-group">
-                    <label class="field-label">Description — Markdown Supported</label>
-                    <textarea id="editDescription" class="textarea-field" rows="3"></textarea>
-                    <div id="editDescriptionPreview" class="md-preview hidden-el"></div>
-                </div>
-                <div class="field-group">
-                    <div class="label-row">
-                        <label class="field-label" style="margin:0">Password</label>
-                        <button type="button" id="editTogglePassword" class="pw-toggle-btn" onclick="toggleEditPasswordField()">
-                            <i class="fa-solid fa-lock" style="margin-right:4px;font-size:.7rem"></i>Enable
+                    <!-- Slug Preview -->
+                    <div class="form-section">
+                        <label class="uppercase block mb-1.5">Preview URL</label>
+                        <div id="slugPreview" class="slug-preview w-full p-2.5 rounded-lg text-xs font-mono">/prompt/...</div>
+                    </div>
+
+                    <!-- Kategori -->
+                    <div class="form-section">
+                        <label class="uppercase block mb-1.5">Kategori</label>
+                        <input type="text" id="kategori" placeholder="Coding / Art / Writing / dll" class="w-full p-3 rounded-lg border outline-none text-sm">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-section">
+                        <div class="label-row">
+                            <label class="uppercase">Description</label>
+                            <span class="badge-optional">Opsional · Markdown</span>
+                        </div>
+                        <textarea id="description" rows="3" placeholder="*bold* _italic_ ~strike~ &#96;&#96;&#96;code&#96;&#96;&#96; > quote 1. list - bullet" class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
+                        <div id="descriptionPreview" class="markdown-preview hidden"></div>
+                    </div>
+
+                    <!-- Password Protection -->
+                    <div class="form-section">
+                        <div class="pw-label-row">
+                            <label class="uppercase">
+                                <i class="fa-solid fa-shield-halved text-xs"></i>
+                                Password Protection
+                            </label>
+                            <button type="button" id="togglePassword" onclick="togglePasswordField()" class="password-toggle px-3 py-1.5 rounded-lg text-xs font-bold uppercase">
+                                <i class="fa-solid fa-lock mr-1"></i>Enable
+                            </button>
+                        </div>
+                        <div id="passwordField" class="hidden mt-2">
+                            <div class="password-input-wrapper">
+                                <input type="password" id="password" placeholder="Set password untuk prompt ini" class="w-full p-3 rounded-lg border outline-none text-sm" autocomplete="off">
+                                <button type="button" class="toggle-password-visibility" onclick="togglePasswordVisibilityAdmin()">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-yellow-500 mt-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-exclamation-triangle text-xs"></i>
+                                User perlu password untuk mengakses prompt ini
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Preview Image -->
+                    <div class="form-section">
+                        <div class="label-row">
+                            <label class="uppercase"><i class="fa-solid fa-image text-xs mr-1"></i>Preview Image</label>
+                            <span class="badge-optional">Opsional</span>
+                        </div>
+                        <input type="file" id="imageFile" accept="image/*" class="w-full p-3 rounded-lg border outline-none">
+                        <div id="imagePreviewContainer" class="mt-3 hidden">
+                            <div class="rounded-lg p-2" style="border: 1px solid var(--border); background: var(--slug-bg)">
+                                <img id="imagePreview" class="image-preview mx-auto" alt="Preview">
+                            </div>
+                            <button onclick="removeImage()" class="mt-1.5 text-xs text-red-400 hover:text-red-300 font-semibold transition-colors">
+                                <i class="fa-solid fa-trash mr-1"></i>Hapus Gambar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Isi Prompt -->
+                    <div class="form-section">
+                        <label class="uppercase block mb-1.5">Isi Prompt</label>
+                        <textarea id="isi" rows="8" placeholder="Paste prompt di sini..." class="w-full p-3 rounded-lg border outline-none resize-none text-sm"></textarea>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="px-5 py-4">
+                        <button onclick="save()" id="uploadBtn" class="w-full btn-primary font-bold py-3.5 rounded-lg uppercase tracking-widest text-sm">
+                            <i class="fa-solid fa-upload mr-2"></i>Upload Prompt
                         </button>
                     </div>
-                    <div id="editPasswordField" class="hidden-el" style="margin-top:6px">
-                        <div class="pw-wrap">
-                            <input type="password" id="editPassword" class="field-input" placeholder="Leave empty to remove" autocomplete="off" style="width:100%">
-                            <button type="button" class="pw-eye" onclick="toggleEditPasswordVisibility()">
-                                <i class="fa-solid fa-eye" id="editPwIcon" style="font-size:.8rem"></i>
+
+                </div>
+            </div>
+
+            <!-- ─── TAB: MY PROMPTS ─── -->
+            <div id="tab-manage" class="tab-content">
+                <div class="admin-card rounded-xl overflow-hidden">
+                    <div class="px-5 py-4" style="border-bottom: 1px solid var(--border)">
+                        <div class="search-bar-row">
+                            <input type="text" id="searchManage" placeholder="Cari judul atau kategori..." class="p-2.5 rounded-lg border outline-none text-sm">
+                            <button onclick="loadManagePrompts()" class="btn-sq" title="Refresh">
+                                <i class="fa-solid fa-rotate-right text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="manageLoading" class="flex flex-col items-center justify-center py-12 gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xl" style="color: var(--text-muted)"></i>
+                        <p class="text-xs uppercase tracking-widest font-bold" style="color: var(--text-muted)">Loading...</p>
+                    </div>
+                    <div id="manageContent" class="hidden divide-y" style="--tw-divide-opacity:1; border-color: var(--border)"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-4 text-center mt-8" style="border-top: 1px solid var(--border); background: var(--footer-bg)">
+        <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted)">© 2026 Prompt Hub</p>
+    </footer>
+
+    <!-- ─── EDIT MODAL ─── -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-5 flex-shrink-0">
+                <h3 class="text-sm font-bold uppercase tracking-widest" style="color: var(--text-primary)">Edit Prompt</h3>
+                <button onclick="closeEditModal()" style="color: var(--text-muted)"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="editForm" class="space-y-4 flex-1 overflow-y-auto pr-1">
+                <input type="hidden" id="editSlug">
+                <div>
+                    <label class="uppercase block mb-1.5">Judul</label>
+                    <input type="text" id="editJudul" class="w-full p-2.5 rounded-lg border outline-none text-sm" required>
+                </div>
+                <div>
+                    <label class="uppercase block mb-1.5">Kategori</label>
+                    <input type="text" id="editKategori" class="w-full p-2.5 rounded-lg border outline-none text-sm" required>
+                </div>
+                <div>
+                    <div class="label-row">
+                        <label class="uppercase">Description</label>
+                        <span class="badge-optional">Markdown</span>
+                    </div>
+                    <textarea id="editDescription" rows="2" class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm"></textarea>
+                    <div id="editDescriptionPreview" class="markdown-preview hidden"></div>
+                </div>
+                <div>
+                    <div class="pw-label-row">
+                        <label class="uppercase"><i class="fa-solid fa-shield-halved text-xs mr-1"></i>Password</label>
+                        <button type="button" id="editTogglePassword" onclick="toggleEditPasswordField()" class="password-toggle px-2.5 py-1 rounded-lg text-xs font-bold uppercase">
+                            <i class="fa-solid fa-lock mr-1"></i>Enable
+                        </button>
+                    </div>
+                    <div id="editPasswordField" class="hidden mt-2">
+                        <div class="password-input-wrapper">
+                            <input type="password" id="editPassword" placeholder="Leave empty to remove protection" class="w-full p-2.5 rounded-lg border outline-none text-sm" autocomplete="off">
+                            <button type="button" onclick="toggleEditPasswordVisibility()" class="toggle-password-visibility">
+                                <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="field-group">
-                    <label class="field-label">Preview Image</label>
-                    <input type="file" id="editImageFile" accept="image/*" class="file-field" style="width:100%">
-                    <div id="editImagePreviewContainer" class="img-preview-box hidden-el">
-                        <img id="editImagePreview" alt="Preview">
-                        <button type="button" class="btn-remove-img" onclick="removeEditImage()">
-                            <i class="fa-solid fa-xmark"></i> Remove
+                <div>
+                    <div class="label-row">
+                        <label class="uppercase"><i class="fa-solid fa-image text-xs mr-1"></i>Image</label>
+                        <span class="badge-optional">Opsional</span>
+                    </div>
+                    <input type="file" id="editImageFile" accept="image/*" class="w-full p-2.5 rounded-lg border outline-none text-xs">
+                    <div id="editImagePreviewContainer" class="mt-2 hidden">
+                        <img id="editImagePreview" class="image-preview mx-auto" alt="Preview">
+                        <button type="button" onclick="removeEditImage()" class="mt-1 text-xs text-red-400 hover:text-red-300 font-semibold">
+                            <i class="fa-solid fa-trash mr-1"></i>Remove
                         </button>
                     </div>
                 </div>
-                <div class="field-group">
-                    <label class="field-label">Isi Prompt</label>
-                    <textarea id="editIsi" class="textarea-field" rows="6" required></textarea>
+                <div>
+                    <label class="uppercase block mb-1.5">Isi Prompt</label>
+                    <textarea id="editIsi" rows="5" class="w-full p-2.5 rounded-lg border outline-none resize-none text-sm" required></textarea>
                 </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2.5 rounded-lg uppercase tracking-widest text-sm flex-shrink-0 sticky bottom-0">
+                    <i class="fa-solid fa-save mr-2"></i>Save Changes
+                </button>
             </form>
         </div>
-        <div class="modal-footer">
-            <button class="upload-btn" onclick="document.getElementById('editForm').requestSubmit()" id="editSaveBtn">
-                <i class="fa-solid fa-save"></i> Save Changes
+    </div>
+
+    <!-- ─── DELETE MODAL ─── -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 380px;">
+            <div class="text-center">
+                <i class="fa-solid fa-exclamation-triangle text-3xl text-red-500 mb-3 block"></i>
+                <h3 class="text-sm font-bold uppercase tracking-widest mb-2" style="color: var(--text-primary)">Confirm Delete</h3>
+                <p id="deleteConfirmText" class="text-sm mb-5" style="color: var(--text-secondary)"></p>
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase" style="background: var(--bg-surface3); color: var(--text-secondary); border: 1px solid var(--border)">Cancel</button>
+                    <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase transition-all">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside id="sidebar-right" class="fixed top-0 right-0 h-full w-64 border-l z-[100] flex flex-col" style="background: var(--sidebar-bg); border-color: var(--border);">
+        <div class="px-8 pt-8 pb-6 md:pt-9 md:px-9 flex items-center justify-between flex-shrink-0">
+            <h1 class="text-xl font-medium" style="color: var(--text-primary)">#AIPromptHub</h1>
+            <button id="sidebarCloseRight" style="color: var(--text-primary)" class="flex items-center justify-center md:hidden">
+                <i class="material-icons text-2xl">close</i>
             </button>
         </div>
-    </div>
-</div>
-
-<!-- ─── DELETE MODAL ─── -->
-<div id="deleteModal" class="modal-overlay">
-    <div class="delete-modal-box">
-        <i class="fa-solid fa-triangle-exclamation delete-icon"></i>
-        <div class="delete-title">Confirm Delete</div>
-        <div id="deleteConfirmText" class="delete-desc"></div>
-        <div class="delete-actions">
-            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-            <button class="btn-delete-confirm" onclick="confirmDelete()">Delete</button>
-        </div>
-    </div>
-</div>
-
-<!-- ─── SIDEBAR ─── -->
-<aside id="sidebar-right">
-    <div class="sidebar-head">
-        <span class="sidebar-logo">#AIPromptHub</span>
-        <button class="sidebar-close-btn icon-btn" id="sidebarCloseRight">
-            <i class="material-icons" style="font-size:20px">close</i>
-        </button>
-    </div>
-    <div class="sidebar-body">
-        <div style="margin-bottom:20px">
-            <div class="sidebar-section-label">Dashboard</div>
-            <a href="/" class="sidebar-link">Home <i class="material-icons" style="font-size:14px;opacity:.4">chevron_right</i></a>
-            <a href="/leaderboard" class="sidebar-link">Leaderboard <i class="material-icons" style="font-size:14px;opacity:.4">chevron_right</i></a>
-            <a href="/request" class="sidebar-link">Request Prompt <i class="material-icons" style="font-size:14px;opacity:.4">chevron_right</i></a>
-        </div>
-        <div>
-            <div class="sidebar-section-label">Management</div>
-            <a href="/admin" class="sidebar-link active">Admin Panel <i class="material-icons" style="font-size:14px;opacity:.4">chevron_right</i></a>
-        </div>
-    </div>
-    <div class="sidebar-footer">
-        <div class="sidebar-section-label">Other</div>
-        <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer" class="sidebar-link">
-            <span>Support Us</span>
-            <i class="material-icons" style="font-size:14px;opacity:.4">arrow_outward</i>
-        </a>
-    </div>
-</aside>
-
-<div id="overlay"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-<script>
-    /* ─── THEME ─── */
-    (function() {
-        function getTheme() { return localStorage.getItem('prompthub-theme') || 'dark'; }
-        function applyTheme(t) {
-            document.documentElement.setAttribute('data-theme', t);
-            const btn = document.getElementById('themeBtn');
-            if (!btn) return;
-            if (t === 'light') {
-                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
-            } else {
-                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-            }
-        }
-        window.toggleTheme = function() {
-            const next = getTheme() === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('prompthub-theme', next);
-            applyTheme(next);
-        };
-        document.addEventListener('DOMContentLoaded', () => applyTheme(getTheme()));
-    })();
-
-    /* ─── SIDEBAR ─── */
-    const sidebarRight = document.getElementById('sidebar-right');
-    const overlay      = document.getElementById('overlay');
-    function openSidebar()  { sidebarRight.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow = 'hidden'; }
-    function closeSidebar() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow = ''; }
-    document.getElementById('sidebarToggleRight').onclick = openSidebar;
-    document.getElementById('sidebarCloseRight').onclick  = closeSidebar;
-    overlay.onclick = closeSidebar;
-
-    /* ─── NOTYF ─── */
-    const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: false, dismissible: true });
-
-    /* ─── STATE ─── */
-    const DAILY_LIMIT = 10;
-    let passwordEnabled = false, editPasswordEnabled = false;
-    let slugExists = false, allPrompts = [], promptToDelete = null;
-    let currentRole = 'contributor', currentUsername = '';
-
-    /* ─── INIT ─── */
-    (function init() {
-        const token = localStorage.getItem('adminToken');
-        if (!token) return;
-        currentRole     = localStorage.getItem('adminRole') || 'contributor';
-        currentUsername = localStorage.getItem('adminUser') || '';
-        showAdmin();
-    })();
-
-    /* ─── QUOTA ─── */
-    function updateQuotaUI(used) {
-        const pct = (used / DAILY_LIMIT) * 100;
-        document.getElementById('quotaInfo').classList.remove('hidden-el');
-        document.getElementById('quotaText').textContent = `${used} / ${DAILY_LIMIT}`;
-        const fill = document.getElementById('quotaBarFill');
-        fill.style.width = pct + '%';
-        fill.style.background = pct >= 100 ? 'var(--red)' : pct >= 70 ? '#f59e0b' : 'var(--accent)';
-    }
-
-    /* ─── MARKDOWN ─── */
-    function parseMarkdown(text) {
-        if (!text) return '';
-        let t = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        const lines = t.split('\n');
-        const out = []; let inList = false, inNL = false, inQ = false;
-        for (let i = 0; i < lines.length; i++) {
-            let l = lines[i];
-            if (l.match(/^\d+\.\s+/)) { if(!inNL){out.push('<ol>');inNL=true;} out.push(`<li>${inlineMD(l.replace(/^\d+\.\s+/,''))}</li>`); if(i===lines.length-1||!lines[i+1].match(/^\d+\.\s+/)){out.push('</ol>');inNL=false;} continue; } else if(inNL){out.push('</ol>');inNL=false;}
-            if (l.match(/^-\s+/)) { if(!inList){out.push('<ul>');inList=true;} out.push(`<li>${inlineMD(l.replace(/^-\s+/,''))}</li>`); if(i===lines.length-1||!lines[i+1].match(/^-\s+/)){out.push('</ul>');inList=false;} continue; } else if(inList){out.push('</ul>');inList=false;}
-            if (l.match(/^>\s+/)) { if(!inQ){out.push('<blockquote>');inQ=true;} out.push(inlineMD(l.replace(/^>\s+/,''))); if(i===lines.length-1||!lines[i+1].match(/^>\s+/)){out.push('</blockquote>');inQ=false;} continue; } else if(inQ){out.push('</blockquote>');inQ=false;}
-            out.push(l.trim()==='' ? '<br>' : inlineMD(l));
-        }
-        if(inList)out.push('</ul>'); if(inNL)out.push('</ol>'); if(inQ)out.push('</blockquote>');
-        return out.join('\n');
-    }
-    function inlineMD(t) {
-        t = t.replace(/\*_([^*_]+)_\*/g,'<strong><em>$1</em></strong>');
-        t = t.replace(/\*([^*]+)\*/g,'<strong>$1</strong>');
-        t = t.replace(/_([^_]+)_/g,'<em>$1</em>');
-        t = t.replace(/~([^~]+)~/g,'<del>$1</del>');
-        t = t.replace(/```([^`]+)```/g,'<code>$1</code>');
-        return t;
-    }
-    function updateMDPreview(inputId, previewId) {
-        const v = document.getElementById(inputId).value;
-        const p = document.getElementById(previewId);
-        if (!v.trim()) { p.classList.add('hidden-el'); p.innerHTML = ''; }
-        else { p.classList.remove('hidden-el'); p.innerHTML = parseMarkdown(v); }
-    }
-    document.getElementById('description').addEventListener('input', () => updateMDPreview('description','descriptionPreview'));
-    document.getElementById('editDescription').addEventListener('input', () => updateMDPreview('editDescription','editDescriptionPreview'));
-
-    /* ─── PASSWORD TOGGLES ─── */
-    document.getElementById('toggleLoginPassword').addEventListener('click', function() {
-        const i = document.getElementById('pass');
-        const ico = this.querySelector('i');
-        i.type = i.type === 'password' ? 'text' : 'password';
-        ico.className = i.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-    });
-    function togglePasswordVisibilityAdmin() {
-        const i = document.getElementById('password');
-        const ico = document.getElementById('adminPwIcon');
-        i.type = i.type === 'password' ? 'text' : 'password';
-        ico.className = i.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-    }
-    function toggleEditPasswordVisibility() {
-        const i = document.getElementById('editPassword');
-        const ico = document.getElementById('editPwIcon');
-        i.type = i.type === 'password' ? 'text' : 'password';
-        ico.className = i.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-    }
-    function togglePasswordField() {
-        passwordEnabled = !passwordEnabled;
-        const pf = document.getElementById('passwordField');
-        const btn = document.getElementById('togglePassword');
-        if (passwordEnabled) {
-            pf.classList.remove('hidden-el');
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fa-solid fa-lock-open" style="margin-right:4px;font-size:.7rem"></i>Enabled';
-        } else {
-            pf.classList.add('hidden-el');
-            btn.classList.remove('active');
-            btn.innerHTML = '<i class="fa-solid fa-lock" style="margin-right:4px;font-size:.7rem"></i>Enable';
-            document.getElementById('password').value = '';
-        }
-    }
-    function toggleEditPasswordField() {
-        editPasswordEnabled = !editPasswordEnabled;
-        const epf = document.getElementById('editPasswordField');
-        const etb = document.getElementById('editTogglePassword');
-        if (editPasswordEnabled) {
-            epf.classList.remove('hidden-el');
-            etb.classList.add('active');
-            etb.innerHTML = '<i class="fa-solid fa-lock-open" style="margin-right:4px;font-size:.7rem"></i>Enabled';
-        } else {
-            epf.classList.add('hidden-el');
-            etb.classList.remove('active');
-            etb.innerHTML = '<i class="fa-solid fa-lock" style="margin-right:4px;font-size:.7rem"></i>Enable';
-            document.getElementById('editPassword').value = '';
-        }
-    }
-
-    /* ─── SLUG ─── */
-    function capitalizeWords(t) { return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
-    function generateSlug(t) { return t.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
-
-    let slugCheckTimeout;
-    document.getElementById('judul').addEventListener('input', function(e) {
-        const val = e.target.value;
-        const cap = capitalizeWords(val);
-        if (cap !== val) e.target.value = cap;
-        const slug = generateSlug(e.target.value);
-        const preview = document.getElementById('slugPreview');
-        if (slug) {
-            preview.textContent = `/prompt/${slug}`;
-            preview.className = 'slug-preview checking';
-            clearTimeout(slugCheckTimeout);
-            slugCheckTimeout = setTimeout(() => checkSlugDuplicate(slug), 500);
-        } else {
-            preview.textContent = '/prompt/...';
-            preview.className = 'slug-preview';
-            slugExists = false;
-        }
-    });
-
-    async function checkSlugDuplicate(slug) {
-        const preview = document.getElementById('slugPreview');
-        try {
-            const res = await fetch('/api/check-slug', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
-                body: JSON.stringify({ slug })
-            });
-            const result = await res.json();
-            if (result.success && result.exists) {
-                slugExists = true;
-                preview.className = 'slug-preview taken';
-                preview.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>/prompt/${slug} — sudah dipakai oleh "${result.existingData.judul}"`;
-            } else {
-                slugExists = false;
-                preview.className = 'slug-preview available';
-                preview.innerHTML = `<i class="fa-solid fa-check" style="margin-right:6px"></i>/prompt/${slug}`;
-            }
-        } catch(e) {
-            slugExists = false;
-            preview.className = 'slug-preview';
-            preview.textContent = `/prompt/${slug}`;
-        }
-    }
-
-    /* ─── IMAGE ─── */
-    document.getElementById('imageFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const r = new FileReader();
-            r.onload = e => {
-                document.getElementById('imagePreview').src = e.target.result;
-                document.getElementById('imagePreviewContainer').classList.remove('hidden-el');
-            };
-            r.readAsDataURL(file);
-        }
-    });
-    function removeImage() {
-        document.getElementById('imageFile').value = '';
-        document.getElementById('imagePreviewContainer').classList.add('hidden-el');
-    }
-    document.getElementById('editImageFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const r = new FileReader();
-            r.onload = e => {
-                document.getElementById('editImagePreview').src = e.target.result;
-                document.getElementById('editImagePreviewContainer').classList.remove('hidden-el');
-            };
-            r.readAsDataURL(file);
-        }
-    });
-    function removeEditImage() {
-        document.getElementById('editImageFile').value = '';
-        document.getElementById('editImagePreviewContainer').classList.add('hidden-el');
-    }
-
-    /* ─── LOGIN ─── */
-    async function login() {
-        const u = document.getElementById('user').value.trim();
-        const p = document.getElementById('pass').value;
-        if (!u || !p) { notyf.error('Username dan password wajib diisi'); return; }
-        const btn = document.querySelector('#loginSection .btn-primary');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
-        btn.disabled = true;
-        try {
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: u, password: p })
-            });
-            const data = await res.json();
-            if (data.success) {
-                localStorage.setItem('adminToken', data.token);
-                localStorage.setItem('adminRole', data.role);
-                localStorage.setItem('adminUser', data.username);
-                currentRole = data.role; currentUsername = data.username;
-                notyf.success('Login berhasil!');
-                showAdmin();
-            } else {
-                notyf.error(data.message || 'Kredensial salah!');
-            }
-        } catch(e) { notyf.error('Server error!'); }
-        finally { btn.innerHTML = orig; btn.disabled = false; }
-    }
-
-    function showAdmin() {
-        document.getElementById('loginSection').classList.add('hidden-el');
-        document.getElementById('adminSection').classList.remove('hidden-el');
-        document.getElementById('usernameDisplay').textContent = `@${currentUsername}`;
-        const badge = document.getElementById('roleBadge');
-        if (currentRole === 'admin') {
-            badge.textContent = 'Admin';
-            badge.className = 'role-badge role-admin';
-            document.getElementById('tabManage').textContent = 'Manage All';
-        } else {
-            badge.textContent = 'Contributor';
-            badge.className = 'role-badge role-contributor';
-            document.getElementById('tabManage').textContent = 'My Prompts';
-            document.getElementById('quotaInfo').classList.remove('hidden-el');
-        }
-    }
-
-    /* ─── TABS ─── */
-    function switchAdminTab(tab) {
-        const tn = document.getElementById('tab-new');
-        const tm = document.getElementById('tab-manage');
-        const bn = document.getElementById('tabNew');
-        const bm = document.getElementById('tabManage');
-        if (tab === 'new') {
-            tn.classList.remove('hidden-el'); tm.classList.add('hidden-el');
-            bn.classList.add('active');       bm.classList.remove('active');
-        } else {
-            tn.classList.add('hidden-el');    tm.classList.remove('hidden-el');
-            bm.classList.add('active');       bn.classList.remove('active');
-            loadManagePrompts();
-        }
-    }
-
-    /* ─── MANAGE ─── */
-    async function loadManagePrompts() {
-        document.getElementById('manageContent').classList.add('hidden-el');
-        document.getElementById('manageLoading').classList.remove('hidden-el');
-        try {
-            const res = await fetch('/api/get-all-prompts', {
-                headers: { 'Authorization': localStorage.getItem('adminToken') }
-            });
-            const result = await res.json();
-            if (!result.success) {
-                if (res.status === 403) { notyf.error('Sesi tidak valid, silakan login ulang'); logout(); }
-                else notyf.error('Gagal load prompts');
-                return;
-            }
-            allPrompts = result.data;
-            renderManagePrompts();
-        } catch(e) { notyf.error('Error loading prompts'); }
-    }
-
-    function renderManagePrompts() {
-        const q = document.getElementById('searchManage').value.toLowerCase();
-        const list = allPrompts.filter(p => p.judul.toLowerCase().includes(q) || p.kategori.toLowerCase().includes(q));
-        const mc = document.getElementById('manageContent');
-        const ml = document.getElementById('manageLoading');
-        if (list.length === 0) {
-            mc.innerHTML = `<div class="loading-state">${allPrompts.length === 0 ? 'Belum ada prompt' : 'No results found'}</div>`;
-            mc.classList.remove('hidden-el'); ml.classList.add('hidden-el'); return;
-        }
-        mc.innerHTML = list.map(p => {
-            const delBtn = currentRole === 'admin'
-                ? `<button onclick="openDeleteModal('${p.slug}')" class="btn-card delete"><i class="fa-solid fa-trash"></i> Delete</button>`
-                : '';
-            return `<div class="prompt-card">
-                <div class="prompt-card-top">
-                    <div>
-                        <div class="prompt-title">${p.judul}${p.isProtected ? ' 🔒' : ''}</div>
-                        <div class="prompt-meta">${p.kategori}</div>
-                    </div>
-                    <div class="prompt-time">${p.createdAt}</div>
+        <div class="flex-1 overflow-y-auto px-5 pb-7">
+            <nav>
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Dashboard</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Home</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
+                    <a href="/leaderboard" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Leaderboard</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
+                    <a href="/request" class="sidebar-link flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Request Prompt</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
                 </div>
-                <div class="analytics-row">
-                    <span class="stat-pill"><i class="fa-solid fa-eye"></i>${p.analytics.views}</span>
-                    <span class="stat-pill"><i class="fa-solid fa-copy"></i>${p.analytics.copies}</span>
-                    <span class="stat-pill"><i class="fa-solid fa-download"></i>${p.analytics.downloads}</span>
+            </nav>
+            <nav class="mt-8">
+                <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Management Menu</p>
+                <div class="space-y-1 pl-2">
+                    <a href="/admin" class="sidebar-link active flex items-center justify-between py-1 pl-4 pr-3 text-sm rounded-xl"><span>Admin</span><i class="material-icons text-lg ml-3">keyboard_arrow_left</i></a>
                 </div>
-                <div class="card-actions">
-                    <button onclick="openEditModal('${p.slug}')" class="btn-card edit"><i class="fa-solid fa-pencil"></i> Edit</button>
-                    ${delBtn}
-                </div>
-            </div>`;
-        }).join('');
-        mc.classList.remove('hidden-el'); ml.classList.add('hidden-el');
-    }
+            </nav>
+        </div>
+        <div class="px-5 py-8 flex-shrink-0" style="border-top: 1px solid var(--border); background: var(--sidebar-bg)">
+            <p class="font-medium text-sm mb-4 px-4" style="color: var(--text-secondary)">Other Links</p>
+            <div class="space-y-1">
+                <a href="https://tiktok.com/@villain_is_born" target="_blank" rel="noopener noreferrer" class="sidebar-link flex items-center py-1 px-4 text-sm">
+                    <span class="material-icons text-sm mr-3">arrow_outward</span><span>Support Us</span>
+                </a>
+            </div>
+        </div>
+    </aside>
 
-    document.getElementById('searchManage').addEventListener('input', renderManagePrompts);
+    <div id="overlay" class="fixed inset-0 opacity-0 invisible z-[90] md:hidden" style="background: var(--overlay-bg)"></div>
 
-    /* ─── EDIT MODAL ─── */
-    function openEditModal(slug) {
-        const p = allPrompts.find(x => x.slug === slug);
-        if (!p) return;
-        document.getElementById('editSlug').value = slug;
-        document.getElementById('editJudul').value = p.judul;
-        document.getElementById('editKategori').value = p.kategori;
-        document.getElementById('editDescription').value = p.description;
-        document.getElementById('editIsi').value = p.isi;
-        updateMDPreview('editDescription','editDescriptionPreview');
-        editPasswordEnabled = p.isProtected;
-        const epf = document.getElementById('editPasswordField');
-        const etb = document.getElementById('editTogglePassword');
-        if (editPasswordEnabled) {
-            epf.classList.remove('hidden-el'); etb.classList.add('active');
-            etb.innerHTML = '<i class="fa-solid fa-lock-open" style="margin-right:4px;font-size:.7rem"></i>Enabled';
-            document.getElementById('editPassword').value = p.password;
-        } else {
-            epf.classList.add('hidden-el'); etb.classList.remove('active');
-            etb.innerHTML = '<i class="fa-solid fa-lock" style="margin-right:4px;font-size:.7rem"></i>Enable';
-            document.getElementById('editPassword').value = '';
-        }
-        if (p.imageUrl) {
-            document.getElementById('editImagePreview').src = p.imageUrl;
-            document.getElementById('editImagePreviewContainer').classList.remove('hidden-el');
-        } else {
-            document.getElementById('editImagePreviewContainer').classList.add('hidden-el');
-        }
-        document.getElementById('editImageFile').value = '';
-        document.getElementById('editModal').classList.add('show');
-    }
-    function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
-
-    document.getElementById('editForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const slug = document.getElementById('editSlug').value;
-        const btn  = document.getElementById('editSaveBtn');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
-        btn.disabled = true;
-        try {
-            let imageUrl = '';
-            const ef = document.getElementById('editImageFile').files[0];
-            if (ef) {
-                const fd = new FormData();
-                fd.append('file', ef);
-                const ur = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'Authorization': localStorage.getItem('adminToken') },
-                    body: fd
-                });
-                const ct = ur.headers.get('content-type');
-                if (!ct || !ct.includes('application/json')) throw new Error('Upload failed');
-                const ud = await ur.json();
-                if (!ud.success) throw new Error(ud.message || 'Image upload failed');
-                imageUrl = ud.imageUrl;
-            } else {
-                imageUrl = allPrompts.find(p => p.slug === slug)?.imageUrl || '';
-            }
-            const editData = {
-                slug,
-                judul: document.getElementById('editJudul').value,
-                kategori: document.getElementById('editKategori').value,
-                description: document.getElementById('editDescription').value,
-                isi: document.getElementById('editIsi').value,
-                imageUrl,
-                password: editPasswordEnabled ? document.getElementById('editPassword').value : '',
-            };
-            const res = await fetch('/api/edit-prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
-                body: JSON.stringify(editData)
-            });
-            const result = await res.json();
-            if (result.success) { notyf.success('Prompt updated!'); closeEditModal(); loadManagePrompts(); }
-            else notyf.error(result.message || 'Failed to update');
-        } catch(e) { notyf.error(e.message); }
-        finally { btn.innerHTML = orig; btn.disabled = false; }
-    });
-
-    /* ─── DELETE MODAL ─── */
-    function openDeleteModal(slug) {
-        if (currentRole !== 'admin') { notyf.error('Hanya admin yang bisa menghapus prompt'); return; }
-        const p = allPrompts.find(x => x.slug === slug);
-        if (!p) return;
-        promptToDelete = slug;
-        document.getElementById('deleteConfirmText').innerHTML = `Yakin mau hapus:<br><strong>${p.judul}</strong><br><span style="font-size:0.72rem;color:var(--text3)">${p.kategori}</span>`;
-        document.getElementById('deleteModal').classList.add('show');
-    }
-    function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); promptToDelete = null; }
-
-    async function confirmDelete() {
-        if (!promptToDelete) return;
-        const btn = document.querySelector('.btn-delete-confirm');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting...';
-        btn.disabled = true;
-        try {
-            const res = await fetch('/api/delete-prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
-                body: JSON.stringify({ slug: promptToDelete })
-            });
-            const result = await res.json();
-            if (result.success) { notyf.success('Prompt deleted!'); closeDeleteModal(); loadManagePrompts(); }
-            else notyf.error(result.message || 'Failed to delete');
-        } catch(e) { notyf.error('Error deleting prompt'); }
-        finally { btn.innerHTML = orig; btn.disabled = false; }
-    }
-
-    /* ─── SAVE ─── */
-    async function save() {
-        const btn  = document.getElementById('uploadBtn');
-        const orig = btn.innerHTML;
-        const judul = document.getElementById('judul').value;
-        const slug  = generateSlug(judul);
-        if (!slug || !judul || !document.getElementById('isi').value) { notyf.error('Judul dan isi prompt wajib diisi!'); return; }
-        if (slugExists) { notyf.error('Slug sudah dipakai! Ubah judul.'); return; }
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-        btn.disabled = true;
-        try {
-            let imageUrl = '';
-            const imgFile = document.getElementById('imageFile').files[0];
-            if (imgFile) {
-                const fd = new FormData();
-                fd.append('file', imgFile);
-                const ur = await fetch('/api/upload', {
-                    method: 'POST',
-                    headers: { 'Authorization': localStorage.getItem('adminToken') },
-                    body: fd
-                });
-                const ct = ur.headers.get('content-type');
-                if (!ct || !ct.includes('application/json')) throw new Error('Upload gagal: ' + (await ur.text()).substring(0,100));
-                const ud = await ur.json();
-                if (!ud.success) throw new Error(ud.message || 'Gagal upload gambar');
-                imageUrl = ud.imageUrl;
-            }
-            const password = passwordEnabled ? document.getElementById('password').value : '';
-            if (passwordEnabled && (!password || !password.trim())) { notyf.error('Password kosong!'); btn.innerHTML = orig; btn.disabled = false; return; }
-            const body = {
-                slug, judul,
-                kategori: document.getElementById('kategori').value,
-                description: document.getElementById('description').value,
-                isi: document.getElementById('isi').value,
-                imageUrl, password,
-                clientTimestamp: Date.now(),
-            };
-            const res = await fetch('/api/add-prompt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
-                body: JSON.stringify(body)
-            });
-            const result = await res.json();
-            if (res.status === 429) { notyf.error(result.message || 'Batas upload harian tercapai!'); return; }
-            if (res.ok && result.success) {
-                if (result.remaining !== undefined) {
-                    updateQuotaUI(DAILY_LIMIT - result.remaining);
-                    notyf.success(`Prompt diupload! Sisa hari ini: ${result.remaining}`);
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script>
+        (function() {
+            var STORAGE_KEY = 'prompthub-theme';
+            function getTheme() { return localStorage.getItem(STORAGE_KEY) || 'dark'; }
+            function applyTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                var btn = document.getElementById('themeToggleBtn');
+                if (!btn) return;
+                if (t === 'light') {
+                    btn.innerHTML = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--text-primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
+                    btn.title = 'Switch to Dark Mode';
                 } else {
-                    notyf.success('Prompt berhasil diupload!');
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-primary)"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+                    btn.title = 'Switch to Light Mode';
                 }
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                notyf.error('Gagal menyimpan: ' + (result.message || ''));
             }
-        } catch(e) { notyf.error('Error: ' + e.message); }
-        finally { btn.innerHTML = orig; btn.disabled = false; }
-    }
+            window.toggleTheme = function() {
+                var next = getTheme() === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(STORAGE_KEY, next);
+                applyTheme(next);
+            };
+            document.addEventListener('DOMContentLoaded', function() { applyTheme(getTheme()); });
+        })();
 
-    /* ─── LOGOUT ─── */
-    async function logout() {
-        try {
-            await fetch('/api/login', {
-                method: 'DELETE',
-                headers: { 'Authorization': localStorage.getItem('adminToken') }
-            });
-        } catch(e) {}
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminRole');
-        localStorage.removeItem('adminUser');
-        location.reload();
-    }
+        const sidebarToggleRight = document.getElementById('sidebarToggleRight');
+        const sidebarCloseRight  = document.getElementById('sidebarCloseRight');
+        const sidebarRight = document.getElementById('sidebar-right');
+        const overlay = document.getElementById('overlay');
+        function openSidebarRight()  { sidebarRight.classList.add('open'); overlay.classList.add('show'); overlay.classList.remove('opacity-0','invisible'); document.body.style.overflow='hidden'; }
+        function closeSidebarRight() { sidebarRight.classList.remove('open'); overlay.classList.remove('show'); overlay.classList.add('opacity-0','invisible'); document.body.style.overflow=''; }
+        sidebarToggleRight.onclick = openSidebarRight;
+        sidebarCloseRight.onclick  = closeSidebarRight;
+        overlay.onclick = closeSidebarRight;
 
-    /* ─── ENTER TO LOGIN ─── */
-    document.getElementById('pass').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-    document.getElementById('user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pass').focus(); });
-</script>
+        const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
+
+        const DAILY_LIMIT = 10;
+        let passwordEnabled = false, editPasswordEnabled = false;
+        let slugExists = false, allPrompts = [], promptToDelete = null;
+        let currentRole = 'contributor', currentUsername = '';
+
+        (function init() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            currentRole     = localStorage.getItem('adminRole') || 'contributor';
+            currentUsername = localStorage.getItem('adminUser') || '';
+            showAdmin();
+        })();
+
+        function updateQuotaUI(used) {
+            const pct = (used / DAILY_LIMIT) * 100;
+            document.getElementById('quotaInfo').classList.remove('hidden');
+            document.getElementById('quotaText').textContent = `${used} / ${DAILY_LIMIT}`;
+            const fill = document.getElementById('quotaBarFill');
+            fill.style.width = pct + '%';
+            fill.style.background = pct >= 100 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#4ade80';
+        }
+
+        function parseMarkdown(text) {
+            if (!text) return '';
+            let escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            const lines = escaped.split('\n');
+            const processed = [];
+            let inList = false, inNumberedList = false, inQuote = false;
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                if (line.match(/^\d+\.\s+/)) { if(!inNumberedList){processed.push('<ol>');inNumberedList=true;} processed.push(`<li>${processInlineMarkdown(line.replace(/^\d+\.\s+/,''))}</li>`); if(i===lines.length-1||!lines[i+1].match(/^\d+\.\s+/)){processed.push('</ol>');inNumberedList=false;} continue; } else if(inNumberedList){processed.push('</ol>');inNumberedList=false;}
+                if (line.match(/^-\s+/)) { if(!inList){processed.push('<ul>');inList=true;} processed.push(`<li>${processInlineMarkdown(line.replace(/^-\s+/,''))}</li>`); if(i===lines.length-1||!lines[i+1].match(/^-\s+/)){processed.push('</ul>');inList=false;} continue; } else if(inList){processed.push('</ul>');inList=false;}
+                if (line.match(/^>\s+/)) { if(!inQuote){processed.push('<blockquote>');inQuote=true;} processed.push(processInlineMarkdown(line.replace(/^>\s+/,''))); if(i===lines.length-1||!lines[i+1].match(/^>\s+/)){processed.push('</blockquote>');inQuote=false;} continue; } else if(inQuote){processed.push('</blockquote>');inQuote=false;}
+                if (line.trim()===''){processed.push('<br>');}else{processed.push(processInlineMarkdown(line));}
+            }
+            if(inList)processed.push('</ul>'); if(inNumberedList)processed.push('</ol>'); if(inQuote)processed.push('</blockquote>');
+            return processed.join('\n');
+        }
+        function processInlineMarkdown(text) {
+            text = text.replace(/\*_([^*_]+)_\*/g,'<strong><em>$1</em></strong>');
+            text = text.replace(/\*([^*]+)\*/g,'<strong>$1</strong>');
+            text = text.replace(/_([^_]+)_/g,'<em>$1</em>');
+            text = text.replace(/~([^~]+)~/g,'<del>$1</del>');
+            text = text.replace(/```([^`]+)```/g,'<code>$1</code>');
+            return text;
+        }
+        function updateMarkdownPreview(inputId, previewId) {
+            const v = document.getElementById(inputId).value;
+            const p = document.getElementById(previewId);
+            if (!v.trim()){p.classList.add('hidden');p.innerHTML='';}
+            else{p.classList.remove('hidden');p.innerHTML=parseMarkdown(v);}
+        }
+        document.getElementById('description').addEventListener('input', () => updateMarkdownPreview('description','descriptionPreview'));
+        document.getElementById('editDescription').addEventListener('input', () => updateMarkdownPreview('editDescription','editDescriptionPreview'));
+
+        document.getElementById('toggleLoginPassword').addEventListener('click', function() {
+            const i=document.getElementById('pass'), ico=this.querySelector('i');
+            i.type=i.type==='password'?'text':'password';
+            ico.className=i.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';
+        });
+        function togglePasswordVisibilityAdmin() {
+            const i=document.getElementById('password'), ico=document.querySelector('#passwordField .toggle-password-visibility i');
+            i.type=i.type==='password'?'text':'password';
+            ico.className=i.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';
+        }
+        function toggleEditPasswordVisibility() {
+            const i=document.getElementById('editPassword'), ico=document.querySelector('#editPasswordField .toggle-password-visibility i');
+            i.type=i.type==='password'?'text':'password';
+            ico.className=i.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';
+        }
+        function togglePasswordField() {
+            passwordEnabled=!passwordEnabled;
+            const pf=document.getElementById('passwordField'), btn=document.getElementById('togglePassword');
+            if(passwordEnabled){pf.classList.remove('hidden');btn.classList.add('active');btn.innerHTML='<i class="fa-solid fa-lock-open mr-1"></i>Enabled';}
+            else{pf.classList.add('hidden');btn.classList.remove('active');btn.innerHTML='<i class="fa-solid fa-lock mr-1"></i>Enable';document.getElementById('password').value='';}
+        }
+        function toggleEditPasswordField() {
+            editPasswordEnabled=!editPasswordEnabled;
+            const epf=document.getElementById('editPasswordField'), etb=document.getElementById('editTogglePassword');
+            if(editPasswordEnabled){epf.classList.remove('hidden');etb.classList.add('active');etb.innerHTML='<i class="fa-solid fa-lock-open mr-1"></i>Enabled';}
+            else{epf.classList.add('hidden');etb.classList.remove('active');etb.innerHTML='<i class="fa-solid fa-lock mr-1"></i>Enable';document.getElementById('editPassword').value='';}
+        }
+
+        function capitalizeWords(t){return t?t.charAt(0).toUpperCase()+t.slice(1):t;}
+        function generateSlug(t){return t.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+        let slugCheckTimeout;
+        document.getElementById('judul').addEventListener('input', function(e) {
+            const val=e.target.value, cap=capitalizeWords(val);
+            if(cap!==val)e.target.value=cap;
+            const slug=generateSlug(e.target.value);
+            const preview=document.getElementById('slugPreview');
+            if(slug){preview.innerText=`/prompt/${slug}`;preview.className='slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-yellow-400';clearTimeout(slugCheckTimeout);slugCheckTimeout=setTimeout(()=>checkSlugDuplicate(slug),500);}
+            else{preview.innerText='/prompt/...';preview.className='slug-preview w-full p-2.5 rounded-lg text-xs font-mono';slugExists=false;}
+        });
+        async function checkSlugDuplicate(slug) {
+            const preview=document.getElementById('slugPreview');
+            try {
+                const res=await fetch('/api/check-slug',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug})});
+                const result=await res.json();
+                if(result.success&&result.exists){slugExists=true;preview.className='slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-red-400';preview.innerHTML=`<i class="fa-solid fa-triangle-exclamation mr-1"></i>/prompt/${slug}<span class="text-[10px] ml-1">(Sudah dipakai oleh "${result.existingData.judul}")</span>`;}
+                else{slugExists=false;preview.className='slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-green-400';preview.innerHTML=`<i class="fa-solid fa-check mr-1"></i>/prompt/${slug}`;}
+            }catch(e){slugExists=false;preview.className='slug-preview w-full p-2.5 rounded-lg text-xs font-mono text-green-400';preview.innerText=`/prompt/${slug}`;}
+        }
+
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const f=e.target.files[0];if(f){const r=new FileReader();r.onload=e=>{document.getElementById('imagePreview').src=e.target.result;document.getElementById('imagePreviewContainer').classList.remove('hidden');};r.readAsDataURL(f);}
+        });
+        function removeImage(){document.getElementById('imageFile').value='';document.getElementById('imagePreviewContainer').classList.add('hidden');}
+        document.getElementById('editImageFile').addEventListener('change', function(e) {
+            const f=e.target.files[0];if(f){const r=new FileReader();r.onload=e=>{document.getElementById('editImagePreview').src=e.target.result;document.getElementById('editImagePreviewContainer').classList.remove('hidden');};r.readAsDataURL(f);}
+        });
+        function removeEditImage(){document.getElementById('editImageFile').value='';document.getElementById('editImagePreviewContainer').classList.add('hidden');}
+
+        async function login() {
+            const u=document.getElementById('user').value.trim(), p=document.getElementById('pass').value;
+            if(!u||!p){notyf.error('Username dan password wajib diisi');return;}
+            const btn=document.querySelector('#loginSection .btn-primary'), orig=btn.innerHTML;
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Verifying...';btn.disabled=true;
+            try{
+                const res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+                const data=await res.json();
+                if(data.success){localStorage.setItem('adminToken',data.token);localStorage.setItem('adminRole',data.role);localStorage.setItem('adminUser',data.username);currentRole=data.role;currentUsername=data.username;notyf.success('Login berhasil!');showAdmin();}
+                else notyf.error(data.message||'Kredensial salah!');
+            }catch(e){notyf.error('Server error!');}
+            finally{btn.innerHTML=orig;btn.disabled=false;}
+        }
+        document.getElementById('pass').addEventListener('keydown', e=>{if(e.key==='Enter')login();});
+        document.getElementById('user').addEventListener('keydown', e=>{if(e.key==='Enter')document.getElementById('pass').focus();});
+
+        function showAdmin() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.remove('hidden');
+            document.getElementById('usernameDisplay').textContent=`@${currentUsername}`;
+            const badge=document.getElementById('roleBadge');
+            if(currentRole==='admin'){badge.textContent='Admin';badge.className='role-badge role-admin';document.getElementById('tabManagePrompt').textContent='Manage All';}
+            else{badge.textContent='Contributor';badge.className='role-badge role-contributor';document.getElementById('quotaInfo').classList.remove('hidden');}
+        }
+
+        function switchAdminTab(tab) {
+            const tn=document.getElementById('tab-new'), tm=document.getElementById('tab-manage');
+            const bn=document.getElementById('tabNewPrompt'), bm=document.getElementById('tabManagePrompt');
+            if(tab==='new'){tn.classList.add('active');tm.classList.remove('active');bn.classList.add('tab-active');bm.classList.remove('tab-active');}
+            else{tn.classList.remove('active');tm.classList.add('active');bm.classList.add('tab-active');bn.classList.remove('tab-active');loadManagePrompts();}
+        }
+
+        async function loadManagePrompts() {
+            document.getElementById('manageContent').classList.add('hidden');
+            document.getElementById('manageLoading').classList.remove('hidden');
+            try{
+                const res=await fetch('/api/get-all-prompts',{headers:{'Authorization':localStorage.getItem('adminToken')}});
+                const result=await res.json();
+                if(!result.success){if(res.status===403){notyf.error('Sesi tidak valid, silakan login ulang');logout();}else notyf.error('Gagal load prompts');return;}
+                allPrompts=result.data;renderManagePrompts();
+            }catch(e){notyf.error('Error loading prompts');}
+        }
+
+        function renderManagePrompts() {
+            const q=document.getElementById('searchManage').value.toLowerCase();
+            const filtered=allPrompts.filter(p=>p.judul.toLowerCase().includes(q)||p.kategori.toLowerCase().includes(q));
+            const mc=document.getElementById('manageContent'), ml=document.getElementById('manageLoading');
+            if(filtered.length===0){
+                mc.innerHTML=`<div class="flex flex-col items-center justify-center py-12"><p class="text-xs uppercase tracking-widest font-bold" style="color:var(--text-muted)">${allPrompts.length===0?'Belum ada prompt':'No results found'}</p></div>`;
+                mc.classList.remove('hidden');ml.classList.add('hidden');return;
+            }
+            mc.innerHTML=filtered.map(p=>{
+                const delBtn=currentRole==='admin'?`<button onclick="openDeleteModal('${p.slug}')" class="flex-1 btn-small delete rounded-lg"><i class="fa-solid fa-trash mr-1"></i>Delete</button>`:'';
+                return `<div class="prompt-item px-5 py-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-semibold text-sm" style="color:var(--text-primary)">${p.judul}${p.isProtected?' 🔒':''}</h4>
+                            <p class="text-xs mt-0.5" style="color:var(--text-muted)">${p.kategori}</p>
+                        </div>
+                        <span class="text-xs flex-shrink-0 ml-4" style="color:var(--text-muted)">${p.createdAt}</span>
+                    </div>
+                    <div class="analytics-strip mt-2">
+                        <span><i class="fa-solid fa-eye"></i> ${p.analytics.views} views</span>
+                        <span><i class="fa-solid fa-copy"></i> ${p.analytics.copies} copies</span>
+                        <span><i class="fa-solid fa-download"></i> ${p.analytics.downloads} downloads</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openEditModal('${p.slug}')" class="flex-1 btn-small edit rounded-lg"><i class="fa-solid fa-pencil mr-1"></i>Edit</button>
+                        ${delBtn}
+                    </div>
+                </div>`;
+            }).join('');
+            mc.classList.remove('hidden');ml.classList.add('hidden');
+        }
+        document.getElementById('searchManage').addEventListener('input', renderManagePrompts);
+
+        function openEditModal(slug) {
+            const p=allPrompts.find(x=>x.slug===slug);if(!p)return;
+            document.getElementById('editSlug').value=slug;
+            document.getElementById('editJudul').value=p.judul;
+            document.getElementById('editKategori').value=p.kategori;
+            document.getElementById('editDescription').value=p.description;
+            document.getElementById('editIsi').value=p.isi;
+            updateMarkdownPreview('editDescription','editDescriptionPreview');
+            editPasswordEnabled=p.isProtected;
+            const epf=document.getElementById('editPasswordField'), etb=document.getElementById('editTogglePassword');
+            if(editPasswordEnabled){epf.classList.remove('hidden');etb.classList.add('active');etb.innerHTML='<i class="fa-solid fa-lock-open mr-1"></i>Enabled';document.getElementById('editPassword').value=p.password;}
+            else{epf.classList.add('hidden');etb.classList.remove('active');etb.innerHTML='<i class="fa-solid fa-lock mr-1"></i>Enable';document.getElementById('editPassword').value='';}
+            if(p.imageUrl){document.getElementById('editImagePreview').src=p.imageUrl;document.getElementById('editImagePreviewContainer').classList.remove('hidden');}
+            else document.getElementById('editImagePreviewContainer').classList.add('hidden');
+            document.getElementById('editImageFile').value='';
+            document.getElementById('editModal').classList.add('show');
+        }
+        function closeEditModal(){document.getElementById('editModal').classList.remove('show');}
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const slug=document.getElementById('editSlug').value;
+            const btn=this.querySelector('button[type="submit"]'), orig=btn.innerHTML;
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...';btn.disabled=true;
+            try{
+                let imageUrl='';
+                const ef=document.getElementById('editImageFile').files[0];
+                if(ef){const fd=new FormData();fd.append('file',ef);const ur=await fetch('/api/upload',{method:'POST',headers:{'Authorization':localStorage.getItem('adminToken')},body:fd});const ct=ur.headers.get('content-type');if(!ct||!ct.includes('application/json'))throw new Error('Upload failed');const ud=await ur.json();if(!ud.success)throw new Error(ud.message||'Image upload failed');imageUrl=ud.imageUrl;}
+                else{imageUrl=allPrompts.find(p=>p.slug===slug)?.imageUrl||'';}
+                const editData={slug,judul:document.getElementById('editJudul').value,kategori:document.getElementById('editKategori').value,description:document.getElementById('editDescription').value,isi:document.getElementById('editIsi').value,imageUrl,password:editPasswordEnabled?document.getElementById('editPassword').value:''};
+                const res=await fetch('/api/edit-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(editData)});
+                const result=await res.json();
+                if(result.success){notyf.success('Prompt updated!');closeEditModal();loadManagePrompts();}
+                else notyf.error(result.message||'Failed to update');
+            }catch(e){notyf.error(e.message);}
+            finally{btn.innerHTML=orig;btn.disabled=false;}
+        });
+
+        function openDeleteModal(slug) {
+            if(currentRole!=='admin'){notyf.error('Hanya admin yang bisa menghapus prompt');return;}
+            const p=allPrompts.find(x=>x.slug===slug);if(!p)return;
+            promptToDelete=slug;
+            document.getElementById('deleteConfirmText').innerHTML=`Yakin mau hapus:<br><strong>${p.judul}</strong><br><span style="font-size:0.72rem;color:var(--text-muted)">${p.kategori}</span>`;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('show');promptToDelete=null;}
+        async function confirmDelete() {
+            if(!promptToDelete)return;
+            const btn=document.querySelector('#deleteModal .bg-red-600'), orig=btn.innerHTML;
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i>Deleting...';btn.disabled=true;
+            try{
+                const res=await fetch('/api/delete-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug:promptToDelete})});
+                const result=await res.json();
+                if(result.success){notyf.success('Prompt deleted!');closeDeleteModal();loadManagePrompts();}
+                else notyf.error(result.message||'Failed to delete');
+            }catch(e){notyf.error('Error deleting prompt');}
+            finally{btn.innerHTML=orig;btn.disabled=false;}
+        }
+
+        async function save() {
+            const btn=document.getElementById('uploadBtn'), orig=btn.innerHTML;
+            const judul=document.getElementById('judul').value, slug=generateSlug(judul);
+            if(!slug||!judul||!document.getElementById('isi').value){notyf.error('Judul dan isi prompt wajib diisi!');return;}
+            if(slugExists){notyf.error('Slug sudah dipakai! Ubah judul.');return;}
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i>Processing...';btn.disabled=true;
+            try{
+                let imageUrl='';
+                const imgFile=document.getElementById('imageFile').files[0];
+                if(imgFile){const fd=new FormData();fd.append('file',imgFile);const ur=await fetch('/api/upload',{method:'POST',headers:{'Authorization':localStorage.getItem('adminToken')},body:fd});const ct=ur.headers.get('content-type');if(!ct||!ct.includes('application/json'))throw new Error('Upload gagal');const ud=await ur.json();if(!ud.success)throw new Error(ud.message||'Gagal upload');imageUrl=ud.imageUrl;}
+                const password=passwordEnabled?document.getElementById('password').value:'';
+                if(passwordEnabled&&(!password||!password.trim())){notyf.error('Password kosong!');btn.innerHTML=orig;btn.disabled=false;return;}
+                const body={slug,judul,kategori:document.getElementById('kategori').value,description:document.getElementById('description').value,isi:document.getElementById('isi').value,imageUrl,password,clientTimestamp:Date.now()};
+                const res=await fetch('/api/add-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(body)});
+                const result=await res.json();
+                if(res.status===429){notyf.error(result.message||'Batas upload harian tercapai!');return;}
+                if(res.ok&&result.success){
+                    if(result.remaining!==undefined){updateQuotaUI(DAILY_LIMIT-result.remaining);notyf.success(`Prompt diupload! Sisa: ${result.remaining} upload`);}
+                    else notyf.success('Prompt berhasil diupload!');
+                    setTimeout(()=>location.reload(),1500);
+                }else notyf.error('Gagal menyimpan: '+(result.message||''));
+            }catch(e){notyf.error('Error: '+e.message);}
+            finally{btn.innerHTML=orig;btn.disabled=false;}
+        }
+
+        async function logout(){
+            try{await fetch('/api/login',{method:'DELETE',headers:{'Authorization':localStorage.getItem('adminToken')}});}catch(e){}
+            localStorage.removeItem('adminToken');localStorage.removeItem('adminRole');localStorage.removeItem('adminUser');
+            location.reload();
+        }
+    </script>
 </body>
 </html>
