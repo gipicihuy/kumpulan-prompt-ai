@@ -130,26 +130,6 @@
         }
         #themeToggleBtn:hover { color: var(--text-primary); background: var(--bg-surface3); }
 
-        .back-home-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 7px;
-            border: 1px solid var(--border);
-            background: var(--bg-surface2);
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .back-home-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
-
         .profile-dropdown-wrap { position: relative; }
         .profile-btn {
             display: flex;
@@ -342,6 +322,11 @@
             color: var(--text-muted) !important;
             opacity: 0.7;
             font-size: 0.82rem;
+            font-family: inherit;
+        }
+        textarea {
+            font-family: inherit;
+            font-size: 0.85rem;
         }
 
         .input-wrap { position: relative; }
@@ -380,6 +365,22 @@
 
         .admin-section { display: none; }
         .admin-section.visible { display: block; }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+        .back-nav:hover { color: var(--text-primary); }
+        .back-nav i { font-size: 0.6rem; }
 
         .tab-bar {
             display: flex;
@@ -801,9 +802,6 @@
                 <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                 </button>
-                <a href="/" class="back-home-btn" title="Back to Home">
-                    <i class="fa-solid fa-arrow-left" style="font-size:0.6rem"></i> Home
-                </a>
 
                 <div class="profile-dropdown-wrap" id="profileWrap" style="display:none">
                     <button class="profile-btn" id="profileBtn">
@@ -871,6 +869,10 @@
 
         <div id="adminSection" class="admin-section">
 
+            <a href="/" class="back-nav">
+                <i class="fa-solid fa-chevron-left"></i> Back
+            </a>
+
             <div class="tab-bar">
                 <button onclick="switchAdminTab('new')" id="tabNew" class="tab-btn active">New Prompt</button>
                 <button onclick="switchAdminTab('manage')" id="tabManage" class="tab-btn">My Prompts</button>
@@ -908,7 +910,7 @@
 
                     <div class="card-section">
                         <div class="section-title"><i class="fa-solid fa-align-left"></i> Description <span style="font-size:0.6rem;color:var(--text-muted);font-weight:500;text-transform:none;letter-spacing:0">— optional · markdown</span></div>
-                        <textarea id="description" rows="3" placeholder="*bold* _italic_ ~strikethrough~ > blockquote - list"></textarea>
+                        <textarea id="description" rows="3" placeholder="e.g. *bold* _italic_ ~strikethrough~ - list"></textarea>
                         <div id="descPreview" class="markdown-preview"></div>
                     </div>
 
@@ -939,7 +941,7 @@
 
                     <div class="card-section">
                         <div class="section-title"><i class="fa-solid fa-code"></i> Prompt Content</div>
-                        <textarea id="isi" rows="10" placeholder="Paste your prompt here..."></textarea>
+                        <textarea id="isi" rows="10" placeholder="e.g. You are a helpful assistant that..."></textarea>
                     </div>
 
                     <div class="submit-section">
