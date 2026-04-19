@@ -7,25 +7,28 @@ const redis = new Redis({
 
 const CONTRIBUTOR_DAILY_LIMIT = 10
 
+async function verifySession(token) {
+  if (!token) return null
+  const username = await redis.get(`session:${token}`)
+  if (!username) return null
+  const userData = await redis.hgetall(`user:${username}`)
+  return { username, role: userData?.role || 'contributor' }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const authHeader = req.headers.authorization
-  if (authHeader !== 'RgumiU6yl%SX29I2') {
-    return res.status(403).json({ message: 'Tidak diizinkan' })
-  }
+  const session = await verifySession(req.headers.authorization)
+  if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
 
-  const { slug, kategori, judul, description, isi, adminName, imageUrl, password, clientTimestamp } = req.body
-
-  const userData = await redis.hgetall(`user:${adminName}`)
-  const role = userData?.role || 'contributor'
+  const { slug, kategori, judul, description, isi, imageUrl, password, clientTimestamp } = req.body
+  const { username, role } = session
 
   let currentCount = 0
 
   if (role === 'contributor') {
     const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
-    const rateLimitKey = `ratelimit:upload:${adminName}:${today}`
-
+    const rateLimitKey = `ratelimit:upload:${username}:${today}`
     const stored = await redis.get(rateLimitKey)
     currentCount = parseInt(stored) || 0
 
@@ -33,7 +36,7 @@ export default async function handler(req, res) {
       return res.status(429).json({
         success: false,
         message: `Batas upload harian tercapai (${CONTRIBUTOR_DAILY_LIMIT}/hari). Coba lagi besok!`,
-        remaining: 0
+        remaining: 0,
       })
     }
 
@@ -44,21 +47,20 @@ export default async function handler(req, res) {
     midnightWIB.setUTCHours(17, 0, 0, 0)
     if (nowWIB.getUTCHours() >= 17) midnightWIB.setUTCDate(midnightWIB.getUTCDate() + 1)
     const ttlSeconds = Math.floor((midnightWIB - now) / 1000)
-
     await redis.setex(rateLimitKey, ttlSeconds, currentCount + 1)
   }
 
   const timestamp = clientTimestamp || Date.now()
-
   const now = new Date(timestamp)
-  const createdAt = now.toLocaleString('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  const createdAt =
+    now.toLocaleString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }) + ' WIB'
 
   const normalizedKategori = (kategori || 'Lainnya').trim().toLowerCase()
 
@@ -66,9 +68,9 @@ export default async function handler(req, res) {
     kategori: normalizedKategori,
     judul,
     isi,
-    uploadedBy: adminName || 'Admin',
-    createdAt: createdAt + ' WIB',
-    timestamp: timestamp
+    uploadedBy: username,
+    createdAt,
+    timestamp,
   }
 
   if (description) promptData.description = description
@@ -85,8 +87,8 @@ export default async function handler(req, res) {
 
   const remaining = role === 'contributor' ? CONTRIBUTOR_DAILY_LIMIT - (currentCount + 1) : null
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
-    ...(remaining !== null && { remaining })
+    ...(remaining !== null && { remaining }),
   })
 }

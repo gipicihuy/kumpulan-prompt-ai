@@ -5,15 +5,21 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
+async function verifySession(token) {
+  if (!token) return null
+  const username = await redis.get(`session:${token}`)
+  if (!username) return null
+  const userData = await redis.hgetall(`user:${username}`)
+  return { username, role: userData?.role || 'contributor' }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' })
   }
 
-  const authHeader = req.headers.authorization
-  if (authHeader !== 'RgumiU6yl%SX29I2') {
-    return res.status(403).json({ success: false, message: 'Tidak diizinkan' })
-  }
+  const session = await verifySession(req.headers.authorization)
+  if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
 
   const { slug } = req.body
 
@@ -22,33 +28,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Cek apakah prompt dengan slug ini sudah ada
     const existingPrompt = await redis.hgetall(`prompt:${slug}`)
-    
+
     if (existingPrompt && existingPrompt.judul) {
-      // Prompt sudah ada
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         exists: true,
         existingData: {
           judul: existingPrompt.judul,
           kategori: existingPrompt.kategori,
           uploadedBy: existingPrompt.uploadedBy,
-          createdAt: existingPrompt.createdAt
-        }
-      })
-    } else {
-      // Prompt belum ada, aman untuk digunakan
-      return res.status(200).json({ 
-        success: true, 
-        exists: false 
+          createdAt: existingPrompt.createdAt,
+        },
       })
     }
+
+    return res.status(200).json({ success: true, exists: false })
   } catch (error) {
-    console.error('Check slug error:', error)
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Terjadi kesalahan server' 
-    })
+    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
   }
 }

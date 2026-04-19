@@ -5,15 +5,22 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
+async function verifySession(token) {
+  if (!token) return null
+  const username = await redis.get(`session:${token}`)
+  if (!username) return null
+  const userData = await redis.hgetall(`user:${username}`)
+  return { username, role: userData?.role || 'contributor' }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const authHeader = req.headers.authorization
-  if (authHeader !== 'RgumiU6yl%SX29I2') {
-    return res.status(403).json({ success: false, message: 'Tidak diizinkan' })
-  }
+  const session = await verifySession(req.headers.authorization)
+  if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
 
-  const { slug, kategori, judul, description, isi, imageUrl, password, editorName } = req.body
+  const { slug, kategori, judul, description, isi, imageUrl, password } = req.body
+  const { username, role } = session
 
   if (!slug || !judul || !isi) {
     return res.status(400).json({ success: false, message: 'Data tidak lengkap (slug, judul, isi wajib)' })
@@ -26,45 +33,41 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    const userData = await redis.hgetall(`user:${editorName}`)
-    const role = userData?.role || 'contributor'
-
-    if (role !== 'admin' && oldData.uploadedBy !== editorName) {
+    if (role !== 'admin' && oldData.uploadedBy !== username) {
       return res.status(403).json({ success: false, message: 'Kamu hanya bisa edit prompt milikmu sendiri' })
     }
 
     const normalizedKategori = (kategori || oldData.kategori || 'Lainnya').trim().toLowerCase()
 
-    const hasChanges = (
+    const hasChanges =
       judul !== oldData.judul ||
       isi !== oldData.isi ||
       normalizedKategori !== (oldData.kategori || '').toLowerCase() ||
       (description || '') !== (oldData.description || '') ||
       (imageUrl || '') !== (oldData.imageUrl || '') ||
       (password || '') !== (oldData.password || '')
-    )
 
     const now = new Date()
-    const updatedAt = now.toLocaleString('id-ID', {
-      timeZone: 'Asia/Jakarta',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    const updatedAt =
+      now.toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }) + ' WIB'
 
-    let originalCreatedAt = oldData.createdAt || '-'
-    originalCreatedAt = originalCreatedAt.replace(/\s*\(edited\)$/g, '').trim()
+    const originalCreatedAt = (oldData.createdAt || '-').replace(/\s*\(edited\)$/g, '').trim()
 
     const promptData = {
       kategori: normalizedKategori,
-      judul: judul,
-      isi: isi,
-      uploadedBy: oldData.uploadedBy || 'Admin',
+      judul,
+      isi,
+      uploadedBy: oldData.uploadedBy || username,
       createdAt: hasChanges ? `${originalCreatedAt} (edited)` : originalCreatedAt,
       timestamp: parseInt(oldData.timestamp) || now.getTime(),
-      updatedAt: updatedAt + ' WIB'
+      updatedAt,
     }
 
     if (description && description.trim() !== '') {
@@ -89,13 +92,12 @@ export default async function handler(req, res) {
 
     await redis.hset(`prompt:${slug}`, promptData)
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: hasChanges ? 'Prompt berhasil diupdate!' : 'Tidak ada perubahan',
-      slug: slug
+      slug,
     })
   } catch (error) {
-    console.error('❌ Error in edit-prompt:', error)
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
+    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
   }
 }

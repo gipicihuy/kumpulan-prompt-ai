@@ -5,15 +5,22 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
+async function verifySession(token) {
+  if (!token) return null
+  const username = await redis.get(`session:${token}`)
+  if (!username) return null
+  const userData = await redis.hgetall(`user:${username}`)
+  return { username, role: userData?.role || 'contributor' }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const authHeader = req.headers.authorization
-  if (authHeader !== 'RgumiU6yl%SX29I2') {
-    return res.status(403).json({ success: false, message: 'Tidak diizinkan' })
-  }
+  const session = await verifySession(req.headers.authorization)
+  if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
+  if (session.role !== 'admin') return res.status(403).json({ success: false, message: 'Hanya admin yang bisa menghapus prompt' })
 
-  const { slug, deleterName } = req.body
+  const { slug } = req.body
 
   if (!slug) {
     return res.status(400).json({ success: false, message: 'Slug diperlukan' })
@@ -26,13 +33,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    const userData = await redis.hgetall(`user:${deleterName}`)
-    const role = userData?.role || 'contributor'
-
-    if (role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Hanya admin yang bisa menghapus prompt' })
-    }
-
     await redis.del(`prompt:${slug}`)
     await redis.del(`analytics:${slug}`)
 
@@ -43,13 +43,12 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Prompt berhasil dihapus!',
-      deletedTitle: promptData.judul
+      deletedTitle: promptData.judul,
     })
   } catch (error) {
-    console.error('❌ Error in delete-prompt:', error)
-    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
+    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })
   }
 }
