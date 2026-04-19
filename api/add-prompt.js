@@ -5,6 +5,8 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 })
 
+const CONTRIBUTOR_DAILY_LIMIT = 10
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
@@ -14,16 +16,42 @@ export default async function handler(req, res) {
   }
 
   const { slug, kategori, judul, description, isi, adminName, imageUrl, password, clientTimestamp } = req.body
-  
-  // ✅ FIX: Prioritaskan timestamp dari CLIENT (browser user), fallback ke server time
+
+  const userData = await redis.hgetall(`user:${adminName}`)
+  const role = userData?.role || 'contributor'
+
+  let currentCount = 0
+
+  if (role === 'contributor') {
+    const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
+    const rateLimitKey = `ratelimit:upload:${adminName}:${today}`
+
+    const stored = await redis.get(rateLimitKey)
+    currentCount = parseInt(stored) || 0
+
+    if (currentCount >= CONTRIBUTOR_DAILY_LIMIT) {
+      return res.status(429).json({
+        success: false,
+        message: `Batas upload harian tercapai (${CONTRIBUTOR_DAILY_LIMIT}/hari). Coba lagi besok!`,
+        remaining: 0
+      })
+    }
+
+    const now = new Date()
+    const jakartaOffset = 7 * 60 * 60 * 1000
+    const nowWIB = new Date(now.getTime() + jakartaOffset)
+    const midnightWIB = new Date(nowWIB)
+    midnightWIB.setUTCHours(17, 0, 0, 0)
+    if (nowWIB.getUTCHours() >= 17) midnightWIB.setUTCDate(midnightWIB.getUTCDate() + 1)
+    const ttlSeconds = Math.floor((midnightWIB - now) / 1000)
+
+    await redis.setex(rateLimitKey, ttlSeconds, currentCount + 1)
+  }
+
   const timestamp = clientTimestamp || Date.now()
-  
-  console.log('🕐 Timestamp source:', clientTimestamp ? 'CLIENT' : 'SERVER');
-  console.log('🕐 Timestamp value:', timestamp);
-  
-  // Buat createdAt string untuk display (WIB)
+
   const now = new Date(timestamp)
-  const createdAt = now.toLocaleString('id-ID', { 
+  const createdAt = now.toLocaleString('id-ID', {
     timeZone: 'Asia/Jakarta',
     day: '2-digit',
     month: 'short',
@@ -32,33 +60,20 @@ export default async function handler(req, res) {
     minute: '2-digit'
   })
 
-  console.log('📅 Created at (WIB):', createdAt);
+  const normalizedKategori = (kategori || 'Lainnya').trim().toLowerCase()
 
-  // ✅ FIX: NORMALIZE KATEGORI - FORCE LOWERCASE!
-  const normalizedKategori = (kategori || 'Lainnya').trim().toLowerCase();
-  console.log('🏷️ Original kategori:', kategori, '→ Normalized:', normalizedKategori);
-
-  // Data yang akan disimpan
-  const promptData = { 
-    kategori: normalizedKategori, // ⬅️ SIMPAN DALAM LOWERCASE!
-    judul, 
-    isi, 
+  const promptData = {
+    kategori: normalizedKategori,
+    judul,
+    isi,
     uploadedBy: adminName || 'Admin',
     createdAt: createdAt + ' WIB',
-    timestamp: timestamp // ✅ Timestamp dari CLIENT untuk sorting dan timeAgo calculation
+    timestamp: timestamp
   }
 
-  // Tambahkan description jika ada
-  if (description) {
-    promptData.description = description
-  }
+  if (description) promptData.description = description
+  if (imageUrl) promptData.imageUrl = imageUrl
 
-  // Tambahkan imageUrl jika ada
-  if (imageUrl) {
-    promptData.imageUrl = imageUrl
-  }
-
-  // Tambahkan password jika ada
   if (password && password.trim() !== '') {
     promptData.password = password.trim()
     promptData.isProtected = true
@@ -66,9 +81,12 @@ export default async function handler(req, res) {
     promptData.isProtected = false
   }
 
-  console.log(`✅ Creating prompt with timestamp: ${timestamp} (${createdAt} WIB)`);
-
   await redis.hset(`prompt:${slug}`, promptData)
 
-  res.status(200).json({ success: true })
+  const remaining = role === 'contributor' ? CONTRIBUTOR_DAILY_LIMIT - (currentCount + 1) : null
+
+  res.status(200).json({
+    success: true,
+    ...(remaining !== null && { remaining })
+  })
 }
