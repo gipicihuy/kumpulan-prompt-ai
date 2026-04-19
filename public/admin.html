@@ -198,49 +198,46 @@
         .sidebar-link.active { background: var(--bg-surface2); color: var(--text-primary); border: 1px solid var(--border); }
         .tab-btn-active   { border-bottom: 3px solid var(--text-primary) !important; color: var(--text-primary) !important; }
         .tab-btn-inactive { border-bottom: 3px solid transparent !important; color: var(--text-muted) !important; }
-        
-        .markdown-preview { 
-            margin-top: 0.5rem; 
-            padding: 0.75rem; 
-            border-radius: 0.5rem; 
-            background: var(--bg-base); 
-            border: 1px solid var(--border); 
-            font-size: 0.8rem; 
+        .quota-bar {
+            height: 4px; border-radius: 2px;
+            background: var(--border);
+            overflow: hidden; margin-top: 6px;
+        }
+        .quota-bar-fill {
+            height: 100%; border-radius: 2px;
+            background: #4ade80;
+            transition: width 0.4s ease, background 0.3s ease;
+        }
+        .markdown-preview {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
             line-height: 1.6;
             color: var(--text-secondary);
         }
         .markdown-preview strong { color: var(--text-primary); font-weight: 700; }
         .markdown-preview em { font-style: italic; }
         .markdown-preview del { text-decoration: line-through; opacity: 0.7; }
-        .markdown-preview code { 
-            background: var(--bg-surface3); 
-            padding: 2px 6px; 
-            border-radius: 3px; 
-            font-family: 'Courier New', monospace; 
-            font-size: 0.85em; 
-            color: var(--text-primary); 
-            border: 1px solid var(--border); 
+        .markdown-preview code {
+            background: var(--bg-surface3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
         }
-        .markdown-preview ol { 
-            margin: 0.5rem 0; 
-            padding-left: 1.5rem; 
-            list-style: decimal; 
-        }
-        .markdown-preview ul { 
-            margin: 0.5rem 0; 
-            padding-left: 1.5rem; 
-            list-style: disc; 
-        }
-        .markdown-preview li { 
-            margin: 0.25rem 0; 
-        }
-        .markdown-preview blockquote { 
-            margin: 0.5rem 0; 
-            padding: 0.5rem 0.75rem; 
-            border-left: 3px solid var(--border-hover); 
-            background: var(--bg-surface2); 
-            font-style: italic; 
-            border-radius: 0 4px 4px 0; 
+        .markdown-preview ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style: decimal; }
+        .markdown-preview ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style: disc; }
+        .markdown-preview li { margin: 0.25rem 0; }
+        .markdown-preview blockquote {
+            margin: 0.5rem 0; padding: 0.5rem 0.75rem;
+            border-left: 3px solid var(--border-hover);
+            background: var(--bg-surface2); font-style: italic;
+            border-radius: 0 4px 4px 0;
         }
     </style>
 </head>
@@ -305,6 +302,19 @@
 
             <div id="tab-new" class="tab-content active">
                 <div class="space-y-4 admin-card p-5 rounded-xl">
+
+                    <div id="quotaInfo" class="hidden rounded-lg p-3" style="background: var(--bg-base); border: 1px solid var(--border)">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted)">
+                                <i class="fa-solid fa-gauge-high mr-1"></i>Upload Quota Hari Ini
+                            </span>
+                            <span id="quotaText" class="text-[10px] font-black" style="color: var(--text-primary)">- / 10</span>
+                        </div>
+                        <div class="quota-bar">
+                            <div id="quotaBarFill" class="quota-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="uppercase block mb-1.5">Judul Prompt</label>
                         <input type="text" id="judul" placeholder="Nama Prompt" class="w-full p-3 rounded-lg border outline-none text-sm">
@@ -556,95 +566,62 @@
         const token = localStorage.getItem('adminToken');
         if (token) showAdmin();
 
+        const DAILY_LIMIT = 10;
         let passwordEnabled = false;
         let editPasswordEnabled = false;
         let slugExists = false;
         let allPrompts = [];
         let promptToDelete = null;
 
+        function updateQuotaUI(used) {
+            const quotaInfo = document.getElementById('quotaInfo');
+            const quotaText = document.getElementById('quotaText');
+            const quotaBarFill = document.getElementById('quotaBarFill');
+            const remaining = DAILY_LIMIT - used;
+            const pct = (used / DAILY_LIMIT) * 100;
+            quotaInfo.classList.remove('hidden');
+            quotaText.textContent = `${used} / ${DAILY_LIMIT}`;
+            quotaBarFill.style.width = pct + '%';
+            if (pct >= 100) {
+                quotaBarFill.style.background = '#ef4444';
+            } else if (pct >= 70) {
+                quotaBarFill.style.background = '#f59e0b';
+            } else {
+                quotaBarFill.style.background = '#4ade80';
+            }
+        }
+
         function parseMarkdown(text) {
             if (!text) return '';
-            
-            let escaped = text
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-            
+            let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             const lines = escaped.split('\n');
             const processed = [];
-            let inList = false;
-            let inNumberedList = false;
-            let inQuote = false;
-            
+            let inList = false, inNumberedList = false, inQuote = false;
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
-                
                 if (line.match(/^\d+\.\s+/)) {
-                    if (!inNumberedList) {
-                        processed.push('<ol>');
-                        inNumberedList = true;
-                    }
-                    const content = line.replace(/^\d+\.\s+/, '');
-                    processed.push(`<li>${processInlineMarkdown(content)}</li>`);
-                    
-                    if (i === lines.length - 1 || !lines[i + 1].match(/^\d+\.\s+/)) {
-                        processed.push('</ol>');
-                        inNumberedList = false;
-                    }
+                    if (!inNumberedList) { processed.push('<ol>'); inNumberedList = true; }
+                    processed.push(`<li>${processInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}</li>`);
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^\d+\.\s+/)) { processed.push('</ol>'); inNumberedList = false; }
                     continue;
-                } else if (inNumberedList) {
-                    processed.push('</ol>');
-                    inNumberedList = false;
-                }
-                
+                } else if (inNumberedList) { processed.push('</ol>'); inNumberedList = false; }
                 if (line.match(/^-\s+/)) {
-                    if (!inList) {
-                        processed.push('<ul>');
-                        inList = true;
-                    }
-                    const content = line.replace(/^-\s+/, '');
-                    processed.push(`<li>${processInlineMarkdown(content)}</li>`);
-                    
-                    if (i === lines.length - 1 || !lines[i + 1].match(/^-\s+/)) {
-                        processed.push('</ul>');
-                        inList = false;
-                    }
+                    if (!inList) { processed.push('<ul>'); inList = true; }
+                    processed.push(`<li>${processInlineMarkdown(line.replace(/^-\s+/, ''))}</li>`);
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^-\s+/)) { processed.push('</ul>'); inList = false; }
                     continue;
-                } else if (inList) {
-                    processed.push('</ul>');
-                    inList = false;
-                }
-                
+                } else if (inList) { processed.push('</ul>'); inList = false; }
                 if (line.match(/^>\s+/)) {
-                    if (!inQuote) {
-                        processed.push('<blockquote>');
-                        inQuote = true;
-                    }
-                    const content = line.replace(/^>\s+/, '');
-                    processed.push(processInlineMarkdown(content));
-                    
-                    if (i === lines.length - 1 || !lines[i + 1].match(/^>\s+/)) {
-                        processed.push('</blockquote>');
-                        inQuote = false;
-                    }
+                    if (!inQuote) { processed.push('<blockquote>'); inQuote = true; }
+                    processed.push(processInlineMarkdown(line.replace(/^>\s+/, '')));
+                    if (i === lines.length - 1 || !lines[i + 1].match(/^>\s+/)) { processed.push('</blockquote>'); inQuote = false; }
                     continue;
-                } else if (inQuote) {
-                    processed.push('</blockquote>');
-                    inQuote = false;
-                }
-                
-                if (line.trim() === '') {
-                    processed.push('<br>');
-                } else {
-                    processed.push(processInlineMarkdown(line));
-                }
+                } else if (inQuote) { processed.push('</blockquote>'); inQuote = false; }
+                if (line.trim() === '') { processed.push('<br>'); } else { processed.push(processInlineMarkdown(line)); }
             }
-            
             if (inList) processed.push('</ul>');
             if (inNumberedList) processed.push('</ol>');
             if (inQuote) processed.push('</blockquote>');
-            
             return processed.join('\n');
         }
 
@@ -654,7 +631,6 @@
             text = text.replace(/_([^_]+)_/g, '<em>$1</em>');
             text = text.replace(/~([^~]+)~/g, '<del>$1</del>');
             text = text.replace(/```([^`]+)```/g, '<code>$1</code>');
-            
             return text;
         }
 
@@ -662,23 +638,12 @@
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
             const text = input.value;
-            
-            if (text.trim() === '') {
-                preview.classList.add('hidden');
-                preview.innerHTML = '';
-            } else {
-                preview.classList.remove('hidden');
-                preview.innerHTML = parseMarkdown(text);
-            }
+            if (text.trim() === '') { preview.classList.add('hidden'); preview.innerHTML = ''; }
+            else { preview.classList.remove('hidden'); preview.innerHTML = parseMarkdown(text); }
         }
 
-        document.getElementById('description').addEventListener('input', function() {
-            updateMarkdownPreview('description', 'descriptionPreview');
-        });
-
-        document.getElementById('editDescription').addEventListener('input', function() {
-            updateMarkdownPreview('editDescription', 'editDescriptionPreview');
-        });
+        document.getElementById('description').addEventListener('input', function() { updateMarkdownPreview('description', 'descriptionPreview'); });
+        document.getElementById('editDescription').addEventListener('input', function() { updateMarkdownPreview('editDescription', 'editDescriptionPreview'); });
 
         function togglePasswordVisibilityAdmin() {
             const pi = document.getElementById('password');
@@ -700,12 +665,10 @@
             const pf  = document.getElementById('passwordField');
             const btn = document.getElementById('togglePassword');
             if (passwordEnabled) {
-                pf.classList.remove('hidden');
-                btn.classList.add('active');
+                pf.classList.remove('hidden'); btn.classList.add('active');
                 btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Enabled';
             } else {
-                pf.classList.add('hidden');
-                btn.classList.remove('active');
+                pf.classList.add('hidden'); btn.classList.remove('active');
                 btn.innerHTML = '<i class="fa-solid fa-lock"></i> Enable';
                 document.getElementById('password').value = '';
             }
@@ -879,9 +842,7 @@
             document.getElementById('editKategori').value = prompt.kategori;
             document.getElementById('editDescription').value = prompt.description;
             document.getElementById('editIsi').value = prompt.isi;
-            
             updateMarkdownPreview('editDescription', 'editDescriptionPreview');
-            
             editPasswordEnabled = prompt.isProtected;
             const epf = document.getElementById('editPasswordField');
             const etb = document.getElementById('editTogglePassword');
@@ -1053,8 +1014,22 @@
                     headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
                     body: JSON.stringify(body)
                 });
-                if (res.ok) { notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : '')); setTimeout(() => location.reload(), 1500); }
-                else notyf.error('Gagal menyimpan: ' + (await res.text()).substring(0,100));
+                const result = await res.json();
+                if (res.status === 429) {
+                    notyf.error(result.message || 'Batas upload harian tercapai!');
+                    return;
+                }
+                if (res.ok && result.success) {
+                    if (result.remaining !== undefined) {
+                        updateQuotaUI(DAILY_LIMIT - result.remaining);
+                        notyf.success(`Prompt diupload! Sisa hari ini: ${result.remaining} upload${passwordEnabled ? ' 🔒' : ''}`);
+                    } else {
+                        notyf.success('Prompt berhasil diupload!' + (passwordEnabled ? ' 🔒' : ''));
+                    }
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    notyf.error('Gagal menyimpan: ' + (result.message || ''));
+                }
             } catch(e) { notyf.error('Error: ' + e.message); }
             finally { btn.innerHTML = orig; btn.disabled = false; }
         }
