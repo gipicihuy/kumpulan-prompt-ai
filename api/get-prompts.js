@@ -18,11 +18,12 @@ export default async function handler(req, res) {
         const item = await redis.hgetall(key)
         const cleanId = key.replace(/^prompt:/, '')
         
-        // Fetch profile URL dari user
-        let profileUrl = '';
+          let profileUrl = '';
+        let isAdmin = false;
         if (item.uploadedBy) {
           const userData = await redis.hgetall(`user:${item.uploadedBy}`);
           profileUrl = userData?.profileUrl || '';
+          isAdmin = userData?.role === 'admin';
         }
         
         // Cek apakah prompt ini protected
@@ -54,6 +55,7 @@ export default async function handler(req, res) {
           profileUrl: profileUrl,
           timestamp: parseInt(item.timestamp) || 0,
           isProtected: isProtected,
+          isAdmin: isAdmin,
           // Analytics data dengan safe defaults
           analytics: analytics,
           // Password TIDAK PERNAH di-expose ke client!
