@@ -1324,8 +1324,11 @@
             document.getElementById('adminSection').classList.add('visible');
             document.getElementById('profileWrap').style.display = 'flex';
 
-            document.getElementById('profileBtnName').textContent = '@' + currentUsername;
-            document.getElementById('ddName').textContent = '@' + currentUsername;
+const verifiedHtml = currentRole === 'admin'
+                    ? ' <img src="/assets/verified.svg" style="width:11px;height:11px;vertical-align:middle;" alt="✓">'
+                    : '';
+                document.getElementById('profileBtnName').innerHTML = '@' + currentUsername + verifiedHtml;
+                document.getElementById('ddName').innerHTML = '@' + currentUsername + verifiedHtml;
 
             const ddRole = document.getElementById('ddRole');
             if(currentRole === 'admin'){
