@@ -304,7 +304,7 @@ async function handleProfilePage(req, res, username) {
   try {
     const keys = await redis.keys('prompt:*');
     if (!keys || keys.length === 0) {
-      return renderProfileHtml(res, username, null, [], {});
+      return renderProfileHtml(res, username, null, [], {}, false);
     }
 
     const allPrompts = await Promise.all(
@@ -329,7 +329,7 @@ async function handleProfilePage(req, res, username) {
     );
 
     if (userPrompts.length === 0) {
-      return renderProfileHtml(res, username, null, [], {});
+      return renderProfileHtml(res, username, null, [], {}, false);
     }
 
     const displayName = userPrompts[0].uploadedBy;
@@ -348,7 +348,7 @@ async function handleProfilePage(req, res, username) {
 
     promptsWithProfile.sort((a, b) => (parseInt(b.timestamp) || 0) - (parseInt(a.timestamp) || 0));
 
-    return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats);
+    return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats, ownerIsAdmin);
 
   } catch (error) {
     console.error('Error in handleProfilePage:', error);
@@ -356,7 +356,7 @@ async function handleProfilePage(req, res, username) {
   }
 }
 
-function renderProfileHtml(res, username, profileUrl, prompts, stats) {
+function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdmin = false) {
   const defaultImage = 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
   const metaImage    = profileUrl && profileUrl.trim() !== '' ? profileUrl : defaultImage;
   const pageTitle    = `@${username} - AI Prompt Hub`;
@@ -398,7 +398,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
       </div>
       <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${isProtected ? 'protected-text italic' : ''}" style="${isProtected ? '' : 'color:var(--text-secondary)'}">${preview}</p>
       <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
-        <div class="flex items-center gap-2">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${item.isAdmin ? verifiedBadge(true) : ''}</div>
+        <div class="flex items-center gap-1.5">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</div>
         <div class="flex items-center gap-3 text-xs">
           <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.views)}</span></div>
           <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.copies)}</span></div>
@@ -509,7 +509,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
             <div class="profile-hero rounded-lg p-4">
                 <div class="flex flex-col items-center text-center mb-4">
                     <div class="mb-3">${avatarHtml}</div>
-                    <p class="text-sm font-bold mt-0.5" style="color:var(--text-primary)">@${username}</p>
+                    <p class="text-sm font-bold mt-0.5 flex items-center justify-center gap-1" style="color:var(--text-primary)">@${username}${verifiedBadge(ownerIsAdmin)}</p>
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.prompts || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
@@ -580,7 +580,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 
 function verifiedBadge(isAdmin) {
   return isAdmin
-    ? '<img src="/assets/verified.svg" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-left:3px;" alt="verified">'
+    ? '<img src="/assets/verified.svg" style="width:12px;height:12px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-left:2px;" alt="verified">'
     : '';
 }
 
