@@ -114,7 +114,7 @@
                 <div class="flex flex-col items-center text-center mb-4">
                     <div id="avatarContainer" class="mb-3"></div>
                     
-                    <p id="profileHandle" class="text-sm font-bold mt-0.5" style="color:var(--text-primary)"></p>
+                    <p id="profileHandle" class="text-sm font-bold mt-0.5 flex items-center justify-center gap-1" style="color:var(--text-primary)"></p>
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p id="statPrompts" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
@@ -180,6 +180,10 @@
         function closeSR(){sr.classList.remove('open');ov.classList.remove('show');ov.classList.add('opacity-0','invisible');document.body.style.overflow='';}
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
+        function verifiedBadge(isAdmin) {
+            return isAdmin ? '<img src="/assets/verified.svg" style="width:12px;height:12px;flex-shrink:0;" alt="✓">' : '';
+        }
+
         function formatNumber(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
 
         function toTitleCase(str){const s={'chatgpt':'ChatGPT','openai':'OpenAI','ai':'AI','api':'API','ui':'UI','ux':'UX','seo':'SEO','html':'HTML','css':'CSS','javascript':'JavaScript','nodejs':'Node.js','reactjs':'React.js','vuejs':'Vue.js','ios':'iOS','macos':'macOS','iphone':'iPhone','ipad':'iPad','youtube':'YouTube','tiktok':'TikTok','linkedin':'LinkedIn','github':'GitHub','wordpress':'WordPress','midjourney':'Midjourney','dalle':'DALL-E','gpt':'GPT','llm':'LLM','nft':'NFT','pdf':'PDF','json':'JSON','xml':'XML','sql':'SQL','php':'PHP','csharp':'C#','cplusplus':'C++','vscode':'VSCode','figma':'Figma','photoshop':'Photoshop','excel':'Excel','powerpoint':'PowerPoint'};return str.split(' ').map(w=>{const l=w.toLowerCase();return s[l]||(w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).join(' ');}
@@ -204,7 +208,8 @@
                 if(profileUrl){ac.innerHTML=`<img src="${profileUrl}" class="w-14 h-14 rounded-full object-cover" style="border:1px solid var(--border-hover)" alt="${displayName}">`;}
                 else{ac.innerHTML=`<div class="w-14 h-14 rounded-full flex items-center justify-center profile-placeholder" style="border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-xl" style="color:var(--text-muted)"></i></div>`;}
                 
-                document.getElementById('profileHandle').textContent=`@${displayName}`;
+                const isAdminUser = userPrompts[0]?.isAdmin || false;
+                document.getElementById('profileHandle').innerHTML=`@${displayName}${verifiedBadge(isAdminUser)}`;
                 document.getElementById('statPrompts').textContent=formatNumber(userPrompts.length);
                 document.getElementById('statViews').textContent=formatNumber(totalViews);
                 document.getElementById('statCopies').textContent=formatNumber(totalCopies);
@@ -228,7 +233,7 @@
                         </div>
                         <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected?'protected-text italic':''}" style="${item.isProtected?'':'color:var(--text-secondary)'}">${preview}</p>
                         <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
-                            <div class="flex items-center gap-2">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span></div>
+                            <div class="flex items-center gap-1.5">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</div>
                             <div class="flex items-center gap-3 text-xs">
                                 <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${formatNumber(ana.views)}</span></div>
                                 <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${formatNumber(ana.copies)}</span></div>
