@@ -13,6 +13,8 @@ async function verifySession(token) {
   return { username, role: userData?.role || 'contributor' }
 }
 
+const CONTRIBUTOR_DAILY_LIMIT = 10
+
 export default async function handler(req, res) {
   const session = await verifySession(req.headers.authorization)
   if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
@@ -23,7 +25,14 @@ export default async function handler(req, res) {
     const keys = await redis.keys('prompt:*')
 
     if (!keys || keys.length === 0) {
-      return res.status(200).json({ success: true, data: [] })
+      const payload = { success: true, data: [] }
+      if (role === 'contributor') {
+        const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
+        const stored = await redis.get(`ratelimit:upload:${username}:${today}`)
+        payload.quotaUsed = parseInt(stored) || 0
+        payload.quotaLimit = CONTRIBUTOR_DAILY_LIMIT
+      }
+      return res.status(200).json(payload)
     }
 
     const data = await Promise.all(
@@ -62,7 +71,16 @@ export default async function handler(req, res) {
     const filtered = data.filter(Boolean)
     filtered.sort((a, b) => b.timestamp - a.timestamp)
 
-    return res.status(200).json({ success: true, data: filtered })
+    const payload = { success: true, data: filtered }
+
+    if (role === 'contributor') {
+      const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
+      const stored = await redis.get(`ratelimit:upload:${username}:${today}`)
+      payload.quotaUsed = parseInt(stored) || 0
+      payload.quotaLimit = CONTRIBUTOR_DAILY_LIMIT
+    }
+
+    return res.status(200).json(payload)
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message })
   }
