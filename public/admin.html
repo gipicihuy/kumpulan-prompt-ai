@@ -1086,25 +1086,16 @@
             const token = localStorage.getItem('adminToken');
             if (!token || !currentUsername) return;
             try {
-                const res = await fetch('/api/get-prompts');
+                const res = await fetch('/api/get-all-prompts', { headers: { 'Authorization': token } });
                 const result = await res.json();
                 if (!result.success) return;
                 const myPrompt = result.data.find(p =>
                     p.uploadedBy && p.uploadedBy.toLowerCase() === currentUsername.toLowerCase()
                     && p.profileUrl && p.profileUrl.trim() !== ''
                 );
-                if (myPrompt) {
-                    setProfilePic(myPrompt.profileUrl);
-                }
-                if (currentRole === 'contributor') {
-                    const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-');
-                    const used = result.data.filter(p => {
-                        if (!p.uploadedBy || p.uploadedBy.toLowerCase() !== currentUsername.toLowerCase()) return false;
-                        const d = new Date(p.timestamp);
-                        const pDay = d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-');
-                        return pDay === today;
-                    }).length;
-                    updateQuotaUI(used);
+                if (myPrompt) setProfilePic(myPrompt.profileUrl);
+                if (currentRole === 'contributor' && result.quotaUsed !== undefined) {
+                    updateQuotaUI(result.quotaUsed);
                 }
             } catch(e) {}
         }
@@ -1378,6 +1369,9 @@
                     return;
                 }
                 allPrompts = result.data;
+                if (currentRole === 'contributor' && result.quotaUsed !== undefined) {
+                    updateQuotaUI(result.quotaUsed);
+                }
                 renderManagePrompts();
             } catch(e){ notyf.error('Error loading prompts'); }
         }
@@ -1553,8 +1547,7 @@
                 if(res.status === 429){ notyf.error(result.message || 'Batas upload harian tercapai!'); return; }
                 if(res.ok && result.success){
                     if(result.remaining !== undefined){
-                        const used = DAILY_LIMIT - result.remaining;
-                        updateQuotaUI(used);
+                        updateQuotaUI(DAILY_LIMIT - result.remaining);
                         notyf.success(`Prompt diupload! Sisa: ${result.remaining} upload`);
                     } else {
                         notyf.success('Prompt berhasil diupload!');
