@@ -180,6 +180,12 @@
         function closeSR(){sr.classList.remove('open');ov.classList.remove('show');ov.classList.add('opacity-0','invisible');document.body.style.overflow='';}
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
+         function verifiedBadge(isAdmin) {
+            return isAdmin
+                ? '<img src="/assets/verified.svg" style="width:11px;height:11px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-left:2px;" alt="verified">'
+                : '';
+        }
+
         function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
 
         function buildPodiumPlayer(c, posClass, rankNum, medalEmoji, crownVisible) {
@@ -193,7 +199,7 @@
                     ${avatarHtml}
                     <span class="podium-medal-badge">${rankNum}</span>
                 </div>
-                <p class="podium-name">@${c.name}</p>
+                <p class="podium-name flex items-center justify-center gap-0.5">@${c.name}${verifiedBadge(c.isAdmin)}</p>
                 <p class="podium-count"><i class="fa-solid fa-layer-group" style="font-size:0.5rem;color:var(--text-muted)"></i>${fmt(c.prompts)}</p>
                 <div class="podium-block"><span class="podium-block-num">${rankNum}</span></div>
             </div>`;
@@ -209,10 +215,11 @@
                 json.data.forEach(p => {
                     const name = p.uploadedBy || 'Admin';
                     if (!creatorsMap[name]) {
-                        creatorsMap[name] = { name, profileUrl: '', prompts: 0, views: 0, copies: 0, downloads: 0 };
+                        creatorsMap[name] = { name, profileUrl: '', prompts: 0, views: 0, copies: 0, downloads: 0, isAdmin: false };
                     }
                     const c = creatorsMap[name];
                     if (!c.profileUrl && p.profileUrl) c.profileUrl = p.profileUrl;
+                    if (p.isAdmin) c.isAdmin = true;
                     c.prompts++;
                     c.views     += p.analytics?.views     || 0;
                     c.copies    += p.analytics?.copies    || 0;
@@ -251,7 +258,7 @@
                                 <div class="w-6 text-center flex-shrink-0 text-sm font-black" style="color:var(--text-muted)">#${rank}</div>
                                 ${avatarHtml}
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-bold text-xs truncate" style="color:var(--text-primary)">@${c.name}</p>
+                                    <p class="font-bold text-xs flex items-center gap-1" style="color:var(--text-primary)">@${c.name}${verifiedBadge(c.isAdmin)}</p>
                                     <div class="flex items-center gap-1.5 mt-0.5 text-xs">
                                         <i class="fa-solid fa-layer-group text-[10px]" style="color:var(--text-muted)"></i>
                                         <span class="font-bold text-[10px]" style="color:var(--text-secondary)">${fmt(c.prompts)} Prompt</span>
