@@ -273,7 +273,7 @@ function renderPrompts(data) {
             <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top: 1px solid var(--border)">
                 <span onclick="goToProfile('${item.uploadedBy}', event)" class="author-chip flex items-center gap-2 cursor-pointer">
                     ${profilePicHtml}
-                    <span class="text-xs font-semibold card-author" style="color:var(--text-secondary)">@${item.uploadedBy}</span>
+                    <span class="text-xs font-semibold card-author" style="color:var(--text-secondary)">@${item.uploadedBy}</span>${item.isAdmin ? '<img src="/assets/verified.svg" style="width:13px;height:13px;flex-shrink:0;vertical-align:middle;" alt="✓">' : ''}
                 </span>
                 <div class="flex items-center gap-3 text-xs">
                     <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color: var(--text-muted)"></i><span class="font-bold" style="color: var(--text-secondary)">${formatNumber(analytics.views)}</span></div>
