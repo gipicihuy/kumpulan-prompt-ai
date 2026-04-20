@@ -10,7 +10,7 @@ async function verifySession(token) {
   const username = await redis.get(`session:${token}`)
   if (!username) return null
   const userData = await redis.hgetall(`user:${username}`)
-  return { username, role: userData?.role || 'contributor' }
+  return { username, role: userData?.role || 'contributor', profileUrl: userData?.profileUrl || '' }
 }
 
 const CONTRIBUTOR_DAILY_LIMIT = 10
@@ -19,13 +19,13 @@ export default async function handler(req, res) {
   const session = await verifySession(req.headers.authorization)
   if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
 
-  const { username, role } = session
+  const { username, role, profileUrl } = session
 
   try {
     const keys = await redis.keys('prompt:*')
 
     if (!keys || keys.length === 0) {
-      const payload = { success: true, data: [] }
+      const payload = { success: true, data: [], profileUrl }
       if (role === 'contributor') {
         const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
         const stored = await redis.get(`ratelimit:upload:${username}:${today}`)
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
     const filtered = data.filter(Boolean)
     filtered.sort((a, b) => b.timestamp - a.timestamp)
 
-    const payload = { success: true, data: filtered }
+    const payload = { success: true, data: filtered, profileUrl }
 
     if (role === 'contributor') {
       const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
