@@ -241,9 +241,11 @@ export default async function handler(req, res) {
     const isProtected = promptData.isProtected === 'true' || promptData.isProtected === true;
 
     let profileUrl = '';
+    let uploaderIsAdmin = false;
     if (promptData.uploadedBy) {
       const userData = await redis.hgetall(`user:${promptData.uploadedBy}`);
       profileUrl = userData?.profileUrl || '';
+      uploaderIsAdmin = userData?.role === 'admin';
     }
 
     const analyticsKey  = `analytics:${slug}`;
@@ -270,7 +272,7 @@ export default async function handler(req, res) {
       const sessionToken = cookies[`prompt_session_${slug}`];
 
       if (!sessionToken) {
-        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl, uploaderIsAdmin));
       }
 
       const sessionKey     = `session:${slug}:${sessionToken}`;
@@ -283,14 +285,14 @@ export default async function handler(req, res) {
         } catch (e) {
           console.error('Failed to track view:', e);
         }
-        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
+        return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics, uploaderIsAdmin));
       } else {
         res.setHeader('Set-Cookie', [`prompt_session_${slug}=; Path=/; Max-Age=0`]);
-        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl));
+        return res.status(200).send(renderPasswordPage(slug, promptData, profileUrl, uploaderIsAdmin));
       }
     }
 
-    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics));
+    return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics, uploaderIsAdmin));
 
   } catch (error) {
     console.error('Error in get-prompt-page:', error);
@@ -331,10 +333,11 @@ async function handleProfilePage(req, res, username) {
     }
 
     const displayName = userPrompts[0].uploadedBy;
-    const userData    = await redis.hgetall(`user:${displayName}`);
-    const profileUrl  = userData?.profileUrl || '';
+    const userData       = await redis.hgetall(`user:${displayName}`);
+    const profileUrl     = userData?.profileUrl || '';
+    const ownerIsAdmin   = userData?.role === 'admin';
 
-    const promptsWithProfile = userPrompts.map(p => ({ ...p, profileUrl }));
+    const promptsWithProfile = userPrompts.map(p => ({ ...p, profileUrl, isAdmin: ownerIsAdmin }));
 
     const stats = {
       prompts:   userPrompts.length,
@@ -395,7 +398,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
       </div>
       <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${isProtected ? 'protected-text italic' : ''}" style="${isProtected ? '' : 'color:var(--text-secondary)'}">${preview}</p>
       <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
-        <div class="flex items-center gap-2">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span></div>
+        <div class="flex items-center gap-2">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${item.isAdmin ? verifiedBadge(true) : ''}</div>
         <div class="flex items-center gap-3 text-xs">
           <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.views)}</span></div>
           <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.copies)}</span></div>
@@ -575,7 +578,13 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 </html>`);
 }
 
-function renderPasswordPage(slug, promptData, profileUrl = '') {
+function verifiedBadge(isAdmin) {
+  return isAdmin
+    ? '<img src="/assets/verified.svg" style="width:13px;height:13px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-left:3px;" alt="verified">'
+    : '';
+}
+
+function renderPasswordPage(slug, promptData, profileUrl = '', uploaderIsAdmin = false) {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDesc  = promptData.description || 'Prompt ini diproteksi dengan password';
   const metaImage = promptData.imageUrl && promptData.imageUrl.trim() !== '' ? promptData.imageUrl : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
@@ -655,7 +664,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
             <div class="mt-2 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                 <div class="flex items-center gap-2">
                     ${profilePicHtml}
-                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
+                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
@@ -701,7 +710,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
                         <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i> Don't have the password?
                     </p>
                     <p class="text-[10px] text-center font-semibold" style="color:var(--text-primary)">
-                        Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a> for access
+                        Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a>${verifiedBadge(uploaderIsAdmin)} for access
                     </p>
                 </div>
             </div>
@@ -755,7 +764,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
 </html>`;
 }
 
-function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }) {
+function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views: 0, copies: 0, downloads: 0 }, uploaderIsAdmin = false) {
   const metaDesc = promptData.description && promptData.description.trim() !== ''
     ? promptData.description
     : (promptData.isi || '').substring(0, 150) + '...';
@@ -859,7 +868,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                                 : `<a href="${authorUrl}"><div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div></a>`
                             }
                         </div>
-                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a></span>
+                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
