@@ -218,6 +218,8 @@ const THEME_CSS = `
 
 const THEME_INIT = `(function(){var t=localStorage.getItem('prompthub-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();`;
 
+const BASE_URL = 'https://ai-prompthub.web.id';
+
 export default async function handler(req, res) {
   const { slug, username } = req.query;
 
@@ -355,6 +357,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
   const defaultImage = 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
   const metaImage    = profileUrl && profileUrl.trim() !== '' ? profileUrl : defaultImage;
   const pageTitle    = `@${username} - AI Prompt Hub`;
+  const pageUrl      = `${BASE_URL}/@${encodeURIComponent(username)}`;
 
   const metaDesc = prompts.length > 0
     ? `${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
@@ -417,8 +420,12 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
     <meta property="og:title"       content="${pageTitle}">
     <meta property="og:description" content="${metaDesc}">
     <meta property="og:image"       content="${metaImage}">
-    <meta property="og:url"         content="https://prompthub.yupra.my.id/@${encodeURIComponent(username)}">
-    <meta name="twitter:card"        content="summary">
+    <meta property="og:image:secure_url" content="${metaImage}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type"   content="image/jpeg">
+    <meta property="og:url"         content="${pageUrl}">
+    <meta name="twitter:card"        content="summary_large_image">
     <meta name="twitter:title"       content="${pageTitle}">
     <meta name="twitter:description" content="${metaDesc}">
     <meta name="twitter:image"       content="${metaImage}">
@@ -571,7 +578,8 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats) {
 function renderPasswordPage(slug, promptData, profileUrl = '') {
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
   const metaDesc  = promptData.description || 'Prompt ini diproteksi dengan password';
-  const metaImage = promptData.imageUrl || 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+  const metaImage = promptData.imageUrl && promptData.imageUrl.trim() !== '' ? promptData.imageUrl : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
+  const pageUrl   = `${BASE_URL}/prompt/${slug}`;
   const authorUrl = `/@${encodeURIComponent(promptData.uploadedBy || 'Admin')}`;
 
   const profilePicHtml = profileUrl && profileUrl.trim() !== ''
@@ -584,11 +592,20 @@ function renderPasswordPage(slug, promptData, profileUrl = '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="AI Prompt Hub">
-    <meta property="og:title" content="${pageTitle}">
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="AI Prompt Hub">
+    <meta property="og:title"       content="${pageTitle}">
     <meta property="og:description" content="${metaDesc}">
-    <meta property="og:image" content="${metaImage}">
+    <meta property="og:image"       content="${metaImage}">
+    <meta property="og:image:secure_url" content="${metaImage}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type"   content="image/jpeg">
+    <meta property="og:url"         content="${pageUrl}">
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="${pageTitle}">
+    <meta name="twitter:description" content="${metaDesc}">
+    <meta name="twitter:image"       content="${metaImage}">
     <meta name="description" content="${metaDesc}">
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -748,6 +765,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     : 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
 
   const pageTitle = `${promptData.judul} - AI Prompt Hub`;
+  const pageUrl   = `${BASE_URL}/prompt/${slug}`;
   const authorUrl = `/@${encodeURIComponent(promptData.uploadedBy || 'Admin')}`;
 
   const fmtLocal = (num) => {
@@ -762,16 +780,21 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${pageTitle}</title>
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="AI Prompt Hub">
-    <meta property="og:title" content="${pageTitle}">
+    <meta property="og:type"        content="website">
+    <meta property="og:site_name"   content="AI Prompt Hub">
+    <meta property="og:title"       content="${pageTitle}">
     <meta property="og:description" content="${metaDesc}">
-    <meta property="og:image" content="${metaImage}">
-    <meta name="description" content="${metaDesc}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${pageTitle}">
+    <meta property="og:image"       content="${metaImage}">
+    <meta property="og:image:secure_url" content="${metaImage}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type"   content="image/jpeg">
+    <meta property="og:url"         content="${pageUrl}">
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="${pageTitle}">
     <meta name="twitter:description" content="${metaDesc}">
-    <meta name="twitter:image" content="${metaImage}">
+    <meta name="twitter:image"       content="${metaImage}">
+    <meta name="description" content="${metaDesc}">
     <link rel="icon" type="image/jpeg" href="https://cdn.yupra.my.id/yp/xihcb4th.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -805,7 +828,6 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
         .author-link { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
         .author-link:hover { color: var(--text-primary); text-decoration: underline; }
         .cat-badge { background: var(--cat-badge-bg); color: var(--cat-badge-text); border: 1px solid var(--cat-badge-bdr); }
-        
         .markdown-ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style: decimal; color: var(--text-secondary); }
         .markdown-ol li { margin: 0.25rem 0; line-height: 1.6; }
         .markdown-ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style: disc; color: var(--text-secondary); }
