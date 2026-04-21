@@ -181,7 +181,7 @@
         str.onclick=openSR;scr.onclick=closeSR;ov.onclick=closeSR;
 
         function verifiedBadge(isAdmin) {
-            return isAdmin ? '<img src="/assets/verified.svg" style="width:11px;height:11px;flex-shrink:0;margin-left:-4px;" alt="✓">' : '';
+            return isAdmin ? '<img src="/assets/verified.svg" style="width:11px;height:11px;flex-shrink:0;" alt="✓">' : '';
         }
 
         function formatNumber(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
@@ -233,7 +233,7 @@
                         </div>
                         <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${item.isProtected?'protected-text italic':''}" style="${item.isProtected?'':'color:var(--text-secondary)'}">${preview}</p>
                         <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
-                            <div class="flex items-center gap-1">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</div>
+                            <div class="flex items-center gap-0.5">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</div>
                             <div class="flex items-center gap-3 text-xs">
                                 <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${formatNumber(ana.views)}</span></div>
                                 <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${formatNumber(ana.copies)}</span></div>
