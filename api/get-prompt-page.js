@@ -381,7 +381,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
     const catKey      = (item.kategori || '').toLowerCase().trim();
     const catLogos    = {
       'gemini': '/assets/gemini-color.svg', 'jailbreak': '/assets/jb.svg',
-      'art': '/assets/art.svg', 'chatgpt': '/assets/chatgpt-icon.svg',
+      'art': '/assets/art.svg', 'chatgpt': '/assets/chatgpt-icon.svg', 'claude': '/assets/claude-icon.svg?v5=',
       'coding': '/assets/coding.svg', 'combined': '/assets/images.svg',
     };
     const catLogo     = catLogos[catKey];
