@@ -11,7 +11,7 @@ let currentSort = 'newest';
 
 function toTitleCase(str) {
     const specialCases = {
-        'chatgpt': 'ChatGPT', 'jailbreak': 'Jailbreak', 'openai': 'OpenAI', 'ai': 'AI', 'api': 'API',
+        'chatgpt': 'ChatGPT', 'claude': 'Claude', 'jailbreak': 'Jailbreak', 'openai': 'OpenAI', 'ai': 'AI', 'api': 'API',
         'ui': 'UI', 'ux': 'UX', 'seo': 'SEO', 'html': 'HTML', 'css': 'CSS',
         'javascript': 'JavaScript', 'nodejs': 'Node.js', 'reactjs': 'React.js',
         'vuejs': 'Vue.js', 'ios': 'iOS', 'macos': 'macOS', 'iphone': 'iPhone',
@@ -39,6 +39,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
         'jailbreak': '/assets/jb.svg',
         'art': '/assets/art.svg',
         'chatgpt': '/assets/chatgpt-icon.svg',
+        'claude': '/assets/claude-icon.svg',
         'coding': '/assets/coding.svg',
         'combined': '/assets/images.svg',
     };
@@ -101,6 +102,7 @@ function renderCategoryPills() {
         'jailbreak': '/assets/jb.svg',
         'art': '/assets/art.svg',
         'chatgpt': '/assets/chatgpt-icon.svg',
+        'claude': '/assets/claude-icon.svg',
         'coding': '/assets/coding.svg',
         'combined': '/assets/images.svg',
     };
