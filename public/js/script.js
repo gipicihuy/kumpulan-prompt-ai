@@ -46,7 +46,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
 
     const logoUrl = categoryLogos[key];
     const logoHtml = logoUrl
-        ? `<img src="${logoUrl}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">`
+        ? `<img src="${logoUrl}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;background:transparent;">`
         : '';
 
     return `<span class="cat-badge text-xs font-bold px-2.5 py-1 rounded uppercase flex items-center gap-1.5 ${extraClass}" style="display:inline-flex;">${logoHtml}${label}</span>`;
@@ -113,7 +113,7 @@ function renderCategoryPills() {
         const isActive = selectedCategory === cat;
         const logoUrl = cat !== 'all' ? categoryLogos[cat] : null;
         const logoHtml = logoUrl
-            ? `<img src="${logoUrl}" alt="${label}" style="width:11px;height:11px;object-fit:contain;flex-shrink:0;${isActive ? '' : 'opacity:0.7'}">`
+            ? `<img src="${logoUrl}" alt="${label}" style="width:11px;height:11px;object-fit:contain;flex-shrink:0;background:transparent;${isActive ? '' : 'opacity:0.7'}">`
             : '';
 
         return `<button class="cat-pill ${isActive ? 'active' : ''}" data-category="${cat}" onclick="setCategory('${cat}')" style="display:inline-flex;align-items:center;gap:0.3rem;">
