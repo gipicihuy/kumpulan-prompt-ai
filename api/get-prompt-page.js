@@ -398,7 +398,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
       </div>
       <p class="text-xs line-clamp-2 leading-relaxed mb-2 ${isProtected ? 'protected-text italic' : ''}" style="${isProtected ? '' : 'color:var(--text-secondary)'}">${preview}</p>
       <div class="flex items-center justify-between pt-2 mt-2.5" style="border-top:1px solid var(--border)">
-        <div class="flex items-center gap-1.5">${pp}<span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</div>
+        <div class="flex items-center gap-1.5">${pp}<span class="flex items-center gap-0.5"><span class="text-xs font-semibold card-author">@${item.uploadedBy}</span>${verifiedBadge(item.isAdmin)}</span></div>
         <div class="flex items-center gap-3 text-xs">
           <div class="flex items-center gap-1.5" title="Views"><i class="fa-solid fa-eye text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.views)}</span></div>
           <div class="flex items-center gap-1.5" title="Copies"><i class="fa-solid fa-copy text-[11px]" style="color:var(--text-muted)"></i><span class="font-bold" style="color:var(--text-secondary)">${fmt(ana.copies)}</span></div>
@@ -509,7 +509,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
             <div class="profile-hero rounded-lg p-4">
                 <div class="flex flex-col items-center text-center mb-4">
                     <div class="mb-3">${avatarHtml}</div>
-                    <p class="text-sm font-bold mt-0.5 flex items-center justify-center gap-1" style="color:var(--text-primary)">@${username}${verifiedBadge(ownerIsAdmin)}</p>
+                    <p class="text-sm font-bold mt-0.5 flex items-center justify-center gap-0.5" style="color:var(--text-primary)">@${username}${verifiedBadge(ownerIsAdmin)}</p>
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.prompts || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
@@ -580,7 +580,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
 
 function verifiedBadge(isAdmin) {
   return isAdmin
-    ? '<img src="/assets/verified.svg" style="width:12px;height:12px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-left:2px;" alt="verified">'
+    ? '<img src="/assets/verified.svg" style="width:11px;height:11px;flex-shrink:0;" alt="verified">'
     : '';
 }
 
