@@ -117,19 +117,6 @@
 
         .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-        #themeToggleBtn {
-            background: none;
-            border: none;
-            padding: 6px;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            border-radius: 6px;
-            transition: color 0.2s, background 0.2s;
-        }
-        #themeToggleBtn:hover { color: var(--text-primary); background: var(--bg-surface3); }
-
         .profile-dropdown-wrap { position: relative; }
         .profile-btn {
             display: flex;
@@ -167,6 +154,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
         .profile-chevron {
             font-size: 0.65rem;
@@ -210,7 +200,14 @@
             overflow: hidden;
         }
         .dropdown-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .dropdown-header .d-name { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); }
+        .dropdown-header .d-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
         .dropdown-header .d-role { font-size: 0.65rem; color: var(--text-muted); margin-top: 1px; }
 
         .role-pill {
@@ -801,10 +798,6 @@
                 <span class="logo-text">AI Prompt Hub</span>
             </a>
             <div class="header-right">
-                <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                </button>
-
                 <div class="profile-dropdown-wrap" id="profileWrap" style="display:none">
                     <button class="profile-btn" id="profileBtn">
                         <div class="profile-avatar" id="headerAvatar">
@@ -1049,23 +1042,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-        (function(){
-            var S='prompthub-theme';
-            function g(){return localStorage.getItem(S)||'dark';}
-            function a(t){
-                document.documentElement.setAttribute('data-theme',t);
-                var btn=document.getElementById('themeToggleBtn');
-                if(!btn)return;
-                if(t==='light'){
-                    btn.innerHTML='<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
-                }else{
-                    btn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-                }
-            }
-            window.toggleTheme=function(){var n=g()==='dark'?'light':'dark';localStorage.setItem(S,n);a(n);};
-            document.addEventListener('DOMContentLoaded',function(){a(g());});
-        })();
-
         const notyf = new Notyf({ duration: 3000, position: { x: 'right', y: 'top' }, ripple: true, dismissible: true });
 
         const DAILY_LIMIT = 10;
@@ -1347,10 +1323,11 @@
             document.getElementById('profileWrap').style.display = 'flex';
 
             const verifiedHtml = currentRole === 'admin'
-                ? ' <img src="/assets/verified.svg" style="width:11px;height:11px;vertical-align:middle;" alt="✓">'
+                ? '<img src="/assets/verified.svg" style="width:11px;height:11px;flex-shrink:0;vertical-align:middle;" alt="✓">'
                 : '';
-            document.getElementById('profileBtnName').innerHTML = '@' + currentUsername + verifiedHtml;
-            document.getElementById('ddName').innerHTML = '@' + currentUsername + verifiedHtml;
+
+            document.getElementById('profileBtnName').innerHTML = '@' + currentUsername + (verifiedHtml ? ' ' + verifiedHtml : '');
+            document.getElementById('ddName').innerHTML = '@' + currentUsername + (verifiedHtml ? ' ' + verifiedHtml : '');
 
             const ddRole = document.getElementById('ddRole');
             if(currentRole === 'admin'){
