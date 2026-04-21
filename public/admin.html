@@ -1076,11 +1076,33 @@
         (function init(){
             const token = localStorage.getItem('adminToken');
             if (!token) return;
-            currentRole = localStorage.getItem('adminRole') || 'contributor';
-            currentUsername = localStorage.getItem('adminUser') || '';
-            showAdmin();
-            fetchProfileAndUpdateUI();
+            refreshRoleFromServer(token);
         })();
+
+        async function refreshRoleFromServer(token) {
+            try {
+                const res = await fetch('/api/login', { headers: { 'Authorization': token } });
+                if (res.status === 401) {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminRole');
+                    localStorage.removeItem('adminUser');
+                    return;
+                }
+                const data = await res.json();
+                if (!data.success) return;
+                currentRole = data.role;
+                currentUsername = data.username;
+                localStorage.setItem('adminRole', data.role);
+                localStorage.setItem('adminUser', data.username);
+                showAdmin();
+                fetchProfileAndUpdateUI();
+            } catch(e) {
+                currentRole = localStorage.getItem('adminRole') || 'contributor';
+                currentUsername = localStorage.getItem('adminUser') || '';
+                showAdmin();
+                fetchProfileAndUpdateUI();
+            }
+        }
 
         async function fetchProfileAndUpdateUI() {
             const token = localStorage.getItem('adminToken');
@@ -1324,18 +1346,20 @@
             document.getElementById('adminSection').classList.add('visible');
             document.getElementById('profileWrap').style.display = 'flex';
 
-const verifiedHtml = currentRole === 'admin'
-                    ? ' <img src="/assets/verified.svg" style="width:11px;height:11px;vertical-align:middle;" alt="✓">'
-                    : '';
-                document.getElementById('profileBtnName').innerHTML = '@' + currentUsername + verifiedHtml;
-                document.getElementById('ddName').innerHTML = '@' + currentUsername + verifiedHtml;
+            const verifiedHtml = currentRole === 'admin'
+                ? ' <img src="/assets/verified.svg" style="width:11px;height:11px;vertical-align:middle;" alt="✓">'
+                : '';
+            document.getElementById('profileBtnName').innerHTML = '@' + currentUsername + verifiedHtml;
+            document.getElementById('ddName').innerHTML = '@' + currentUsername + verifiedHtml;
 
             const ddRole = document.getElementById('ddRole');
             if(currentRole === 'admin'){
                 ddRole.innerHTML = '<span class="role-pill role-admin">Admin</span>';
                 document.getElementById('tabManage').textContent = 'Manage All';
+                document.getElementById('quotaWrap').style.display = 'none';
             } else {
                 ddRole.innerHTML = '<span class="role-pill role-contributor">Contributor</span>';
+                document.getElementById('tabManage').textContent = 'My Prompts';
                 document.getElementById('quotaWrap').style.display = 'block';
             }
         }
