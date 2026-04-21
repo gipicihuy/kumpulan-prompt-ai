@@ -868,7 +868,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                                 : `<a href="${authorUrl}"><div class="profile-pic-placeholder rounded-full flex items-center justify-center" style="background:var(--bg-surface3);border:1px solid var(--border-hover)"><i class="fa-solid fa-user text-sm" style="color:var(--text-muted)"></i></div></a>`
                             }
                         </div>
-                        <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
+                        <span class="font-semibold flex items-center gap-0.5" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
