@@ -10,6 +10,16 @@ const MAX_ATTEMPTS = 5
 const LOCKOUT_SECONDS = 15 * 60
 
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    const token = req.headers.authorization
+    if (!token) return res.status(401).json({ success: false, message: 'No token' })
+    const username = await redis.get(`session:${token}`)
+    if (!username) return res.status(401).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
+    const userData = await redis.hgetall(`user:${username}`)
+    const role = userData?.role || 'contributor'
+    return res.status(200).json({ success: true, username, role })
+  }
+
   if (req.method === 'DELETE') {
     const token = req.headers.authorization
     if (token) await redis.del(`session:${token}`)
