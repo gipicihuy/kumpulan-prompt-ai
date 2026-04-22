@@ -922,7 +922,7 @@ function renderNormalPage(slug, promptData, profileUrl = '', analytics = { views
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto">
-                    <pre><code class="leading-relaxed whitespace-pre-wrap text-xs block font-mono">${promptData.isi || ''}</code></pre>
+                    <pre><code class="leading-relaxed whitespace-pre-wrap text-xs block font-mono">${typeof promptData.isi === 'object' ? JSON.stringify(promptData.isi, null, 2) : (promptData.isi || '')}</code></pre>
                 </div>
             </div>
         </div>
