@@ -194,7 +194,7 @@
             if(!match){showNotFound();return;}
             const username=decodeURIComponent(match[1]);
             try{
-                const res=await fetch('/api/get-prompts');
+                const res=await fetch('/api/data?action=public');
                 const json=await res.json();
                 if(!json.success||!json.data){showNotFound();return;}
                 const userPrompts=json.data.filter(p=>p.uploadedBy&&p.uploadedBy.toLowerCase()===username.toLowerCase());

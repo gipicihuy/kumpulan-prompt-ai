@@ -1085,7 +1085,7 @@
             const token = localStorage.getItem('adminToken');
             if (!token || !currentUsername) return;
             try {
-                const res = await fetch('/api/get-all-prompts', { headers: { 'Authorization': token } });
+                const res = await fetch('/api/data?action=all', { headers: { 'Authorization': token } });
                 const result = await res.json();
                 if (!result.success) return;
                 if (result.profileUrl && result.profileUrl.trim() !== '') {
@@ -1199,7 +1199,7 @@
         async function checkSlugDuplicate(slug){
             const preview = document.getElementById('slugPreview');
             try{
-                const res = await fetch('/api/check-slug',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug})});
+                const res = await fetch('/api/prompt?action=check-slug',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug})});
                 const result = await res.json();
                 preview.className = 'slug-preview';
                 if(result.success && result.exists){
@@ -1364,7 +1364,7 @@
             ml.style.display = 'block';
             ml.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.3rem;display:block;margin-bottom:8px"></i><p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em">Loading...</p>';
             try{
-                const res = await fetch('/api/get-all-prompts',{headers:{'Authorization':localStorage.getItem('adminToken')}});
+                const res = await fetch('/api/data?action=all',{headers:{'Authorization':localStorage.getItem('adminToken')}});
                 const result = await res.json();
                 if(!result.success){
                     if(res.status===403){notyf.error('Sesi tidak valid, silakan login ulang');logout();}
@@ -1490,7 +1490,7 @@
                     imageUrl,
                     password: editPasswordEnabled ? document.getElementById('editPassword').value : ''
                 };
-                const res = await fetch('/api/edit-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(editData)});
+                const res = await fetch('/api/prompt?action=edit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(editData)});
                 const result = await res.json();
                 if(result.success){ notyf.success('Prompt updated!'); closeEditModal(); loadManagePrompts(); }
                 else notyf.error(result.message || 'Failed to update');
@@ -1515,7 +1515,7 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Deleting...';
             btn.disabled = true;
             try{
-                const res = await fetch('/api/delete-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug:promptToDelete})});
+                const res = await fetch('/api/prompt?action=delete',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify({slug:promptToDelete})});
                 const result = await res.json();
                 if(result.success){ notyf.success('Prompt deleted!'); closeDeleteModal(); loadManagePrompts(); }
                 else notyf.error(result.message || 'Failed to delete');
@@ -1554,7 +1554,7 @@
                     imageUrl, password,
                     clientTimestamp: Date.now()
                 };
-                const res = await fetch('/api/add-prompt',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(body)});
+                const res = await fetch('/api/prompt?action=add',{method:'POST',headers:{'Content-Type':'application/json','Authorization':localStorage.getItem('adminToken')},body:JSON.stringify(body)});
                 const result = await res.json();
                 if(res.status === 429){ notyf.error(result.message || 'Batas upload harian tercapai!'); return; }
                 if(res.ok && result.success){

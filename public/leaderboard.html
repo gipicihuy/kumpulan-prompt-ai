@@ -207,7 +207,7 @@
 
         async function loadLeaderboard() {
             try {
-                const res = await fetch('/api/get-prompts');
+                const res = await fetch('/api/data?action=public');
                 const json = await res.json();
                 if (!json.success || !json.data) throw new Error('Failed to load');
 
