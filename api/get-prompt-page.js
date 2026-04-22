@@ -711,7 +711,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '', uploaderIsAdmin =
                         <i class="fa-solid fa-info-circle mr-1" style="color:var(--text-secondary)"></i> Don't have the password?
                     </p>
                     <p class="text-[10px] text-center font-semibold" style="color:var(--text-primary)">
-                        Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a>${verifiedBadge(uploaderIsAdmin)} for access
+                        <span class="inline-flex items-center gap-0.5">Contact <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy}</a>${verifiedBadge(uploaderIsAdmin)}</span> for access
                     </p>
                 </div>
             </div>
