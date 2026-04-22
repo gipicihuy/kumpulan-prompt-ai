@@ -48,7 +48,7 @@ export default async function handler(req, res) {
           // Hidden untuk protected prompts
           description: isProtected ? '' : (item.description || ''),
           // Hidden untuk protected prompts - replace dengan placeholder
-          isi: isProtected ? '🔒 This content is password protected' : (item.isi || ''),
+          isi: isProtected ? '🔒 This content is password protected' : (typeof item.isi === 'object' ? JSON.stringify(item.isi, null, 2) : (item.isi || '')),
           uploadedBy: item.uploadedBy || 'Admin',
           createdAt: item.createdAt || '-',
           imageUrl: item.imageUrl || '',
