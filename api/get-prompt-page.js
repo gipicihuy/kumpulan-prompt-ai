@@ -337,6 +337,7 @@ async function handleProfilePage(req, res, username) {
     const userData       = await redis.hgetall(`user:${displayName}`);
     const profileUrl     = userData?.profileUrl || '';
     const ownerIsAdmin   = userData?.role === 'admin';
+    const ownerBio       = userData?.bio || '';
 
     const promptsWithProfile = userPrompts.map(p => ({ ...p, profileUrl, isAdmin: ownerIsAdmin }));
 
@@ -511,6 +512,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
                 <div class="flex flex-col items-center text-center mb-4">
                     <div class="mb-3">${avatarHtml}</div>
                     <p class="text-sm font-bold mt-0.5 flex items-center justify-center gap-0.5" style="color:var(--text-primary)">@${username}${verifiedBadge(ownerIsAdmin)}</p>
+                    ${ownerBio ? `<p class="text-xs text-center mt-1" style="color:var(--text-secondary)">${ownerBio}</p>` : ''}
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p class="text-lg font-black" style="color:var(--text-primary)">${fmt(stats.prompts || 0)}</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
