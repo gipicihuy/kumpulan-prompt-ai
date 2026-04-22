@@ -1399,7 +1399,7 @@
                 return `<div class="prompt-item">
                     <div class="prompt-item-top">
                         <div class="prompt-meta">
-                            <div class="prompt-title">${p.judul}${p.isProtected ? ' <i class="fa-solid fa-lock" style="color:#ca8a04;font-size:0.65rem"></i>' : ''}</div>
+                            <div class="prompt-title">${p.judul}${p.isProtected ? ' <i class="fa-solid fa-lock" style="color:#ca8a04;font-size:0.65rem"></i>' : ''}${p.isAdmin ? ' <img src="/assets/verified.svg" style="width:10px;height:10px;vertical-align:middle;">' : ''}</div>
                             <div class="prompt-cat">${p.kategori}</div>
                         </div>
                         <div class="prompt-time">${p.createdAt}</div>
@@ -1411,7 +1411,7 @@
                                 : '<i class="fa-solid fa-user" style="font-size:0.5rem;color:var(--text-muted)"></i>'
                             }
                         </div>
-                        <span style="font-size:0.65rem;font-weight:600;color:var(--text-muted);">@${p.uploadedBy}</span>
+                        <span style="font-size:0.65rem;font-weight:600;color:var(--text-muted);">@${p.uploadedBy}${p.isAdmin ? ' <img src="/assets/verified.svg" style="width:10px;height:10px;vertical-align:middle;">' : ''}</span>
                     </div>
                     <div class="analytics-row">
                         <span><i class="fa-solid fa-eye"></i> <b>${ana.views}</b></span>
