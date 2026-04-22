@@ -665,7 +665,7 @@ function renderPasswordPage(slug, promptData, profileUrl = '', uploaderIsAdmin =
             <div class="mt-2 flex flex-wrap items-center gap-3 text-xs" style="color:var(--text-muted)">
                 <div class="flex items-center gap-2">
                     ${profilePicHtml}
-                    <span class="font-semibold" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
+                    <span class="font-semibold flex items-center gap-0.5" style="color:var(--text-primary)">Uploaded by <a href="${authorUrl}" class="author-link">@${promptData.uploadedBy || 'Admin'}</a>${verifiedBadge(uploaderIsAdmin)}</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <i class="fa-solid fa-clock text-[10px]" style="color:var(--text-secondary)"></i>
