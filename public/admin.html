@@ -824,6 +824,18 @@
                             <i class="fa-solid fa-layer-group"></i> My Prompts
                         </button>
                         <div class="dropdown-divider"></div>
+                        <div style="padding:10px 14px;">
+                            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:6px;">Bio</div>
+                            <div style="display:flex;gap:6px;">
+                                <input type="text" id="bioInput" placeholder="Tulis bio..." maxlength="150"
+                                    style="flex:1;padding:5px 8px;border-radius:6px;font-size:0.72rem;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);outline:none;">
+                                <button id="bioBtn" onclick="updateBio()"
+                                    style="padding:5px 10px;border-radius:6px;border:none;background:var(--btn-bg);color:var(--btn-text);font-size:0.65rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
                         <button class="dropdown-item danger" onclick="logout()">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
                         </button>
@@ -1571,6 +1583,25 @@
             } catch(e){ notyf.error('Error: ' + e.message); }
             finally{ btn.innerHTML = orig; btn.disabled = false; }
         }
+
+         async function updateBio() {
+    const bio = document.getElementById('bioInput').value;
+    const btn = document.getElementById('bioBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/api/login?action=update-bio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('adminToken') },
+            body: JSON.stringify({ bio })
+        });
+        const result = await res.json();
+        if (result.success) notyf.success('Bio berhasil diupdate!');
+        else notyf.error(result.message || 'Gagal update bio');
+    } catch(e) { notyf.error('Error!'); }
+    finally { btn.innerHTML = orig; btn.disabled = false; }
+}
 
         async function logout(){
             closeDropdown();
