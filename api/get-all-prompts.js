@@ -51,6 +51,8 @@ export default async function handler(req, res) {
           downloads: parseInt(analyticsData?.downloads) || 0,
         }
 
+        const uploaderData = await redis.hgetall(`user:${item.uploadedBy}`)
+
         return {
           slug,
           kategori: item.kategori || 'Lainnya',
@@ -63,6 +65,8 @@ export default async function handler(req, res) {
           timestamp: parseInt(item.timestamp) || 0,
           isProtected: item.isProtected === 'true' || item.isProtected === true,
           password: item.password || '',
+          profileUrl: uploaderData?.profileUrl || '',
+          isAdmin: uploaderData?.role === 'admin',
           analytics,
         }
       })
