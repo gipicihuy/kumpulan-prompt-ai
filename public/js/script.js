@@ -257,8 +257,8 @@ function renderPrompts(data) {
             : '';
 
         const previewText = item.isProtected
-            ? '🔒 This content is password protected. Click to unlock.'
-            : item.isi;
+    ? '🔒 This content is password protected. Click to unlock.'
+    : (item.isi || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').substring(0, 300);
 
         const analytics = item.analytics || { views: 0, copies: 0, downloads: 0 };
 
