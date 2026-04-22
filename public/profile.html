@@ -214,8 +214,11 @@ document.getElementById('profileHandle').innerHTML=`@${displayName}${verifiedBad
 try {
     const bioRes = await fetch(`/api/login?action=profile&username=${encodeURIComponent(displayName)}`);
     const bioData = await bioRes.json();
-    alert(JSON.stringify(bioData));
-} catch(e) { alert('ERROR: ' + e.message); }
+    if (bioData.success && bioData.profile.bio && bioData.profile.bio.trim() !== '') {
+        document.getElementById('profileBio').textContent = bioData.profile.bio;
+        document.getElementById('profileBio').classList.remove('hidden');
+    }
+} catch(e) {}
                 document.getElementById('statPrompts').textContent=formatNumber(userPrompts.length);
                 document.getElementById('statViews').textContent=formatNumber(totalViews);
                 document.getElementById('statCopies').textContent=formatNumber(totalCopies);
