@@ -1411,7 +1411,7 @@
                                 : '<i class="fa-solid fa-user" style="font-size:0.5rem;color:var(--text-muted)"></i>'
                             }
                         </div>
-                        <span style="font-size:0.65rem;font-weight:600;color:var(--text-muted);">@${p.uploadedBy}${p.isAdmin ? ' <img src="/assets/verified.svg" style="width:10px;height:10px;vertical-align:middle;">' : ''}</span>
+                        <span style="font-size:0.65rem;font-weight:600;color:var(--text-muted);display:inline-flex;align-items:center;gap:3px;">@${p.uploadedBy}${p.isAdmin ? '<img src="/assets/verified.svg" style="width:10px;height:10px;flex-shrink:0;">' : ''}</span>
                     </div>
                     <div class="analytics-row">
                         <span><i class="fa-solid fa-eye"></i> <b>${ana.views}</b></span>
