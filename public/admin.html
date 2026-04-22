@@ -827,7 +827,7 @@
                         <div style="padding:10px 14px;">
                             <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:6px;">Bio</div>
                             <div style="display:flex;gap:6px;">
-                                <input type="text" id="bioInput" placeholder="Tulis bio..." maxlength="150"
+                                <input type="text" id="bioInput" placeholder="Tulis bio..." maxlength="150" onclick="event.stopPropagation()"
                                     style="flex:1;padding:5px 8px;border-radius:6px;font-size:0.72rem;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);outline:none;">
                                 <button id="bioBtn" onclick="updateBio()"
                                     style="padding:5px 10px;border-radius:6px;border:none;background:var(--btn-bg);color:var(--btn-text);font-size:0.65rem;font-weight:700;cursor:pointer;white-space:nowrap;">
