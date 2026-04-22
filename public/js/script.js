@@ -54,7 +54,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
 
 async function fetchPrompts() {
     try {
-        const response = await fetch('/api/get-prompts');
+        const response = await fetch('/api/data?action=public');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const json = await response.json();
         if (!json.success) throw new Error('API returned success: false');
@@ -292,7 +292,7 @@ function renderPrompts(data) {
 
 setInterval(async () => {
     try {
-        const json = await (await fetch('/api/get-prompts')).json();
+        const json = await (await fetch('/api/data?action=public')).json();
         if (json.success && json.data) {
             json.data.forEach(newItem => {
                 const old = allPrompts.find(p => p.id === newItem.id);
