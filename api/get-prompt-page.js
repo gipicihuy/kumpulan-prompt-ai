@@ -365,7 +365,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
   const pageUrl      = `${BASE_URL}/@${encodeURIComponent(username)}`;
 
   const metaDesc = prompts.length > 0
-    ? `${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
+    ? `${ownerBio ? ownerBio + ' · ' : ''}${fmt(stats.prompts)} prompts · ${fmt(stats.views)} views · ${fmt(stats.copies)} copies — Lihat koleksi prompt AI dari @${username} di AI Prompt Hub`
     : `Profil @${username} di AI Prompt Hub`;
 
   const hasPrompts = prompts.length > 0;
