@@ -115,6 +115,7 @@
                     <div id="avatarContainer" class="mb-3"></div>
                     
                     <p id="profileHandle" class="text-sm font-bold mt-0.5 flex items-center justify-center gap-0.5" style="color:var(--text-primary)"></p>
+                    <p id="profileBio" class="text-xs text-center mt-1 hidden" style="color:var(--text-secondary)"></p>
                 </div>
                 <div class="flex gap-2">
                     <div class="stat-box"><p id="statPrompts" class="text-lg font-black" style="color:var(--text-primary)">0</p><p class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--text-muted)">Prompts</p></div>
@@ -214,11 +215,9 @@ try {
     const bioRes = await fetch(`/api/login?action=profile&username=${encodeURIComponent(displayName)}`);
     const bioData = await bioRes.json();
     if (bioData.success && bioData.profile.bio && bioData.profile.bio.trim() !== '') {
-        const bioEl = document.createElement('p');
-        bioEl.className = 'text-xs text-center mt-1';
-        bioEl.style.color = 'var(--text-secondary)';
+        const bioEl = document.getElementById('profileBio');
         bioEl.textContent = bioData.profile.bio;
-        document.getElementById('avatarContainer').parentElement.appendChild(bioEl);
+        bioEl.classList.remove('hidden');
     }
 } catch(e) {}
                 document.getElementById('statPrompts').textContent=formatNumber(userPrompts.length);
