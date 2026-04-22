@@ -350,7 +350,7 @@ async function handleProfilePage(req, res, username) {
 
     promptsWithProfile.sort((a, b) => (parseInt(b.timestamp) || 0) - (parseInt(a.timestamp) || 0));
 
-    return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats, ownerIsAdmin);
+    return renderProfileHtml(res, displayName, profileUrl, promptsWithProfile, stats, ownerIsAdmin, ownerBio);
 
   } catch (error) {
     console.error('Error in handleProfilePage:', error);
@@ -358,7 +358,7 @@ async function handleProfilePage(req, res, username) {
   }
 }
 
-function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdmin = false) {
+function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdmin = false, ownerBio = '') {
   const defaultImage = 'https://cdn.yupra.my.id/yp/xihcb4th.jpg';
   const metaImage    = profileUrl && profileUrl.trim() !== '' ? profileUrl : defaultImage;
   const pageTitle    = `@${username} - AI Prompt Hub`;
