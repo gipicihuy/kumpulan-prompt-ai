@@ -251,7 +251,7 @@ try {
                 document.getElementById('loadingSection').classList.add('hidden');
                 document.getElementById('profileSection').classList.remove('hidden');
                 updateAllTimeAgo();
-            }catch(err){console.error(err);showNotFound();}
+            }catch(err){alert('MAIN ERROR: ' + err.message);showNotFound();}
         }
 
         function showNotFound(){
