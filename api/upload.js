@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type'
 import FormData from 'form-data'
 import fetch from 'node-fetch'
 import crypto from 'crypto'
-import { Redis } from '@upstash/redis'
+import { getDb } from '../lib/mongodb'
 
 export const config = {
   api: {
@@ -12,17 +12,17 @@ export const config = {
   },
 }
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
-
 async function verifySession(token) {
   if (!token) return null
-  const username = await redis.get(`session:${token}`)
-  if (!username) return null
-  const userData = await redis.hgetall(`user:${username}`)
-  return { username, role: userData?.role || 'contributor' }
+  const db = await getDb()
+  const session = await db.collection('sessions').findOne({ token })
+  if (!session) return null
+  if (session.expiresAt && new Date() > session.expiresAt) {
+    await db.collection('sessions').deleteOne({ token })
+    return null
+  }
+  const user = await db.collection('users').findOne({ username: session.username })
+  return { username: session.username, role: user?.role || 'contributor' }
 }
 
 const uploadYupra = async (content) => {
@@ -30,7 +30,6 @@ const uploadYupra = async (content) => {
   const filename = `${crypto.randomBytes(5).toString('hex')}.${ext || 'bin'}`
   const formData = new FormData()
   formData.append('files', content, filename)
-
   const response = await fetch('https://cdn.yupra.my.id/upload', {
     method: 'POST',
     body: formData,
@@ -39,12 +38,10 @@ const uploadYupra = async (content) => {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
   })
-
   const result = await response.json()
   if (!result.success || !result.files || result.files.length === 0) {
     throw new Error('Invalid response from cdn.yupra.my.id')
   }
-
   return `https://cdn.yupra.my.id${result.files[0].url}`
 }
 
@@ -53,7 +50,6 @@ const uploadCatbox = async (content) => {
   const formData = new FormData()
   formData.append('fileToUpload', content, `${crypto.randomBytes(5).toString('hex')}.${ext || 'bin'}`)
   formData.append('reqtype', 'fileupload')
-
   const response = await fetch('https://catbox.moe/user/api.php', {
     method: 'POST',
     body: formData,
@@ -62,12 +58,10 @@ const uploadCatbox = async (content) => {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     },
   })
-
   const result = await response.text()
   if (!result || !result.startsWith('http')) {
     throw new Error('Invalid response from catbox.moe')
   }
-
   return result
 }
 
@@ -109,7 +103,7 @@ export default async function handler(req, res) {
     } catch {
       try {
         imageUrl = await uploadCatbox(fileBuffer)
-      } catch (fallbackError) {
+      } catch {
         return res.status(500).json({ success: false, message: 'Gagal mengupload ke semua layanan. Coba lagi nanti.' })
       }
     }

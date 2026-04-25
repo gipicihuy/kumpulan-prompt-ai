@@ -1,12 +1,6 @@
-import { Redis } from '@upstash/redis'
 import crypto from 'crypto'
+import { getDb } from '../lib/mongodb'
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
-
-// Generate secure session token
 function generateSessionToken(slug) {
   return crypto.createHash('sha256')
     .update(`${slug}-${Date.now()}-${Math.random()}`)
@@ -23,45 +17,36 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Ambil data prompt dari Redis
-    const promptData = await redis.hgetall(`prompt:${slug}`)
+    const db = await getDb()
+    const promptData = await db.collection('prompts').findOne({ slug })
 
-    if (!promptData || !promptData.judul) {
+    if (!promptData) {
       return res.status(404).json({ success: false, message: 'Prompt tidak ditemukan' })
     }
 
-    // Cek apakah prompt ini di-protect
-    const isProtected = promptData.isProtected === 'true' || promptData.isProtected === true
-
-    if (!isProtected) {
+    if (!promptData.isProtected) {
       return res.status(400).json({ success: false, message: 'Prompt ini tidak diproteksi' })
     }
 
-    // Verifikasi password
     if (promptData.password === password.trim()) {
-      // Password benar! Generate secure session token
       const sessionToken = generateSessionToken(slug)
-      
-      // Simpan session token di Redis dengan TTL 1 menit (60 detik)
-      // Short-lived untuk keamanan lebih tinggi
-      await redis.setex(`session:${slug}:${sessionToken}`, 60, 'valid')
-      
-      // Set session cookie (expire saat browser/tab ditutup)
-      // Tidak pakai Max-Age = session cookie
+      const expiresAt = new Date(Date.now() + 60 * 1000)
+
+      await db.collection('prompt_sessions').insertOne({
+        slug,
+        token: sessionToken,
+        expiresAt,
+        createdAt: new Date(),
+      })
+
       res.setHeader('Set-Cookie', [
         `prompt_session_${slug}=${sessionToken}; Path=/; HttpOnly; SameSite=Strict`,
       ])
-      
-      // Return success tanpa expose token
-      return res.status(200).json({ 
-        success: true,
-        message: 'Password benar'
-      })
+
+      return res.status(200).json({ success: true, message: 'Password benar' })
     } else {
-      // Password salah
       return res.status(401).json({ success: false, message: 'Password salah!' })
     }
-
   } catch (error) {
     console.error('Error verifying password:', error)
     return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' })

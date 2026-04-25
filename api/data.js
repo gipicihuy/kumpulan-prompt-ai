@@ -1,55 +1,50 @@
-import { Redis } from '@upstash/redis'
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
+import { getDb } from '../lib/mongodb'
 
 const CONTRIBUTOR_DAILY_LIMIT = 10
 
 async function verifySession(token) {
   if (!token) return null
-  const username = await redis.get(`session:${token}`)
-  if (!username) return null
-  const userData = await redis.hgetall(`user:${username}`)
-  return { username, role: userData?.role || 'contributor', profileUrl: userData?.profileUrl || '' }
+  const db = await getDb()
+  const session = await db.collection('sessions').findOne({ token })
+  if (!session) return null
+  const user = await db.collection('users').findOne({ username: session.username })
+  return { username: session.username, role: user?.role || 'contributor', profileUrl: user?.profileUrl || '' }
 }
 
 async function handleGetPrompts(req, res) {
-  const keys = await redis.keys('prompt:*')
-  if (!keys || keys.length === 0) return res.status(200).json({ success: true, data: [] })
+  const db = await getDb()
+  const prompts = await db.collection('prompts').find({}).toArray()
+
+  if (!prompts || prompts.length === 0) return res.status(200).json({ success: true, data: [] })
 
   const data = await Promise.all(
-    keys.map(async (key) => {
-      const item = await redis.hgetall(key)
-      const cleanId = key.replace(/^prompt:/, '')
-
+    prompts.map(async (item) => {
       let profileUrl = '', isAdmin = false
       if (item.uploadedBy) {
-        const userData = await redis.hgetall(`user:${item.uploadedBy}`)
-        profileUrl = userData?.profileUrl || ''
-        isAdmin = userData?.role === 'admin'
+        const user = await db.collection('users').findOne({ username: item.uploadedBy })
+        profileUrl = user?.profileUrl || ''
+        isAdmin = user?.role === 'admin'
       }
 
-      const isProtected = item.isProtected === 'true' || item.isProtected === true
-      const analyticsData = await redis.hgetall(`analytics:${cleanId}`)
+      const isProtected = item.isProtected === true
+      const analyticsDoc = await db.collection('analytics').findOne({ slug: item.slug })
       const analytics = {
-        views:     parseInt(analyticsData?.views)     || 0,
-        copies:    parseInt(analyticsData?.copies)    || 0,
-        downloads: parseInt(analyticsData?.downloads) || 0,
+        views: analyticsDoc?.views || 0,
+        copies: analyticsDoc?.copies || 0,
+        downloads: analyticsDoc?.downloads || 0,
       }
 
       return {
-        id: cleanId,
-        kategori:    item.kategori  || 'Lainnya',
-        judul:       item.judul     || 'Tanpa Judul',
+        id: item.slug,
+        kategori: item.kategori || 'Lainnya',
+        judul: item.judul || 'Tanpa Judul',
         description: isProtected ? '' : (item.description || ''),
-        isi:         isProtected ? '🔒 This content is password protected' : (typeof item.isi === 'object' ? JSON.stringify(item.isi, null, 2) : (item.isi || '')),
-        uploadedBy:  item.uploadedBy || 'Admin',
-        createdAt:   item.createdAt  || '-',
-        imageUrl:    item.imageUrl   || '',
+        isi: isProtected ? '🔒 This content is password protected' : (item.isi || ''),
+        uploadedBy: item.uploadedBy || 'Admin',
+        createdAt: item.createdAt || '-',
+        imageUrl: item.imageUrl || '',
         profileUrl,
-        timestamp:   parseInt(item.timestamp) || 0,
+        timestamp: item.timestamp || 0,
         isProtected,
         isAdmin,
         analytics,
@@ -66,49 +61,38 @@ async function handleGetAllPrompts(req, res) {
   if (!session) return res.status(403).json({ success: false, message: 'Sesi tidak valid atau sudah expired' })
 
   const { username, role, profileUrl } = session
-  const keys = await redis.keys('prompt:*')
+  const db = await getDb()
 
-  if (!keys || keys.length === 0) {
-    const payload = { success: true, data: [], profileUrl }
-    if (role === 'contributor') {
-      const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
-      const stored = await redis.get(`ratelimit:upload:${username}:${today}`)
-      payload.quotaUsed = parseInt(stored) || 0
-      payload.quotaLimit = CONTRIBUTOR_DAILY_LIMIT
-    }
-    return res.status(200).json(payload)
-  }
+  const query = role === 'admin' ? {} : { uploadedBy: { $regex: new RegExp(`^${username}$`, 'i') } }
+  const prompts = await db.collection('prompts').find(query).toArray()
 
   const data = await Promise.all(
-    keys.map(async (key) => {
-      const item = await redis.hgetall(key)
-      if (!item || !item.judul) return null
-      if (role !== 'admin' && (item.uploadedBy || '').toLowerCase() !== username.toLowerCase()) return null
+    prompts.map(async (item) => {
+      if (!item.judul) return null
 
-      const slug = key.replace(/^prompt:/, '')
-      const analyticsData = await redis.hgetall(`analytics:${slug}`)
+      const analyticsDoc = await db.collection('analytics').findOne({ slug: item.slug })
       const analytics = {
-        views:     parseInt(analyticsData?.views)     || 0,
-        copies:    parseInt(analyticsData?.copies)    || 0,
-        downloads: parseInt(analyticsData?.downloads) || 0,
+        views: analyticsDoc?.views || 0,
+        copies: analyticsDoc?.copies || 0,
+        downloads: analyticsDoc?.downloads || 0,
       }
 
-      const uploaderData = await redis.hgetall(`user:${item.uploadedBy}`)
+      const uploaderUser = await db.collection('users').findOne({ username: item.uploadedBy })
 
       return {
-        slug,
-        kategori:    item.kategori    || 'Lainnya',
-        judul:       item.judul       || 'Tanpa Judul',
+        slug: item.slug,
+        kategori: item.kategori || 'Lainnya',
+        judul: item.judul || 'Tanpa Judul',
         description: item.description || '',
-        isi:         item.isi         || '',
-        uploadedBy:  item.uploadedBy  || username,
-        createdAt:   item.createdAt   || '-',
-        imageUrl:    item.imageUrl    || '',
-        timestamp:   parseInt(item.timestamp) || 0,
-        isProtected: item.isProtected === 'true' || item.isProtected === true,
-        password:    item.password    || '',
-        profileUrl:  uploaderData?.profileUrl || '',
-        isAdmin:     uploaderData?.role === 'admin',
+        isi: item.isi || '',
+        uploadedBy: item.uploadedBy || username,
+        createdAt: item.createdAt || '-',
+        imageUrl: item.imageUrl || '',
+        timestamp: item.timestamp || 0,
+        isProtected: item.isProtected === true,
+        password: item.password || '',
+        profileUrl: uploaderUser?.profileUrl || '',
+        isAdmin: uploaderUser?.role === 'admin',
         analytics,
       }
     })
@@ -118,10 +102,11 @@ async function handleGetAllPrompts(req, res) {
   filtered.sort((a, b) => b.timestamp - a.timestamp)
 
   const payload = { success: true, data: filtered, profileUrl }
+
   if (role === 'contributor') {
     const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
-    const stored = await redis.get(`ratelimit:upload:${username}:${today}`)
-    payload.quotaUsed = parseInt(stored) || 0
+    const rateDoc = await db.collection('ratelimits').findOne({ key: `upload:${username}:${today}` })
+    payload.quotaUsed = rateDoc?.count || 0
     payload.quotaLimit = CONTRIBUTOR_DAILY_LIMIT
   }
 
@@ -132,16 +117,16 @@ async function handleAnalytics(req, res) {
   const slug = req.method === 'GET' ? req.query.slug : req.body?.slug
   if (!slug) return res.status(400).json({ success: false, message: 'Slug diperlukan' })
 
-  const analyticsKey = `analytics:${slug}`
+  const db = await getDb()
 
   if (req.method === 'GET') {
-    const analytics = await redis.hgetall(analyticsKey)
+    const doc = await db.collection('analytics').findOne({ slug })
     return res.status(200).json({
       success: true,
       analytics: {
-        views:     parseInt(analytics?.views)     || 0,
-        copies:    parseInt(analytics?.copies)    || 0,
-        downloads: parseInt(analytics?.downloads) || 0,
+        views: doc?.views || 0,
+        copies: doc?.copies || 0,
+        downloads: doc?.downloads || 0,
       },
     })
   }
@@ -152,14 +137,20 @@ async function handleAnalytics(req, res) {
     if (!action || !fieldMap[action])
       return res.status(400).json({ success: false, message: 'Action tidak valid' })
 
-    await redis.hincrby(analyticsKey, fieldMap[action], 1)
-    const analytics = await redis.hgetall(analyticsKey)
+    const field = fieldMap[action]
+    await db.collection('analytics').updateOne(
+      { slug },
+      { $inc: { [field]: 1 } },
+      { upsert: true }
+    )
+
+    const doc = await db.collection('analytics').findOne({ slug })
     return res.status(200).json({
       success: true,
       analytics: {
-        views:     parseInt(analytics?.views)     || 0,
-        copies:    parseInt(analytics?.copies)    || 0,
-        downloads: parseInt(analytics?.downloads) || 0,
+        views: doc?.views || 0,
+        copies: doc?.copies || 0,
+        downloads: doc?.downloads || 0,
       },
     })
   }
@@ -172,10 +163,10 @@ export default async function handler(req, res) {
 
   try {
     switch (action) {
-      case 'public':    return await handleGetPrompts(req, res)
-      case 'all':       return await handleGetAllPrompts(req, res)
+      case 'public': return await handleGetPrompts(req, res)
+      case 'all': return await handleGetAllPrompts(req, res)
       case 'analytics': return await handleAnalytics(req, res)
-      default:          return res.status(400).json({ success: false, message: 'Action tidak valid' })
+      default: return res.status(400).json({ success: false, message: 'Action tidak valid' })
     }
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Terjadi kesalahan server', error: error.message })
