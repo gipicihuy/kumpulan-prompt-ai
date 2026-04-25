@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import { getDb } from '../lib/mongodb.js'
 
 const CONTRIBUTOR_DAILY_LIMIT = 10
 
