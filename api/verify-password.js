@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { getDb } from '../lib/mongodb'
+import { getDb } from '../lib/mongodb.js'
 
 function generateSessionToken(slug) {
   return crypto.createHash('sha256')
