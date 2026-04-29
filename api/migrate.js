@@ -12,6 +12,17 @@ export default async function handler(req, res) {
   }
 
   const { type } = req.query
+
+  if (type === 'index') {
+    const db = await getDb()
+    await db.collection('prompts').createIndex({ slug: 1 }, { unique: true }).catch(() => {})
+    await db.collection('analytics').createIndex({ slug: 1 }, { unique: true }).catch(() => {})
+    await db.collection('users').createIndex({ username: 1 }, { unique: true }).catch(() => {})
+    await db.collection('sessions').createIndex({ token: 1 }, { unique: true }).catch(() => {})
+    await db.collection('sessions').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }).catch(() => {})
+    return res.status(200).json({ success: true, message: 'Indexes created' })
+  }
+
   if (!type) {
     return res.status(400).json({ success: false, message: 'Tambah ?type=prompts atau analytics atau users' })
   }
