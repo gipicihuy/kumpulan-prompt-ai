@@ -1,38 +1,75 @@
-import { Redis } from '@upstash/redis'
 import { getDb } from '../lib/mongodb.js'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export default async function handler(req, res) {
-  const db = await getDb()
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  })
+  // Simple auth biar ga sembarangan di-hit
+  if (req.headers['x-migrate-secret'] !== process.env.MIGRATE_SECRET) {
+    return res.status(403).json({ success: false, message: 'Forbidden' })
+  }
 
+  const db = await getDb()
   const log = []
 
-  for (const key of await redis.keys('prompt:*')) {
-    const slug = key.replace(/^prompt:/, '')
-    const item = await redis.hgetall(key)
-    if (!item?.judul) continue
-    await db.collection('prompts').updateOne({ slug }, { $set: { slug, kategori: item.kategori || 'Lainnya', judul: item.judul, description: item.description || '', isi: item.isi || '', uploadedBy: item.uploadedBy || 'Admin', createdAt: item.createdAt || '-', imageUrl: item.imageUrl || '', timestamp: parseInt(item.timestamp) || 0, isProtected: item.isProtected === 'true', password: item.password || '' } }, { upsert: true })
-    log.push(`prompt:${slug}`)
-  }
+  try {
+    const filePath = join(process.cwd(), 'prompthub.json')
+    const raw = JSON.parse(readFileSync(filePath, 'utf8'))
+    const data = raw.databases['0']
 
-  for (const key of await redis.keys('analytics:*')) {
-    const slug = key.replace(/^analytics:/, '')
-    const item = await redis.hgetall(key)
-    if (!item) continue
-    await db.collection('analytics').updateOne({ slug }, { $set: { slug, views: parseInt(item.views) || 0, copies: parseInt(item.copies) || 0, downloads: parseInt(item.downloads) || 0 } }, { upsert: true })
-    log.push(`analytics:${slug}`)
-  }
+    for (const [key, val] of Object.entries(data)) {
+      if (key.startsWith('prompt:')) {
+        const slug = key.replace('prompt:', '')
+        if (!val.judul) continue
+        await db.collection('prompts').updateOne(
+          { slug },
+          { $set: {
+            slug,
+            kategori: val.kategori || 'Lainnya',
+            judul: val.judul,
+            description: val.description || '',
+            isi: val.isi || '',
+            uploadedBy: val.uploadedBy || 'Admin',
+            createdAt: val.createdAt || '-',
+            imageUrl: val.imageUrl || '',
+            timestamp: parseInt(val.timestamp) || 0,
+            isProtected: val.isProtected === 'true' || val.isProtected === true,
+            password: val.password || '',
+          }},
+          { upsert: true }
+        )
+        log.push(`prompt:${slug}`)
+      } else if (key.startsWith('analytics:')) {
+        const slug = key.replace('analytics:', '')
+        await db.collection('analytics').updateOne(
+          { slug },
+          { $set: {
+            slug,
+            views: parseInt(val.views) || 0,
+            copies: parseInt(val.copies) || 0,
+            downloads: parseInt(val.downloads) || 0,
+          }},
+          { upsert: true }
+        )
+        log.push(`analytics:${slug}`)
+      } else if (key.startsWith('user:')) {
+        const username = key.replace('user:', '')
+        await db.collection('users').updateOne(
+          { username },
+          { $set: {
+            username,
+            password: val.password || '',
+            role: val.role || 'contributor',
+            profileUrl: val.profileUrl || '',
+            bio: val.bio || '',
+          }},
+          { upsert: true }
+        )
+        log.push(`user:${username}`)
+      }
+    }
 
-  for (const key of await redis.keys('user:*')) {
-    const username = key.replace(/^user:/, '')
-    const item = await redis.hgetall(key)
-    if (!item) continue
-    await db.collection('users').updateOne({ username }, { $set: { username, password: item.password || '', role: item.role || 'contributor', profileUrl: item.profileUrl || '', bio: item.bio || '' } }, { upsert: true })
-    log.push(`user:${username}`)
+    return res.status(200).json({ success: true, migrated: log.length, log })
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message })
   }
-
-  return res.status(200).json({ success: true, migrated: log })
 }
