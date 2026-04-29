@@ -2,6 +2,10 @@ import { getDb } from '../lib/mongodb.js'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
+export const config = {
+  maxDuration: 60,
+}
+
 export default async function handler(req, res) {
   // Simple auth biar ga sembarangan di-hit
   if (req.headers['x-migrate-secret'] !== process.env.MIGRATE_SECRET) {
