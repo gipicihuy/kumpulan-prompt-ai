@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { getDb } from '../lib/mongodb'
+import { getDb } from '../lib/mongodb.js'
 
 const MAX_ATTEMPTS = 5
 const LOCKOUT_SECONDS = 15 * 60
