@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type'
 import FormData from 'form-data'
 import fetch from 'node-fetch'
 import crypto from 'crypto'
-import { getDb } from '../lib/mongodb'
+import { getDb } from '../lib/mongodb.js'
 
 export const config = {
   api: {
