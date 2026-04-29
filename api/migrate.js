@@ -7,9 +7,13 @@ export const config = {
 }
 
 export default async function handler(req, res) {
-  // Simple auth biar ga sembarangan di-hit
   if (req.headers['x-migrate-secret'] !== process.env.MIGRATE_SECRET) {
     return res.status(403).json({ success: false, message: 'Forbidden' })
+  }
+
+  const { type } = req.query // 'prompts' | 'analytics' | 'users'
+  if (!type) {
+    return res.status(400).json({ success: false, message: 'Tambah ?type=prompts atau analytics atau users' })
   }
 
   const db = await getDb()
@@ -21,7 +25,7 @@ export default async function handler(req, res) {
     const data = raw.databases['0']
 
     for (const [key, val] of Object.entries(data)) {
-      if (key.startsWith('prompt:')) {
+      if (type === 'prompts' && key.startsWith('prompt:')) {
         const slug = key.replace('prompt:', '')
         if (!val.judul) continue
         await db.collection('prompts').updateOne(
@@ -41,8 +45,9 @@ export default async function handler(req, res) {
           }},
           { upsert: true }
         )
-        log.push(`prompt:${slug}`)
-      } else if (key.startsWith('analytics:')) {
+        log.push(slug)
+
+      } else if (type === 'analytics' && key.startsWith('analytics:')) {
         const slug = key.replace('analytics:', '')
         await db.collection('analytics').updateOne(
           { slug },
@@ -54,8 +59,9 @@ export default async function handler(req, res) {
           }},
           { upsert: true }
         )
-        log.push(`analytics:${slug}`)
-      } else if (key.startsWith('user:')) {
+        log.push(slug)
+
+      } else if (type === 'users' && key.startsWith('user:')) {
         const username = key.replace('user:', '')
         await db.collection('users').updateOne(
           { username },
@@ -68,11 +74,11 @@ export default async function handler(req, res) {
           }},
           { upsert: true }
         )
-        log.push(`user:${username}`)
+        log.push(username)
       }
     }
 
-    return res.status(200).json({ success: true, migrated: log.length, log })
+    return res.status(200).json({ success: true, type, migrated: log.length, log })
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message })
   }
