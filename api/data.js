@@ -13,46 +13,50 @@ async function verifySession(token) {
 
 async function handleGetPrompts(req, res) {
   const db = await getDb()
-  const prompts = await db.collection('prompts').find({}).toArray()
+
+  const [prompts, allUsers, allAnalytics] = await Promise.all([
+    db.collection('prompts').find({}, { projection: { password: 0 } }).toArray(),
+    db.collection('users').find({}, { projection: { username: 1, profileUrl: 1, role: 1 } }).toArray(),
+    db.collection('analytics').find({}).toArray(),
+  ])
 
   if (!prompts || prompts.length === 0) return res.status(200).json({ success: true, data: [] })
 
-  const data = await Promise.all(
-    prompts.map(async (item) => {
-      let profileUrl = '', isAdmin = false
-      if (item.uploadedBy) {
-        const user = await db.collection('users').findOne({ username: item.uploadedBy })
-        profileUrl = user?.profileUrl || ''
-        isAdmin = user?.role === 'admin'
-      }
+  const userMap = {}
+  for (const u of allUsers) userMap[u.username] = u
 
-      const isProtected = item.isProtected === true
-      const analyticsDoc = await db.collection('analytics').findOne({ slug: item.slug })
-      const analytics = {
-        views: analyticsDoc?.views || 0,
-        copies: analyticsDoc?.copies || 0,
-        downloads: analyticsDoc?.downloads || 0,
-      }
+  const analyticsMap = {}
+  for (const a of allAnalytics) analyticsMap[a.slug] = a
 
-      return {
-        id: item.slug,
-        kategori: item.kategori || 'Lainnya',
-        judul: item.judul || 'Tanpa Judul',
-        description: isProtected ? '' : (item.description || ''),
-        isi: isProtected ? '🔒 This content is password protected' : (item.isi || ''),
-        uploadedBy: item.uploadedBy || 'Admin',
-        createdAt: item.createdAt || '-',
-        imageUrl: item.imageUrl || '',
-        profileUrl,
-        timestamp: item.timestamp || 0,
-        isProtected,
-        isAdmin,
-        analytics,
-      }
-    })
-  )
+  const data = prompts.map((item) => {
+    const user = item.uploadedBy ? userMap[item.uploadedBy] : null
+    const isProtected = item.isProtected === true
+    const ana = analyticsMap[item.slug] || {}
+
+    return {
+      id: item.slug,
+      kategori: item.kategori || 'Lainnya',
+      judul: item.judul || 'Tanpa Judul',
+      description: isProtected ? '' : (item.description || ''),
+      isi: isProtected ? '🔒 This content is password protected' : (item.isi || ''),
+      uploadedBy: item.uploadedBy || 'Admin',
+      createdAt: item.createdAt || '-',
+      imageUrl: item.imageUrl || '',
+      profileUrl: user?.profileUrl || '',
+      timestamp: item.timestamp || 0,
+      isProtected,
+      isAdmin: user?.role === 'admin' || false,
+      analytics: {
+        views: ana.views || 0,
+        copies: ana.copies || 0,
+        downloads: ana.downloads || 0,
+      },
+    }
+  })
 
   data.sort((a, b) => b.timestamp - a.timestamp)
+
+  res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=59')
   return res.status(200).json({ success: true, data })
 }
 
@@ -64,20 +68,24 @@ async function handleGetAllPrompts(req, res) {
   const db = await getDb()
 
   const query = role === 'admin' ? {} : { uploadedBy: { $regex: new RegExp(`^${username}$`, 'i') } }
-  const prompts = await db.collection('prompts').find(query).toArray()
 
-  const data = await Promise.all(
-    prompts.map(async (item) => {
-      if (!item.judul) return null
+  const [prompts, allUsers, allAnalytics] = await Promise.all([
+    db.collection('prompts').find(query).toArray(),
+    db.collection('users').find({}, { projection: { username: 1, profileUrl: 1, role: 1 } }).toArray(),
+    db.collection('analytics').find({}).toArray(),
+  ])
 
-      const analyticsDoc = await db.collection('analytics').findOne({ slug: item.slug })
-      const analytics = {
-        views: analyticsDoc?.views || 0,
-        copies: analyticsDoc?.copies || 0,
-        downloads: analyticsDoc?.downloads || 0,
-      }
+  const userMap = {}
+  for (const u of allUsers) userMap[u.username] = u
 
-      const uploaderUser = await db.collection('users').findOne({ username: item.uploadedBy })
+  const analyticsMap = {}
+  for (const a of allAnalytics) analyticsMap[a.slug] = a
+
+  const data = prompts
+    .filter(item => item.judul)
+    .map((item) => {
+      const uploaderUser = userMap[item.uploadedBy]
+      const ana = analyticsMap[item.slug] || {}
 
       return {
         slug: item.slug,
@@ -92,16 +100,18 @@ async function handleGetAllPrompts(req, res) {
         isProtected: item.isProtected === true,
         password: item.password || '',
         profileUrl: uploaderUser?.profileUrl || '',
-        isAdmin: uploaderUser?.role === 'admin',
-        analytics,
+        isAdmin: uploaderUser?.role === 'admin' || false,
+        analytics: {
+          views: ana.views || 0,
+          copies: ana.copies || 0,
+          downloads: ana.downloads || 0,
+        },
       }
     })
-  )
 
-  const filtered = data.filter(Boolean)
-  filtered.sort((a, b) => b.timestamp - a.timestamp)
+  data.sort((a, b) => b.timestamp - a.timestamp)
 
-  const payload = { success: true, data: filtered, profileUrl }
+  const payload = { success: true, data, profileUrl }
 
   if (role === 'contributor') {
     const today = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta' }).replace(/\//g, '-')
