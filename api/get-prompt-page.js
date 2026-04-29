@@ -243,9 +243,13 @@ export default async function handler(req, res) {
 
     return res.status(200).send(renderNormalPage(slug, promptData, profileUrl, analytics, uploaderIsAdmin));
 
-  } catch (error) {
+} catch (error) {
     console.error('Error in get-prompt-page:', error);
-    res.status(500).send(`Error: ${error.message}`);
+    res.status(500).json({ 
+      error: error.message, 
+      stack: error.stack,
+      name: error.name 
+    });
   }
 }
 
