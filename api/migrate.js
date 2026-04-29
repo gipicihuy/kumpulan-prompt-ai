@@ -11,74 +11,77 @@ export default async function handler(req, res) {
     return res.status(403).json({ success: false, message: 'Forbidden' })
   }
 
-  const { type } = req.query // 'prompts' | 'analytics' | 'users'
+  const { type } = req.query
   if (!type) {
     return res.status(400).json({ success: false, message: 'Tambah ?type=prompts atau analytics atau users' })
   }
 
   const db = await getDb()
-  const log = []
 
   try {
     const filePath = join(process.cwd(), 'prompthub.json')
     const raw = JSON.parse(readFileSync(filePath, 'utf8'))
     const data = raw.databases['0']
 
+    const docs = []
+
     for (const [key, val] of Object.entries(data)) {
       if (type === 'prompts' && key.startsWith('prompt:')) {
         const slug = key.replace('prompt:', '')
         if (!val.judul) continue
-        await db.collection('prompts').updateOne(
-          { slug },
-          { $set: {
-            slug,
-            kategori: val.kategori || 'Lainnya',
-            judul: val.judul,
-            description: val.description || '',
-            isi: val.isi || '',
-            uploadedBy: val.uploadedBy || 'Admin',
-            createdAt: val.createdAt || '-',
-            imageUrl: val.imageUrl || '',
-            timestamp: parseInt(val.timestamp) || 0,
-            isProtected: val.isProtected === 'true' || val.isProtected === true,
-            password: val.password || '',
-          }},
-          { upsert: true }
-        )
-        log.push(slug)
-
+        docs.push({
+          slug,
+          kategori: val.kategori || 'Lainnya',
+          judul: val.judul,
+          description: val.description || '',
+          isi: val.isi || '',
+          uploadedBy: val.uploadedBy || 'Admin',
+          createdAt: val.createdAt || '-',
+          imageUrl: val.imageUrl || '',
+          timestamp: parseInt(val.timestamp) || 0,
+          isProtected: val.isProtected === 'true' || val.isProtected === true,
+          password: val.password || '',
+        })
       } else if (type === 'analytics' && key.startsWith('analytics:')) {
         const slug = key.replace('analytics:', '')
-        await db.collection('analytics').updateOne(
-          { slug },
-          { $set: {
-            slug,
-            views: parseInt(val.views) || 0,
-            copies: parseInt(val.copies) || 0,
-            downloads: parseInt(val.downloads) || 0,
-          }},
-          { upsert: true }
-        )
-        log.push(slug)
-
+        docs.push({
+          slug,
+          views: parseInt(val.views) || 0,
+          copies: parseInt(val.copies) || 0,
+          downloads: parseInt(val.downloads) || 0,
+        })
       } else if (type === 'users' && key.startsWith('user:')) {
         const username = key.replace('user:', '')
-        await db.collection('users').updateOne(
-          { username },
-          { $set: {
-            username,
-            password: val.password || '',
-            role: val.role || 'contributor',
-            profileUrl: val.profileUrl || '',
-            bio: val.bio || '',
-          }},
-          { upsert: true }
-        )
-        log.push(username)
+        docs.push({
+          username,
+          password: val.password || '',
+          role: val.role || 'contributor',
+          profileUrl: val.profileUrl || '',
+          bio: val.bio || '',
+        })
       }
     }
 
-    return res.status(200).json({ success: true, type, migrated: log.length, log })
+    // Bulk upsert
+    const collection = db.collection(type)
+    const idField = type === 'users' ? 'username' : 'slug'
+    const ops = docs.map(doc => ({
+      updateOne: {
+        filter: { [idField]: doc[idField] },
+        update: { $set: doc },
+        upsert: true,
+      }
+    }))
+
+    const result = await collection.bulkWrite(ops, { ordered: false })
+
+    return res.status(200).json({
+      success: true,
+      type,
+      migrated: docs.length,
+      upserted: result.upsertedCount,
+      modified: result.modifiedCount,
+    })
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message })
   }
