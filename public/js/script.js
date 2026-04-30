@@ -34,17 +34,7 @@ function getCategoryBadgeHtml(kategori, extraClass = '') {
     const label = toTitleCase(kategori);
     const key = kategori.toLowerCase().trim();
 
-    const categoryLogos = {
-        'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.svg',
-        'art': '/assets/art.svg',
-        'chatgpt': '/assets/chatgpt-icon.svg',
-        'claude': '/assets/claude-icon.svg?v5=',
-        'coding': '/assets/coding.svg',
-        'combined': '/assets/images.svg',
-    };
-
-    const logoUrl = categoryLogos[key];
+    const logoUrl = CATEGORY_LOGOS[key];
     const logoHtml = logoUrl
         ? `<img src="${logoUrl}" alt="${label}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;background:transparent;">`
         : '';
@@ -97,21 +87,11 @@ function renderCategoryPills() {
     const totalCount = allPrompts.length;
     const categories = ['all', ...Object.keys(categoriesMap)];
 
-    const categoryLogos = {
-        'gemini': '/assets/gemini-color.svg',
-        'jailbreak': '/assets/jb.svg',
-        'art': '/assets/art.svg',
-        'chatgpt': '/assets/chatgpt-icon.svg',
-        'claude': '/assets/claude-icon.svg?v5=',
-        'coding': '/assets/coding.svg',
-        'combined': '/assets/images.svg',
-    };
-
     pillsContainer.innerHTML = categories.map(cat => {
         const label = cat === 'all' ? 'All' : categoriesMap[cat];
         const count = cat === 'all' ? totalCount : categoryCounts[cat];
         const isActive = selectedCategory === cat;
-        const logoUrl = cat !== 'all' ? categoryLogos[cat] : null;
+        const logoUrl = cat !== 'all' ? CATEGORY_LOGOS[cat] : null;
         const logoHtml = logoUrl
             ? `<img src="${logoUrl}" alt="${label}" style="width:11px;height:11px;object-fit:contain;flex-shrink:0;background:transparent;${isActive ? '' : 'opacity:0.7'}">`
             : '';
