@@ -66,15 +66,7 @@ function fmt(num) {
   return num.toString();
 }
 
-const CATEGORY_LOGOS = {
-  'gemini': '/assets/gemini-color.svg',
-  'jailbreak': '/assets/jb.svg',
-  'art': '/assets/art.svg',
-  'chatgpt': '/assets/chatgpt-icon.svg',
-  'claude': '/assets/claude-icon.svg?v5=',
-  'coding': '/assets/coding.svg',
-  'combined': '/assets/images.svg',
-};
+import { CATEGORY_LOGOS } from '../public/js/categories.js'
 
 function categoryBadgeHtml(kategori) {
   const key = (kategori || '').toLowerCase().trim();
@@ -335,12 +327,7 @@ function renderProfileHtml(res, username, profileUrl, prompts, stats, ownerIsAdm
     const preview = isProtected ? '🔒 This content is password protected. Click to unlock.' : (item.isi || '');
     const ana = item.analytics || { views: 0, copies: 0, downloads: 0 };
     const catKey = (item.kategori || '').toLowerCase().trim();
-    const catLogos = {
-      'gemini': '/assets/gemini-color.svg', 'jailbreak': '/assets/jb.svg',
-      'art': '/assets/art.svg', 'chatgpt': '/assets/chatgpt-icon.svg', 'claude': '/assets/claude-icon.svg?v5=',
-      'coding': '/assets/coding.svg', 'combined': '/assets/images.svg',
-    };
-    const catLogo = catLogos[catKey];
+    const catLogo = CATEGORY_LOGOS[catKey];
     const catLogoHtml = catLogo ? `<img src="${catLogo}" alt="${item.kategori}" style="width:13px;height:13px;object-fit:contain;flex-shrink:0;">` : '';
     const catLabel = toTitleCase(item.kategori || 'Lainnya');
 
