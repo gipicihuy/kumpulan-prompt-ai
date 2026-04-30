@@ -66,7 +66,7 @@ function fmt(num) {
   return num.toString();
 }
 
-import { CATEGORY_LOGOS } from '../public/js/categories.js'
+import { CATEGORY_LOGOS } from '../lib/categories.js'
 
 function categoryBadgeHtml(kategori) {
   const key = (kategori || '').toLowerCase().trim();
