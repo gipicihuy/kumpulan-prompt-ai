@@ -1,6 +1,6 @@
 const CATEGORY_LOGOS = {
     'gemini':   '/assets/gemini-color.svg',
-    'game': '/assets/game.svg',
+    'game': '/assets/game.svg?v1=',
     'jailbreak':'/assets/jb.svg',
     'art':      '/assets/art.svg',
     'chatgpt':  '/assets/chatgpt-icon.svg',
