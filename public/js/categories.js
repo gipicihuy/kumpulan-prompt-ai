@@ -1,4 +1,4 @@
-export const CATEGORY_LOGOS = {
+const CATEGORY_LOGOS = {
     'gemini':   '/assets/gemini-color.svg',
     'jailbreak':'/assets/jb.svg',
     'art':      '/assets/art.svg',
