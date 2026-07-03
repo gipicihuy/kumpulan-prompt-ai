@@ -8,8 +8,8 @@ const notyf = new Notyf({
 let allPrompts = [];
 let selectedCategory = 'all';
 let currentSort = 'newest';
-let currentPage = 1;
 const ITEMS_PER_PAGE = 12;
+let visibleCount = ITEMS_PER_PAGE;
 
 function toTitleCase(str) {
     const specialCases = {
@@ -122,7 +122,7 @@ function setupScrollFade(scroller, wrapper) {
 
 function setCategory(cat) {
     selectedCategory = cat;
-    currentPage = 1;
+    visibleCount = ITEMS_PER_PAGE;
     renderCategoryPills();
     applyFilters();
 }
@@ -166,7 +166,7 @@ sortOptions.forEach(option => {
         sortOptions.forEach(o => o.classList.remove('active'));
         option.classList.add('active');
         currentSort = option.dataset.sort;
-        currentPage = 1;
+        visibleCount = ITEMS_PER_PAGE;
         updateSortIndicator();
         sortDropdown.classList.remove('show');
         sortBtn.classList.remove('open');
@@ -233,10 +233,7 @@ function renderPrompts(data) {
         if (pagination) pagination.innerHTML = '';
         return;
     }
-    const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
-    if (currentPage > totalPages) currentPage = totalPages;
-    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageData = data.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    const pageData = data.slice(0, visibleCount);
     container.innerHTML = pageData.map(item => {
         const profilePicHtml = item.profileUrl && item.profileUrl.trim() !== ''
             ? `<img src="${item.profileUrl}" class="w-7 h-7 rounded-full object-cover" style="border: 1px solid var(--border)" alt="${item.uploadedBy}">`
@@ -278,24 +275,21 @@ function renderPrompts(data) {
         </a>`;
     }).join('');
     updateAllTimeAgo();
-    renderPaginationControls(totalPages);
+    renderLoadMoreControl(data.length);
 }
 
-function renderPaginationControls(totalPages) {
+function renderLoadMoreControl(totalCount) {
     const pagination = document.getElementById('pagination');
     if (!pagination) return;
-    if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+    if (visibleCount >= totalCount) { pagination.innerHTML = ''; return; }
     pagination.innerHTML = `
-        <button class="px-4 py-2 rounded-lg text-xs font-bold uppercase" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-primary); ${currentPage === 1 ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="goToPage(${currentPage - 1})"><i class="fa-solid fa-chevron-left mr-1"></i>Prev</button>
-        <span class="text-xs font-bold" style="color: var(--text-muted)">${currentPage} / ${totalPages}</span>
-        <button class="px-4 py-2 rounded-lg text-xs font-bold uppercase" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-primary); ${currentPage === totalPages ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="goToPage(${currentPage + 1})">Next<i class="fa-solid fa-chevron-right ml-1"></i></button>
+        <button class="px-6 py-2.5 rounded-lg text-xs font-bold uppercase" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-primary);" onclick="loadMore()">Load More<i class="fa-solid fa-chevron-down ml-2"></i></button>
     `;
 }
 
-function goToPage(page) {
-    currentPage = page;
+function loadMore() {
+    visibleCount += ITEMS_PER_PAGE;
     applyFilters();
-    document.getElementById('content').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 setInterval(async () => {
