@@ -282,8 +282,12 @@ function renderLoadMoreControl(totalCount) {
     const pagination = document.getElementById('pagination');
     if (!pagination) return;
     if (visibleCount >= totalCount) { pagination.innerHTML = ''; return; }
+    const remaining = totalCount - visibleCount;
     pagination.innerHTML = `
-        <button class="px-6 py-2.5 rounded-lg text-xs font-bold uppercase" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-primary);" onclick="loadMore()">Load More<i class="fa-solid fa-chevron-down ml-2"></i></button>
+        <button class="load-more-btn" onclick="loadMore()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Muat ${Math.min(remaining, ITEMS_PER_PAGE)} Lagi</span>
+        </button>
     `;
 }
 
