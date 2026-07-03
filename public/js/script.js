@@ -285,8 +285,7 @@ function renderLoadMoreControl(totalCount) {
     const remaining = totalCount - visibleCount;
     pagination.innerHTML = `
         <button class="load-more-btn" onclick="loadMore()">
-            <i class="fa-solid fa-plus"></i>
-            <span>Muat ${Math.min(remaining, ITEMS_PER_PAGE)} Lagi</span>
+            <span>See ${Math.min(remaining, ITEMS_PER_PAGE)} More</span>
         </button>
     `;
 }
