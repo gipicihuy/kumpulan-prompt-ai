@@ -451,6 +451,7 @@
             </div>
         </div>
         <div id="content" class="space-y-4"></div>
+        <div id="pagination" class="flex items-center justify-center gap-3 mt-6"></div>
     </main>
 
     <footer class="py-4 text-center mt-8">
@@ -550,12 +551,13 @@
         searchInput.addEventListener('input', () => {
             clearSearch.classList.toggle('visible', searchInput.value.length > 0);
             clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => { applyFilters(); }, 200);
+            searchDebounceTimer = setTimeout(() => { currentPage = 1; applyFilters(); }, 200);
         });
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
             clearSearch.classList.remove('visible');
             clearTimeout(searchDebounceTimer);
+            currentPage = 1;
             applyFilters();
             searchInput.focus();
         });
