@@ -346,6 +346,30 @@
         }
         #installBtn:hover { border-color: var(--border-hover); }
 
+        .load-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            border-radius: 999px;
+            border: none;
+            background: var(--text-primary);
+            color: var(--bg-base);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(128,128,128,0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .load-more-btn i { font-size: 0.7rem; }
+        .load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(128,128,128,0.35);
+        }
+        .load-more-btn:active { transform: translateY(0) scale(0.97); }
+
         @media (max-width: 767px) {
             #sidebar-right { transform: translateX(100%); }
             #sidebar-right.open { transform: translateX(0); }
