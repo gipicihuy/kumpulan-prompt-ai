@@ -504,7 +504,7 @@
 
     <script src="/js/timeago.js"></script>
     <script src="/js/categories.js?v=4"></script>
-    <script src="/js/script.js?v=90"></script>
+    <script src="/js/script.js?v=91"></script>
     <script>
         (function() {
             var STORAGE_KEY = 'prompthub-theme';
@@ -551,13 +551,13 @@
         searchInput.addEventListener('input', () => {
             clearSearch.classList.toggle('visible', searchInput.value.length > 0);
             clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(() => { currentPage = 1; applyFilters(); }, 200);
+            searchDebounceTimer = setTimeout(() => { visibleCount = ITEMS_PER_PAGE; applyFilters(); }, 200);
         });
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
             clearSearch.classList.remove('visible');
             clearTimeout(searchDebounceTimer);
-            currentPage = 1;
+            visibleCount = ITEMS_PER_PAGE;
             applyFilters();
             searchInput.focus();
         });
